@@ -35,6 +35,18 @@ var Collapsed = {
   make: App$Collapsed
 };
 
+function App$CollapsedTri(Props) {
+  var render = Props.render;
+  var match = React.useState(function () {
+        return /* One */0;
+      });
+  return Curry._2(render, match[0], match[1]);
+}
+
+var CollapsedTri = {
+  make: App$CollapsedTri
+};
+
 var make = SVGJsx.SVG;
 
 var SVG = {
@@ -256,6 +268,87 @@ function groupBySpecies(groupedByCount) {
 
 var result = groupBySpecies(groupByCount(Belt_Array.map(getBitStrings(12), stringToArray)));
 
+var keys = [
+  "C",
+  "C♯/D♭",
+  "D",
+  "D♯/E♭",
+  "E",
+  "F",
+  "F♯/G♭",
+  "G",
+  "G♯/A♭",
+  "A",
+  "A♯/B♭",
+  "B"
+];
+
+var keysShort = [
+  "C",
+  "C♯",
+  "D",
+  "D♯",
+  "E",
+  "F",
+  "F♯",
+  "G",
+  "G♯",
+  "A",
+  "A♯",
+  "B"
+];
+
+function App$Scale(Props) {
+  var onClick = Props.onClick;
+  var bitString = Props.bitString;
+  var currentKey = Props.currentKey;
+  var kind = Props.kind;
+  var selected = Props.selected;
+  return React.createElement("div", {
+              className: [
+                  " flex flex-row rounded-sm",
+                  kind ? (
+                      selected ? "bg-blue-300" : ""
+                    ) : "font-bold"
+                ].join(" "),
+              onClick: onClick
+            }, Belt_Array.mapWithIndex(Array.from(bitString), (function (i, bit) {
+                    return React.createElement("div", {
+                                className: [
+                                    (Belt_Option.isSome(currentKey), "w-5"),
+                                    "flex flex-row justify-center"
+                                  ].join(" ")
+                              }, Belt_Option.mapWithDefault(currentKey, bit, (function (shift) {
+                                      if (bit === "0") {
+                                        return "-";
+                                      } else {
+                                        return Belt_Option.getWithDefault(Belt_Array.get(cycleArray(keysShort, shift), i), "");
+                                      }
+                                    })));
+                  })));
+}
+
+var Scale = {
+  make: App$Scale
+};
+
+function App$Key(Props) {
+  var selected = Props.selected;
+  var onClick = Props.onClick;
+  var children = Props.children;
+  return React.createElement("div", {
+              className: [
+                  selected ? "bg-blue-300" : "",
+                  "rounded p-1 pl-2"
+                ].join(" "),
+              onClick: onClick
+            }, children);
+}
+
+var Key = {
+  make: App$Key
+};
+
 function App(Props) {
   var match = React.useState(function () {
         
@@ -267,34 +360,6 @@ function App(Props) {
       });
   var setCurrentKey = match$1[1];
   var currentKey = match$1[0];
-  var keys = [
-    "C",
-    "C♯/D♭",
-    "D",
-    "D♯/E♭",
-    "E",
-    "F",
-    "F♯/G♭",
-    "G",
-    "G♯/A♭",
-    "A",
-    "A♯/B♭",
-    "B"
-  ];
-  var keysShort = [
-    "C",
-    "C♯",
-    "D",
-    "D♯",
-    "E",
-    "F",
-    "F♯",
-    "G",
-    "G♯",
-    "A",
-    "A♯",
-    "B"
-  ];
   var graphKeys = Belt_Option.mapWithDefault(currentKey, Belt_Array.mapWithIndex(keys, (function (i, param) {
               return String(i);
             })), (function (shift) {
@@ -308,56 +373,79 @@ function App(Props) {
   return React.createElement("div", {
               className: "flex flex-row h-screen w-screen font-mono"
             }, React.createElement("div", {
-                  className: " h-full flex flex-col px-4"
+                  className: " h-full flex flex-col p-4"
                 }, React.createElement("div", {
                       className: "h-80 w-80"
                     }, React.createElement(make, {
                           data: Belt_Array.zip(graphKeys, graphBits)
                         })), React.createElement("div", {
-                      className: "flex-1 overflow-scroll p-1"
-                    }, React.createElement("div", {
-                          className: Belt_Option.isNone(currentKey) ? "bg-blue-300" : "",
+                      className: "flex-1 overflow-scroll p-1 border rounded"
+                    }, React.createElement(App$Key, {
+                          selected: Belt_Option.isNone(currentKey),
                           onClick: (function (param) {
                               Curry._1(setCurrentKey, (function (param) {
                                       
                                     }));
-                            })
-                        }, "None"), Belt_Array.mapWithIndex(keys, (function (i, v) {
+                            }),
+                          children: "None"
+                        }), Belt_Array.mapWithIndex(keys, (function (i, v) {
                             var selected = Belt_Option.mapWithDefault(currentKey, false, (function (c) {
                                     return c === i;
                                   }));
-                            return React.createElement("div", {
-                                        className: selected ? "bg-blue-300" : "",
+                            return React.createElement(App$Key, {
+                                        selected: selected,
                                         onClick: (function (param) {
                                             Curry._1(setCurrentKey, (function (param) {
                                                     return i;
                                                   }));
-                                          })
-                                      }, v);
+                                          }),
+                                        children: v
+                                      });
                           })))), React.createElement("div", {
                   className: "flex-1 h-full overflow-scroll px-4"
                 }, Belt_Array.map(Belt_MapInt.toArray(result), (function (param) {
                         var v = param[1];
                         var k = param[0];
-                        return React.createElement(App$Collapsed, {
-                                    render: (function (numCollapsedState, setNumCollapsedState) {
+                        return React.createElement(App$CollapsedTri, {
+                                    render: (function (genusCollapsedState, setGenusCollapsedState) {
+                                        var tmp;
+                                        switch (genusCollapsedState) {
+                                          case /* One */0 :
+                                              tmp = "hidden";
+                                              break;
+                                          case /* Two */1 :
+                                              tmp = "max-h-64";
+                                              break;
+                                          case /* Three */2 :
+                                              tmp = "";
+                                              break;
+                                          
+                                        }
                                         return React.createElement("div", {
                                                     className: "mb-1"
                                                   }, React.createElement("div", {
-                                                        className: "flex flex-row w-20 ",
+                                                        className: "flex flex-row items-center  ",
                                                         onClick: (function (param) {
-                                                            Curry._1(setNumCollapsedState, (function (x) {
-                                                                    return !x;
+                                                            Curry._1(setGenusCollapsedState, (function (s) {
+                                                                    switch (s) {
+                                                                      case /* One */0 :
+                                                                          return /* Two */1;
+                                                                      case /* Two */1 :
+                                                                          return /* Three */2;
+                                                                      case /* Three */2 :
+                                                                          return /* One */0;
+                                                                      
+                                                                    }
                                                                   }));
                                                           })
                                                       }, React.createElement("div", {
-                                                            className: "flex-1 text-red-500"
+                                                            className: "flex-1 text-lg"
                                                           }, String(k)), React.createElement("div", {
-                                                            className: "flex-1 text-blue-500"
-                                                          }, String(Belt_MapString.toArray(v).length))), React.createElement("div", {
+                                                            className: "flex-1 text-sm whitespace-nowrap"
+                                                          }, "count: ", String(Belt_MapString.toArray(v).length))), React.createElement("div", {
                                                         className: [
-                                                            numCollapsedState ? "hidden" : "",
-                                                            "max-h-64 overflow-scroll pr-4 border"
+                                                            tmp,
+                                                            "overflow-scroll p-2 pb-6 border"
                                                           ].join(" ")
                                                       }, Belt_Array.map(Belt_Array.reverse(Belt_MapString.toArray(v)), (function (param) {
                                                               var match = param[1];
@@ -365,37 +453,32 @@ function App(Props) {
                                                               var autoCorrelations = match.autoCorrelations;
                                                               var numOfModes = match.numOfModes;
                                                               var modes = match.modes;
-                                                              var k2 = param[0];
+                                                              var species = param[0];
                                                               return React.createElement(App$Collapsed, {
                                                                           render: (function (speciesCollapsedState, setSpeciesCollapsedState) {
+                                                                              any(modes, (function (mode) {
+                                                                                      return Belt_Option.mapWithDefault(currentBits, false, (function (c) {
+                                                                                                    return intArrayToString(c) === arrayToString(mode);
+                                                                                                  }));
+                                                                                    }));
                                                                               return React.createElement("div", {
-                                                                                          className: ""
+                                                                                          className: [""].join(" ")
                                                                                         }, React.createElement("div", {
-                                                                                              className: "flex flex-row justify-start gap-3"
-                                                                                            }, React.createElement("div", {
-                                                                                                  className: "font-bold font-mono flex flex-row ",
+                                                                                              className: "flex flex-row items-center justify-start gap-3"
+                                                                                            }, React.createElement(App$Scale, {
                                                                                                   onClick: (function (param) {
                                                                                                       Curry._1(setSpeciesCollapsedState, (function (x) {
                                                                                                               return !x;
                                                                                                             }));
                                                                                                       Curry._1(setCurrentBits, (function (param) {
-                                                                                                              return stringArrayToIntArray(Array.from(k2));
+                                                                                                              return stringArrayToIntArray(Array.from(species));
                                                                                                             }));
-                                                                                                    })
-                                                                                                }, Belt_Array.mapWithIndex(Array.from(k2), (function (i, bit) {
-                                                                                                        return React.createElement("div", {
-                                                                                                                    className: [
-                                                                                                                        (Belt_Option.isSome(currentKey), "w-5"),
-                                                                                                                        "flex flex-row justify-center"
-                                                                                                                      ].join(" ")
-                                                                                                                  }, Belt_Option.mapWithDefault(currentKey, bit, (function (shift) {
-                                                                                                                          if (bit === "0") {
-                                                                                                                            return "-";
-                                                                                                                          } else {
-                                                                                                                            return Belt_Option.getWithDefault(Belt_Array.get(cycleArray(keysShort, shift), i), "");
-                                                                                                                          }
-                                                                                                                        })));
-                                                                                                      }))), React.createElement("div", {
+                                                                                                    }),
+                                                                                                  bitString: species,
+                                                                                                  currentKey: currentKey,
+                                                                                                  kind: /* Species */0,
+                                                                                                  selected: false
+                                                                                                }), React.createElement("div", {
                                                                                                   className: "w-6"
                                                                                                 }, isSymmetric ? "x" : ""), React.createElement("div", {
                                                                                                   className: " text-green-500"
@@ -404,20 +487,23 @@ function App(Props) {
                                                                                                 }, "[" + autoCorrelations.join(", ") + "]")), React.createElement("div", {
                                                                                               className: [
                                                                                                   speciesCollapsedState ? "hidden " : "",
-                                                                                                  "mb-2"
+                                                                                                  "pt-0.5 pb-2 border-t border-neutral-700"
                                                                                                 ].join(" ")
-                                                                                            }, Belt_Array.map(modes, (function (x) {
+                                                                                            }, Belt_Array.map(modes, (function (mode) {
                                                                                                     var selected = Belt_Option.mapWithDefault(currentBits, false, (function (c) {
-                                                                                                            return intArrayToString(c) === arrayToString(x);
+                                                                                                            return intArrayToString(c) === arrayToString(mode);
                                                                                                           }));
-                                                                                                    return React.createElement("div", {
-                                                                                                                className: selected ? "bg-blue-300" : "",
+                                                                                                    return React.createElement(App$Scale, {
                                                                                                                 onClick: (function (param) {
                                                                                                                     Curry._1(setCurrentBits, (function (param) {
-                                                                                                                            return stringArrayToIntArray(x);
+                                                                                                                            return stringArrayToIntArray(mode);
                                                                                                                           }));
-                                                                                                                  })
-                                                                                                              }, arrayToString(x));
+                                                                                                                  }),
+                                                                                                                bitString: arrayToString(mode),
+                                                                                                                currentKey: currentKey,
+                                                                                                                kind: /* Mode */1,
+                                                                                                                selected: selected
+                                                                                                              });
                                                                                                   }))));
                                                                             })
                                                                         });
@@ -435,6 +521,7 @@ export {
   join ,
   any ,
   Collapsed ,
+  CollapsedTri ,
   SVG ,
   Config ,
   reactMap ,
@@ -459,6 +546,10 @@ export {
   hasBilateralSymmetry ,
   groupBySpecies ,
   result ,
+  keys ,
+  keysShort ,
+  Scale ,
+  Key ,
   make$1 as make,
   $$default ,
   $$default as default,

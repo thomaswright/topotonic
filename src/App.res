@@ -21,6 +21,17 @@ module Collapsed = {
   }
 }
 
+type triSwitch = One | Two | Three
+
+module CollapsedTri = {
+  @react.component
+  let make = (~render) => {
+    let (state, set) = React.useState(() => One)
+
+    render(state, set)
+  }
+}
+
 module SVG = {
   @module("./SVG.jsx") @react.component
   external make: (~data: array<(string, int)>) => React.element = "SVG"
@@ -212,27 +223,70 @@ let groupBySpecies = groupedByCount =>
 
 let result = Config.bits->getBitStrings->Array.map(stringToArray)->groupByCount->groupBySpecies
 
+let keys = [
+  `C`,
+  `C♯/D♭`,
+  `D`,
+  `D♯/E♭`,
+  `E`,
+  `F`,
+  `F♯/G♭`,
+  `G`,
+  `G♯/A♭`,
+  `A`,
+  `A♯/B♭`,
+  `B`,
+]
+
+let keysShort = [`C`, `C♯`, `D`, `D♯`, `E`, `F`, `F♯`, `G`, `G♯`, `A`, `A♯`, `B`]
+
+type kind = Species | Mode
+
+module Scale = {
+  @react.component
+  let make = (~onClick, ~bitString, ~currentKey, ~kind: kind, ~selected: bool) => {
+    <div
+      onClick={onClick}
+      className={[
+        " flex flex-row rounded-sm",
+        switch kind {
+        | Species => "font-bold"
+        | Mode => selected ? "bg-blue-300" : ""
+        },
+      ]->join}>
+      {bitString
+      ->stringToArray
+      ->Array.mapWithIndex((i, bit) => {
+        <div
+          className={[
+            currentKey->Option.isSome ? "w-5" : "w-5",
+            "flex flex-row justify-center",
+          ]->join}>
+          {currentKey
+          ->Option.mapWithDefault(bit, shift =>
+            bit == "0" ? "-" : keysShort->cycleArray(shift)->Array.get(i)->Option.getWithDefault("")
+          )
+          ->str}
+        </div>
+      })
+      ->React.array}
+    </div>
+  }
+}
+
+module Key = {
+  @react.component
+  let make = (~selected, ~onClick, ~children) => {
+    <div className={[selected ? "bg-blue-300" : "", "rounded p-1 pl-2"]->join} onClick={onClick}>
+      {children}
+    </div>
+  }
+}
+
 @react.component
 let make = () => {
   let (currentBits, setCurrentBits) = React.useState(_ => None)
   let (currentKey: option<int>, setCurrentKey) = React.useState(_ => None)
-
-  let keys = [
-    `C`,
-    `C♯/D♭`,
-    `D`,
-    `D♯/E♭`,
-    `E`,
-    `F`,
-    `F♯/G♭`,
-    `G`,
-    `G♯/A♭`,
-    `A`,
-    `A♯/B♭`,
-    `B`,
-  ]
-
-  let keysShort = [`C`, `C♯`, `D`, `D♯`, `E`, `F`, `F♯`, `G`, `G♯`, `A`, `A♯`, `B`]
 
   let graphKeys =
     currentKey->Option.mapWithDefault(keys->Array.mapWithIndex((i, _) => i->Int.toString), shift =>
@@ -241,22 +295,18 @@ let make = () => {
   let graphBits = currentBits->Option.mapWithDefault(keys->Array.map(_ => 0), b => b)
 
   <div className={"flex flex-row h-screen w-screen font-mono"}>
-    <div className=" h-full flex flex-col px-4">
+    <div className=" h-full flex flex-col p-4">
       <div className={"h-80 w-80"}>
         <SVG data={Array.zip(graphKeys, graphBits)} />
       </div>
-      <div className={"flex-1 overflow-scroll p-1"}>
-        <div
-          className={currentKey->Option.isNone ? "bg-blue-300" : ""}
-          onClick={_ => setCurrentKey(_ => None)}>
+      <div className={"flex-1 overflow-scroll p-1 border rounded"}>
+        <Key selected={currentKey->Option.isNone} onClick={_ => setCurrentKey(_ => None)}>
           {"None"->str}
-        </div>
+        </Key>
         {keys->reactMapWithIndex((i, v) => {
           let selected = currentKey->Option.mapWithDefault(false, c => c == i)
 
-          <div className={selected ? "bg-blue-300" : ""} onClick={_ => setCurrentKey(_ => Some(i))}>
-            {v->str}
-          </div>
+          <Key selected={selected} onClick={_ => setCurrentKey(_ => Some(i))}> {v->str} </Key>
         })}
       </div>
     </div>
@@ -264,79 +314,89 @@ let make = () => {
       {result
       ->Map.Int.toArray
       ->reactMap(((k, v)) =>
-        <Collapsed
-          render={(numCollapsedState, setNumCollapsedState) => {
+        <CollapsedTri
+          render={(genusCollapsedState, setGenusCollapsedState) => {
             <div className={"mb-1"}>
-              <div onClick={_ => setNumCollapsedState(x => !x)} className="flex flex-row w-20 ">
-                <div className="flex-1 text-red-500"> {k->Int.toString->str} </div>
-                <div className="flex-1 text-blue-500">
+              <div
+                onClick={_ => {
+                  setGenusCollapsedState(s =>
+                    switch s {
+                    | One => Two
+                    | Two => Three
+                    | Three => One
+                    }
+                  )
+                }}
+                className="flex flex-row items-center  ">
+                <div className="flex-1 text-lg"> {k->Int.toString->str} </div>
+                <div className="flex-1 text-sm whitespace-nowrap">
+                  {"count: "->str}
                   {v->Map.String.toArray->Array.length->Int.toString->str}
                 </div>
               </div>
               <div
                 className={[
-                  numCollapsedState ? "hidden" : "",
-                  "max-h-64 overflow-scroll pr-4 border",
+                  switch genusCollapsedState {
+                  | One => "hidden"
+                  | Two => "max-h-64"
+                  | Three => ""
+                  },
+                  "overflow-scroll p-2 pb-6 border",
                 ]->join}>
                 {v
                 ->Map.String.toArray
                 ->Array.reverse
-                ->reactMap(((k2, {modes, numOfModes, autoCorrelations, isSymmetric})) =>
+                ->reactMap(((species, {modes, numOfModes, autoCorrelations, isSymmetric})) =>
                   <Collapsed
                     render={(speciesCollapsedState, setSpeciesCollapsedState) => {
-                      <div className="">
-                        <div className="flex flex-row justify-start gap-3">
-                          <div
+                      let anySelected = modes->any(
+                        mode => {
+                          currentBits->Option.mapWithDefault(
+                            false,
+                            c => c->intArrayToString == mode->arrayToString,
+                          )
+                        },
+                      )
+
+                      <div className={[anySelected ? "" : ""]->join}>
+                        <div className="flex flex-row items-center justify-start gap-3">
+                          <Scale
+                            selected={false}
                             onClick={_ => {
                               setSpeciesCollapsedState(x => !x)
-                              setCurrentBits(_ => k2->stringToIntArray->Some)
+                              setCurrentBits(_ => species->stringToIntArray->Some)
                             }}
-                            className="font-bold font-mono flex flex-row ">
-                            {k2
-                            ->stringToArray
-                            ->Array.mapWithIndex(
-                              (i, bit) => {
-                                <div
-                                  className={[
-                                    currentKey->Option.isSome ? "w-5" : "w-5",
-                                    "flex flex-row justify-center",
-                                  ]->join}>
-                                  {currentKey
-                                  ->Option.mapWithDefault(
-                                    bit,
-                                    shift =>
-                                      bit == "0"
-                                        ? "-"
-                                        : keysShort
-                                          ->cycleArray(shift)
-                                          ->Array.get(i)
-                                          ->Option.getWithDefault(""),
-                                  )
-                                  ->str}
-                                </div>
-                              },
-                            )
-                            ->React.array}
-                          </div>
+                            currentKey={currentKey}
+                            bitString={species}
+                            kind={Species}
+                          />
                           <div className="w-6"> {isSymmetric ? "x"->str : ""->str} </div>
                           <div className=" text-green-500"> {numOfModes->Int.toString->str} </div>
                           <div className="text-xs text-lime-500">
                             {`[${autoCorrelations->Js.Array2.joinWith(_, ", ")}]`->str}
                           </div>
                         </div>
-                        <div className={[speciesCollapsedState ? "hidden " : "", "mb-2"]->join}>
+                        <div
+                          className={[
+                            speciesCollapsedState ? "hidden " : "",
+                            "pt-0.5 pb-2 border-t border-neutral-700",
+                          ]->join}>
                           {modes->reactMap(
-                            x => {
+                            mode => {
                               let selected =
                                 currentBits->Option.mapWithDefault(
                                   false,
-                                  c => c->intArrayToString == x->arrayToString,
+                                  c => c->intArrayToString == mode->arrayToString,
                                 )
-                              <div
-                                className={selected ? "bg-blue-300" : ""}
-                                onClick={_ => setCurrentBits(_ => x->stringArrayToIntArray->Some)}>
-                                {x->arrayToString->str}
-                              </div>
+
+                              <Scale
+                                selected={selected}
+                                onClick={_ =>
+                                  setCurrentBits(_ => mode->stringArrayToIntArray->Some)}
+                                currentKey={currentKey}
+                                bitString={mode->arrayToString}
+                                kind={Mode}
+                              />
                             },
                           )}
                         </div>
