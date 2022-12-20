@@ -224,8 +224,8 @@ function hasBilateralSymmetry(x) {
 function groupBySpecies(genusGrouping) {
   return Belt_MapInt.map(genusGrouping, (function (genusPerms) {
                 return Belt_MapString.mapWithKey(Belt_MapString.fromArray(Belt_Array.map(Belt_MapString.keysToArray(Belt_Array.reduce(genusPerms, undefined, (function (acc, value) {
-                                              var greatestPerm = stringArrayToString(getGreatestRotation(value));
-                                              return Belt_MapString.update(acc, greatestPerm, (function (a) {
+                                              var greatestRotation = stringArrayToString(getGreatestRotation(value));
+                                              return Belt_MapString.update(acc, greatestRotation, (function (a) {
                                                             return Belt_Option.mapWithDefault(a, [value], (function (b) {
                                                                           return Belt_Array.concat(b, [value]);
                                                                         }));
@@ -250,12 +250,12 @@ function groupBySpecies(genusGrouping) {
                                 }
                                 
                               }
-                              var permutations = getRotations(Array.from(speciesId));
+                              var rotations = getRotations(Array.from(speciesId));
                               return {
                                       modes: modes,
                                       numOfModes: modes.length,
                                       autoCorrelations: Belt_Option.mapWithDefault(Belt_Array.get(modes, 0), [], (function (match) {
-                                              return Belt_Array.map(permutations, (function (p) {
+                                              return Belt_Array.map(rotations, (function (p) {
                                                             if (stringArrayToString(p) === stringArrayToString(match)) {
                                                               return "_";
                                                             } else {
@@ -269,7 +269,7 @@ function groupBySpecies(genusGrouping) {
                                                             }
                                                           }));
                                             })),
-                                      isSymmetric: any(permutations, hasBilateralSymmetry)
+                                      isSymmetric: any(rotations, hasBilateralSymmetry)
                                     };
                             }));
               }));

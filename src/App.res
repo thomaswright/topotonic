@@ -179,9 +179,9 @@ let groupBySpecies = genusGrouping =>
   genusGrouping->Map.Int.map(genusPerms => {
     genusPerms
     ->Array.reduce(Map.String.empty, (acc, value) => {
-      let greatestPerm = value->getGreatestRotation->BitOps.stringArrayToString
+      let greatestRotation = value->getGreatestRotation->BitOps.stringArrayToString
       acc->Map.String.update(
-        greatestPerm,
+        greatestRotation,
         a => a->Option.mapWithDefault([value]->Some, b => Array.concat(b, [value])->Some),
       )
     })
@@ -203,7 +203,7 @@ let groupBySpecies = genusGrouping =>
       | (_, _) => 0
       }
 
-      let permutations = speciesId->BitOps.stringToStringArray->getRotations
+      let rotations = speciesId->BitOps.stringToStringArray->getRotations
       {
         modes,
         numOfModes: modes->Array.length,
@@ -212,7 +212,7 @@ let groupBySpecies = genusGrouping =>
         ->Option.mapWithDefault(
           [],
           match =>
-            permutations->Array.map(
+            rotations->Array.map(
               p => {
                 p->BitOps.stringArrayToString == match->BitOps.stringArrayToString
                   ? "_"
@@ -223,7 +223,7 @@ let groupBySpecies = genusGrouping =>
               },
             ),
         ),
-        isSymmetric: permutations->any(p => p->hasBilateralSymmetry),
+        isSymmetric: rotations->any(p => p->hasBilateralSymmetry),
       }
     })
   })
