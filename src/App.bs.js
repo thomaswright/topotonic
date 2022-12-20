@@ -76,31 +76,48 @@ function padLeft(_s, l, pad) {
   };
 }
 
-function stringToArray(x) {
+function s_sa(x) {
   return Array.from(x);
 }
 
-function arrayToString(x) {
+function sa_s(x) {
   return Belt_Array.reduce(x, "", (function (acc, value) {
                 return acc + value;
               }));
 }
 
-function stringArrayToIntArray(x) {
+function sa_ia(x) {
   return Belt_Array.map(x, (function (x) {
                 return Belt_Option.getWithDefault(Belt_Int.fromString(x), 0);
               }));
 }
 
-function stringToIntArray(x) {
-  return stringArrayToIntArray(Array.from(x));
+function s_ia(x) {
+  return sa_ia(Array.from(x));
 }
 
-function intArrayToString(x) {
+function ia_s(x) {
   return Belt_Array.reduce(x, "", (function (acc, value) {
                 return acc + String(value);
               }));
 }
+
+function sa_decInt(x) {
+  return Belt_Array.reduceWithIndex(Belt_Array.reverse(x), 0, (function (acc, value, i) {
+                return Belt_Option.mapWithDefault(Belt_Int.fromString(value), acc, (function (valueInt) {
+                              return (valueInt * Math.pow(2, i) | 0) + acc | 0;
+                            }));
+              }));
+}
+
+var BitOps = {
+  s_sa: s_sa,
+  sa_s: sa_s,
+  sa_ia: sa_ia,
+  s_ia: s_ia,
+  ia_s: ia_s,
+  sa_decInt: sa_decInt
+};
 
 function getBitStrings(numOfBits) {
   return Belt_Array.map(Belt_Array.range(0, Math.pow(2, numOfBits) - 1 | 0), (function (x) {
@@ -118,12 +135,12 @@ function count1s(bitArray) {
               }));
 }
 
-function groupByCount(bitArrays) {
+function groupByGenus(bitArrays) {
   return Belt_Array.reduce(bitArrays, undefined, (function (acc, value) {
-                var count = count1s(value);
-                return Belt_MapInt.update(acc, count, (function (x) {
-                              return Belt_Option.mapWithDefault(x, [value], (function (a) {
-                                            return Belt_Array.concat(a, [value]);
+                var genus = count1s(value);
+                return Belt_MapInt.update(acc, genus, (function (a) {
+                              return Belt_Option.mapWithDefault(a, [value], (function (b) {
+                                            return Belt_Array.concat(b, [value]);
                                           }));
                             }));
               }));
@@ -142,14 +159,6 @@ function cycleArray(_x, _shift) {
   };
 }
 
-function bitArrayToDec(x) {
-  return Belt_Array.reduceWithIndex(Belt_Array.reverse(x), 0, (function (acc, value, i) {
-                return Belt_Option.mapWithDefault(Belt_Int.fromString(value), acc, (function (valueInt) {
-                              return (valueInt * Math.pow(2, i) | 0) + acc | 0;
-                            }));
-              }));
-}
-
 function getPermutations(x) {
   var unordered = Belt_Array.map(Belt_Array.range(0, x.length - 1 | 0), (function (i) {
           return cycleArray(x, i);
@@ -161,8 +170,8 @@ function getPermutations(x) {
 function generateGreatest(x) {
   var permutations = getPermutations(x);
   return Belt_Array.reduce(permutations, Belt_Array.getExn(permutations, 0), (function (acc, value) {
-                var valueDecRep = bitArrayToDec(value);
-                var accDecRep = bitArrayToDec(acc);
+                var valueDecRep = sa_decInt(value);
+                var accDecRep = sa_decInt(acc);
                 if (valueDecRep > accDecRep) {
                   return value;
                 } else {
@@ -180,7 +189,7 @@ function removeZeroStarts(permutations) {
 function removeDuplicates(permutations) {
   return Belt_Array.map(Belt_MapString.keysToArray(Belt_MapString.fromArray(Belt_Array.map(permutations, (function (x) {
                             return [
-                                    arrayToString(x),
+                                    sa_s(x),
                                     ""
                                   ];
                           })))), (function (x) {
@@ -215,7 +224,7 @@ function hasBilateralSymmetry(x) {
 function groupBySpecies(genusGrouping) {
   return Belt_MapInt.map(genusGrouping, (function (allPerms) {
                 return Belt_MapString.mapWithKey(Belt_MapString.fromArray(Belt_Array.map(Belt_MapString.keysToArray(Belt_Array.reduce(allPerms, undefined, (function (acc, value) {
-                                              var greatestPerm = arrayToString(generateGreatest(value));
+                                              var greatestPerm = sa_s(generateGreatest(value));
                                               return Belt_MapString.update(acc, greatestPerm, (function (a) {
                                                             return Belt_Option.mapWithDefault(a, [value], (function (b) {
                                                                           return Belt_Array.concat(b, [value]);
@@ -247,7 +256,7 @@ function groupBySpecies(genusGrouping) {
                                       numOfModes: modes.length,
                                       autoCorrelations: Belt_Option.mapWithDefault(Belt_Array.get(modes, 0), [], (function (match) {
                                               return Belt_Array.map(permutations, (function (p) {
-                                                            if (arrayToString(p) === arrayToString(match)) {
+                                                            if (sa_s(p) === sa_s(match)) {
                                                               return "_";
                                                             } else {
                                                               return String(Belt_Array.keep(Belt_Array.zip(p, match), (function (param) {
@@ -266,7 +275,7 @@ function groupBySpecies(genusGrouping) {
               }));
 }
 
-var result = groupBySpecies(groupByCount(Belt_Array.map(getBitStrings(12), stringToArray)));
+var result = groupBySpecies(groupByGenus(Belt_Array.map(getBitStrings(12), s_sa)));
 
 var keys = [
   "C",
@@ -457,7 +466,7 @@ function App$Species(Props) {
               render: (function (speciesHidden, setSpeciesHidden) {
                   var anySelected = any(modes, (function (mode) {
                           return Belt_Option.mapWithDefault(currentBits, false, (function (c) {
-                                        return intArrayToString(c) === arrayToString(mode);
+                                        return ia_s(c) === sa_s(mode);
                                       }));
                         }));
                   return React.createElement("div", {
@@ -472,7 +481,7 @@ function App$Species(Props) {
                                           Belt_Option.mapWithDefault(currentBits, (Curry._1(setSpeciesHidden, (function (param) {
                                                         return false;
                                                       })), Curry._1(setCurrentBits, (function (param) {
-                                                        return stringArrayToIntArray(Array.from(speciesId));
+                                                        return sa_ia(Array.from(speciesId));
                                                       }))), (function (param) {
                                                   Curry._1(setSpeciesHidden, (function (param) {
                                                           if (speciesHidden) {
@@ -485,7 +494,7 @@ function App$Species(Props) {
                                                           if (anySelected) {
                                                             return ;
                                                           } else {
-                                                            return stringArrayToIntArray(Array.from(speciesId));
+                                                            return sa_ia(Array.from(speciesId));
                                                           }
                                                         }));
                                                 }));
@@ -505,17 +514,17 @@ function App$Species(Props) {
                                     ].join(" ")
                                 }, Belt_Array.map(modes, (function (modeId) {
                                         var selected = Belt_Option.mapWithDefault(currentBits, false, (function (c) {
-                                                return intArrayToString(c) === arrayToString(modeId);
+                                                return ia_s(c) === sa_s(modeId);
                                               }));
                                         return React.createElement("div", {
                                                     className: "flex flex-row"
                                                   }, React.createElement(App$Scale, {
                                                         onClick: (function (param) {
                                                             Curry._1(setCurrentBits, (function (param) {
-                                                                    return stringArrayToIntArray(modeId);
+                                                                    return sa_ia(modeId);
                                                                   }));
                                                           }),
-                                                        bitString: arrayToString(modeId),
+                                                        bitString: sa_s(modeId),
                                                         currentKey: currentKey,
                                                         kind: /* Mode */1,
                                                         selected: selected
@@ -526,7 +535,7 @@ function App$Species(Props) {
                                                                         }));
                                                                 })
                                                             }, "Base"), (function (b) {
-                                                            if (arrayToString(b) === arrayToString(modeId)) {
+                                                            if (sa_s(b) === sa_s(modeId)) {
                                                               return React.createElement("button", {
                                                                           onClick: (function (param) {
                                                                               Curry._1(setBase, (function (param) {
@@ -684,16 +693,11 @@ export {
   reactMapWithIndex ,
   str ,
   padLeft ,
-  stringToArray ,
-  arrayToString ,
-  stringArrayToIntArray ,
-  stringToIntArray ,
-  intArrayToString ,
+  BitOps ,
   getBitStrings ,
   count1s ,
-  groupByCount ,
+  groupByGenus ,
   cycleArray ,
-  bitArrayToDec ,
   getPermutations ,
   generateGreatest ,
   removeZeroStarts ,

@@ -53,15 +53,30 @@ let rec padLeft = (s, l, pad) => {
   s->Js.String2.length < l ? padLeft(pad ++ s, l, pad) : s
 }
 
-let stringToArray = x => x->Js.String2.castToArrayLike->Js.Array2.from
+type bitArray = array<string>
 
-let arrayToString = x => x->Array.reduce("", (acc, value) => acc ++ value)
+module BitOps = {
+  let s_sa = x => x->Js.String2.castToArrayLike->Js.Array2.from
 
-let stringArrayToIntArray = x => x->Array.map(x => x->Int.fromString->Option.getWithDefault(0))
+  let sa_s = x => x->Array.reduce("", (acc, value) => acc ++ value)
 
-let stringToIntArray = x => x->stringToArray->stringArrayToIntArray
+  let sa_ia = x => x->Array.map(x => x->Int.fromString->Option.getWithDefault(0))
 
-let intArrayToString = x => x->Array.reduce("", (acc, value) => acc ++ value->Int.toString)
+  let s_ia = x => x->s_sa->sa_ia
+
+  let ia_s = x => x->Array.reduce("", (acc, value) => acc ++ value->Int.toString)
+
+  let sa_decInt = x =>
+    x
+    ->Array.reverse
+    ->Array.reduceWithIndex(0, (acc, value, i) => {
+      value
+      ->Int.fromString
+      ->Option.mapWithDefault(acc, valueInt => {
+        (valueInt->Int.toFloat *. 2. ** i->Int.toFloat)->Int.fromFloat + acc
+      })
+    })
+}
 
 let getBitStrings = numOfBits =>
   Array.range(0, (2. ** numOfBits->Int.toFloat -. 1.)->Float.toInt)->Array.map(x =>
@@ -73,11 +88,11 @@ let count1s = bitArray =>
     value == "1" ? acc + 1 : acc
   })
 
-let groupByCount = bitArrays =>
+let groupByGenus = bitArrays =>
   bitArrays->Array.reduce(Map.Int.empty, (acc, value) => {
-    let count = value->count1s
-    acc->Map.Int.update(count, x =>
-      x->Option.mapWithDefault([value]->Some, a => Array.concat(a, [value])->Some)
+    let genus = value->count1s
+    acc->Map.Int.update(genus, a =>
+      a->Option.mapWithDefault([value]->Some, b => Array.concat(b, [value])->Some)
     )
   })
 
@@ -86,19 +101,6 @@ let rec cycleArray = (x, shift) => {
     ? Array.concat(x->Js.Array2.sliceFrom(1), [x->Array.getExn(0)])->cycleArray(shift - 1)
     : x
 }
-
-type bitArray = array<string>
-
-let bitArrayToDec = x =>
-  x
-  ->Array.reverse
-  ->Array.reduceWithIndex(0, (acc, value, i) => {
-    value
-    ->Int.fromString
-    ->Option.mapWithDefault(acc, valueInt => {
-      (valueInt->Int.toFloat *. 2. ** i->Int.toFloat)->Int.fromFloat + acc
-    })
-  })
 
 let getPermutations = x => {
   let unordered = Array.range(0, x->Array.length - 1)->Array.map(i => {
@@ -122,8 +124,8 @@ let generateGreatest = x => {
   let permutations = getPermutations(x)
 
   permutations->Array.reduce(permutations->Array.getExn(0), (acc, value) => {
-    let valueDecRep = value->bitArrayToDec
-    let accDecRep = acc->bitArrayToDec
+    let valueDecRep = value->BitOps.sa_decInt
+    let accDecRep = acc->BitOps.sa_decInt
     valueDecRep > accDecRep ? value : acc
   })
 }
@@ -134,10 +136,10 @@ let removeZeroStarts = permutations => {
 
 let removeDuplicates = permutations => {
   permutations
-  ->Array.map(x => (x->arrayToString, ""))
+  ->Array.map(x => (x->BitOps.sa_s, ""))
   ->Map.String.fromArray
   ->Map.String.keysToArray
-  ->Array.map(x => x->stringToArray)
+  ->Array.map(x => x->BitOps.s_sa)
 }
 
 type species = {
@@ -179,7 +181,7 @@ let groupBySpecies = genusGrouping =>
   genusGrouping->Map.Int.map(allPerms => {
     allPerms
     ->Array.reduce(Map.String.empty, (acc, value) => {
-      let greatestPerm = value->generateGreatest->arrayToString
+      let greatestPerm = value->generateGreatest->BitOps.sa_s
       acc->Map.String.update(
         greatestPerm,
         a => a->Option.mapWithDefault([value]->Some, b => Array.concat(b, [value])->Some),
@@ -188,7 +190,7 @@ let groupBySpecies = genusGrouping =>
     ->Map.String.keysToArray
     ->Array.map(speciesId => (
       speciesId,
-      speciesId->stringToArray->getPermutations->removeZeroStarts->removeDuplicates->Array.reverse,
+      speciesId->BitOps.s_sa->getPermutations->removeZeroStarts->removeDuplicates->Array.reverse,
     ))
     ->Map.String.fromArray
     ->Map.String.mapWithKey((speciesId, modes) => {
@@ -198,7 +200,7 @@ let groupBySpecies = genusGrouping =>
       | (_, _) => 0
       }
 
-      let permutations = speciesId->stringToArray->getPermutations
+      let permutations = speciesId->BitOps.s_sa->getPermutations
       {
         modes,
         numOfModes: modes->Array.length,
@@ -209,7 +211,7 @@ let groupBySpecies = genusGrouping =>
           match =>
             permutations->Array.map(
               p => {
-                p->arrayToString == match->arrayToString
+                p->BitOps.sa_s == match->BitOps.sa_s
                   ? "_"
                   : Array.zip(p, match)
                     ->Array.keep(((a1, a2)) => a1 == "1" && a2 == "1")
@@ -223,7 +225,7 @@ let groupBySpecies = genusGrouping =>
     })
   })
 
-let result = Config.bits->getBitStrings->Array.map(stringToArray)->groupByCount->groupBySpecies
+let result = Config.bits->getBitStrings->Array.map(BitOps.s_sa)->groupByGenus->groupBySpecies
 
 let keys = [
   `C`,
@@ -292,7 +294,7 @@ module Scale = {
         },
       ]->join}>
       {bitString
-      ->stringToArray
+      ->BitOps.s_sa
       ->Array.mapWithIndex((i, bit) => {
         <div
           className={[
@@ -337,7 +339,7 @@ module Species = {
     <Collapsed
       render={(speciesHidden, setSpeciesHidden) => {
         let anySelected = modes->any(mode => {
-          currentBits->Option.mapWithDefault(false, c => c->intArrayToString == mode->arrayToString)
+          currentBits->Option.mapWithDefault(false, c => c->BitOps.ia_s == mode->BitOps.sa_s)
         })
 
         <div
@@ -352,11 +354,11 @@ module Species = {
                 currentBits->Option.mapWithDefault(
                   {
                     setSpeciesHidden(_ => false)
-                    setCurrentBits(_ => speciesId->stringToIntArray->Some)
+                    setCurrentBits(_ => speciesId->BitOps.s_ia->Some)
                   },
                   _ => {
                     setSpeciesHidden(_ => !speciesHidden ? anySelected : !speciesHidden)
-                    setCurrentBits(_ => anySelected ? None : speciesId->stringToIntArray->Some)
+                    setCurrentBits(_ => anySelected ? None : speciesId->BitOps.s_ia->Some)
                   },
                 )
               }}
@@ -378,14 +380,14 @@ module Species = {
             {modes->reactMap(modeId => {
               let selected =
                 currentBits->Option.mapWithDefault(false, c =>
-                  c->intArrayToString == modeId->arrayToString
+                  c->BitOps.ia_s == modeId->BitOps.sa_s
                 )
               <div className="flex flex-row">
                 <Scale
                   selected={selected}
-                  onClick={_ => setCurrentBits(_ => modeId->stringArrayToIntArray->Some)}
+                  onClick={_ => setCurrentBits(_ => modeId->BitOps.sa_ia->Some)}
                   currentKey={currentKey}
-                  bitString={modeId->arrayToString}
+                  bitString={modeId->BitOps.sa_s}
                   kind={Mode}
                 />
                 {currentKey->Option.isSome
@@ -393,7 +395,7 @@ module Species = {
                       base->Option.mapWithDefault(
                         <button onClick={_ => setBase(_ => Some(modeId))}> {"Base"->str} </button>,
                         b =>
-                          b->arrayToString == modeId->arrayToString
+                          b->BitOps.sa_s == modeId->BitOps.sa_s
                             ? <button onClick={_ => setBase(_ => None)}> {"Remove"->str} </button>
                             : React.null,
                       )
