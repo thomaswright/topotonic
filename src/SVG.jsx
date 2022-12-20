@@ -95,7 +95,7 @@ const range = (start, end) => {
 };
 
 export const SVG = ({ data }) => {
-  console.log({ data });
+  // console.log({ data });
   let order = data.length;
   let boxSize = 100;
   let orderDegree = 360 / order;
@@ -118,7 +118,7 @@ export const SVG = ({ data }) => {
       />
       {data.map(([label, bit], i) => {
         return (
-          <g>
+          <g key={i}>
             <RadialLine
               x={center.x}
               y={center.y}

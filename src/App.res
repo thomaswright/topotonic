@@ -173,7 +173,6 @@ let hasBilateralSymmetry = (x: array<string>) => {
           x->Js.Array2.slice(~start=0, ~end_=l / 2),
           x->Js.Array2.sliceFrom(l / 2)->Array.reverse,
         )
-        // Js.log4(a, b, c, d)
         isSameArray(a, b) || isSameArray(c, d)
       }
     : {
@@ -259,7 +258,7 @@ let result =
   ->groupByGenus
   ->groupBySpecies
 
-let keys = [
+let pitchKeys = [
   `C`,
   `C♯/D♭`,
   `D`,
@@ -274,9 +273,10 @@ let keys = [
   `B`,
 ]
 
-let keysShort = [`C`, `C♯`, `D`, `D♯`, `E`, `F`, `F♯`, `G`, `G♯`, `A`, `A♯`, `B`]
-
-// let intervals = [`C`, `C♯`, `D`, `D♯`, `E`, `F`, `F♯`, `G`, `G♯`, `A`, `A♯`, `B`]
+let pitchKeysShort = [`C`, `C♯`, `D`, `D♯`, `E`, `F`, `F♯`, `G`, `G♯`, `A`, `A♯`, `B`]
+let semitones = [`0`, `1`, `2`, `3`, `4`, `5`, `6`, `7`, `8`, `9`, `10`, `11`]
+let mMPs = [`P1`, `m2`, `M2`, `m3`, `M3`, `P4`, `TT`, `P5`, `m6`, `M6`, `m7`, `M7`]
+let dimAugs = [`d2`, `A1`, `d3`, `A2`, `d4`, `A3`, `d5/A4`, `d6`, `A5`, `d7`, `A6`, `d8`]
 
 let namedSpecies = [
   (
@@ -313,19 +313,30 @@ let spacedToBits = a => {
   })
 }
 
+type key = Pitch(int) | MinMaj | DimAug | Semitone
+
 type kind = Species | Mode | NonMode
 
 // type bitDisplay = Bit | Index
 
 let bitToDisplaySymbol = (bit, index, currentKey, default) => {
-  currentKey->Option.mapWithDefault(default, shift =>
-    bit == "0" ? "-" : keysShort->rotate(shift)->Array.get(index)->Option.getWithDefault("")
-  )
+  switch currentKey {
+  | None => default
+  | Some(x) => {
+      let a = switch x {
+      | Pitch(shift) => pitchKeysShort->rotate(shift)
+      | DimAug => dimAugs
+      | Semitone => semitones
+      | MinMaj => mMPs
+      }
+      bit == "0" ? "-" : a->Array.get(index)->Option.getWithDefault("")
+    }
+  }
 }
 
 module Scale = {
   @react.component
-  let make = (~onClick, ~bitString, ~currentKey, ~kind: kind, ~selected: bool) => {
+  let make = (~onClick, ~bitString, ~currentKey: option<key>, ~kind: kind, ~selected: bool) => {
     <div
       onClick={onClick}
       className={[
@@ -340,6 +351,7 @@ module Scale = {
       ->BitOps.stringToStringArray
       ->Array.mapWithIndex((i, bit) => {
         <div
+          key={i->Int.toString}
           className={[
             currentKey->Option.isSome ? "w-5" : "w-5",
             "flex flex-row justify-center",
@@ -366,7 +378,7 @@ module Species = {
   let make = (
     ~currentBits,
     ~setCurrentBits,
-    ~currentKey,
+    ~currentKey: option<key>,
     ~speciesId,
     ~speciesDetails: speciesDetails,
   ) => {
@@ -426,7 +438,7 @@ module Species = {
             {speciesDetails.modes->reactMap(((modeId, rotationDegrees)) => {
               let selected =
                 currentBits->Option.mapWithDefault(false, c => c->BitOps.intArrayToString == modeId)
-              <div className="flex flex-row">
+              <div key={modeId} className="flex flex-row">
                 <Scale
                   selected={selected}
                   onClick={_ => setCurrentBits(_ => modeId->BitOps.stringToIntArray->Some)}
@@ -455,8 +467,10 @@ module Species = {
               </div>
             })}
             <div className="text-xs text-green-600 flex flex-row ">
-              {speciesDetails.autoCorrelations->reactMap(x => {
-                <div className={["w-5 flex flex-row items-center justify-center"]->join}>
+              {speciesDetails.autoCorrelations->reactMapWithIndex((i, x) => {
+                <div
+                  key={i->Int.toString}
+                  className={["w-5 flex flex-row items-center justify-center"]->join}>
                   {x->str}
                 </div>
               })}
@@ -471,13 +485,20 @@ module Species = {
 @react.component
 let make = () => {
   let (currentBits, setCurrentBits) = React.useState(_ => None)
-  let (currentKey: option<int>, setCurrentKey) = React.useState(_ => None)
+  let (currentKey: option<key>, setCurrentKey) = React.useState(_ => None)
 
-  let graphKeys =
-    currentKey->Option.mapWithDefault(keys->Array.mapWithIndex((i, _) => i->Int.toString), shift =>
-      keys->rotate(shift)
-    )
-  let graphBits = currentBits->Option.mapWithDefault(keys->Array.map(_ => 0), b => b)
+  let graphKeys = {
+    switch currentKey {
+    | None => semitones
+    | Some(Pitch(shift)) => pitchKeys->rotate(shift)
+    | Some(DimAug) => dimAugs
+    | Some(Semitone) => semitones
+    | Some(MinMaj) => mMPs
+    }
+  }
+
+  let graphBits =
+    currentBits->Option.mapWithDefault(Array.range(0, Config.bits - 1)->Array.map(_ => 0), b => b)
 
   <div className={"flex flex-row h-screen w-screen font-mono"}>
     <div className=" h-full flex flex-col p-4">
@@ -488,10 +509,30 @@ let make = () => {
         <Key selected={currentKey->Option.isNone} onClick={_ => setCurrentKey(_ => None)}>
           {"None"->str}
         </Key>
-        {keys->reactMapWithIndex((i, v) => {
-          let selected = currentKey->Option.mapWithDefault(false, c => c == i)
+        <Key
+          selected={currentKey->Option.mapWithDefault(false, x => x == MinMaj)}
+          onClick={_ => setCurrentKey(_ => Some(MinMaj))}>
+          {"Min-Maj Intervals"->str}
+        </Key>
+        <Key
+          selected={currentKey->Option.mapWithDefault(false, x => x == DimAug)}
+          onClick={_ => setCurrentKey(_ => Some(DimAug))}>
+          {"Dim-Aug Intervals"->str}
+        </Key>
+        <Key
+          selected={currentKey->Option.mapWithDefault(false, x => x == Semitone)}
+          onClick={_ => setCurrentKey(_ => Some(Semitone))}>
+          {"Semitone Intervals"->str}
+        </Key>
+        {pitchKeys->reactMapWithIndex((i, v) => {
+          let selected = switch currentKey {
+          | Some(Pitch(c)) => c == i
+          | _ => false
+          }
 
-          <Key selected={selected} onClick={_ => setCurrentKey(_ => Some(i))}> {v->str} </Key>
+          <Key key={v} selected={selected} onClick={_ => setCurrentKey(_ => Some(Pitch(i)))}>
+            {v->str}
+          </Key>
         })}
       </div>
     </div>
@@ -500,6 +541,7 @@ let make = () => {
       ->Map.Int.toArray
       ->reactMap(((genusId, species)) =>
         <CollapsedTri
+          key={genusId->Int.toString}
           render={(genusCollapsedState, setGenusCollapsedState) => {
             <div className={"mb-1"}>
               <div
@@ -533,6 +575,7 @@ let make = () => {
                 ->Array.reverse
                 ->reactMap(((speciesId, speciesDetails)) =>
                   <Species
+                    key={speciesId}
                     currentBits={currentBits}
                     setCurrentBits={setCurrentBits}
                     currentKey={currentKey}

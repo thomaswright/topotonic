@@ -281,7 +281,7 @@ function groupBySpecies(genusGrouping) {
 
 var result = groupBySpecies(groupByGenus(Belt_Array.map(getPermsForBitLength(12), stringToStringArray)));
 
-var keys = [
+var pitchKeys = [
   "C",
   "C♯/D♭",
   "D",
@@ -296,7 +296,7 @@ var keys = [
   "B"
 ];
 
-var keysShort = [
+var pitchKeysShort = [
   "C",
   "C♯",
   "D",
@@ -309,6 +309,51 @@ var keysShort = [
   "A",
   "A♯",
   "B"
+];
+
+var semitones = [
+  "0",
+  "1",
+  "2",
+  "3",
+  "4",
+  "5",
+  "6",
+  "7",
+  "8",
+  "9",
+  "10",
+  "11"
+];
+
+var mMPs = [
+  "P1",
+  "m2",
+  "M2",
+  "m3",
+  "M3",
+  "P4",
+  "TT",
+  "P5",
+  "m6",
+  "M6",
+  "m7",
+  "M7"
+];
+
+var dimAugs = [
+  "d2",
+  "A1",
+  "d3",
+  "A2",
+  "d4",
+  "A3",
+  "d5/A4",
+  "d6",
+  "A5",
+  "d7",
+  "A6",
+  "d8"
 ];
 
 var namedSpecies = [
@@ -402,13 +447,31 @@ function spacedToBits(a) {
 }
 
 function bitToDisplaySymbol(bit, index, currentKey, $$default) {
-  return Belt_Option.mapWithDefault(currentKey, $$default, (function (shift) {
-                if (bit === "0") {
-                  return "-";
-                } else {
-                  return Belt_Option.getWithDefault(Belt_Array.get(rotate(keysShort, shift), index), "");
-                }
-              }));
+  if (currentKey === undefined) {
+    return $$default;
+  }
+  var a;
+  if (typeof currentKey === "number") {
+    switch (currentKey) {
+      case /* MinMaj */0 :
+          a = mMPs;
+          break;
+      case /* DimAug */1 :
+          a = dimAugs;
+          break;
+      case /* Semitone */2 :
+          a = semitones;
+          break;
+      
+    }
+  } else {
+    a = rotate(pitchKeysShort, currentKey._0);
+  }
+  if (bit === "0") {
+    return "-";
+  } else {
+    return Belt_Option.getWithDefault(Belt_Array.get(a, index), "");
+  }
 }
 
 function App$Scale(Props) {
@@ -438,6 +501,7 @@ function App$Scale(Props) {
               onClick: onClick
             }, Belt_Array.mapWithIndex(Array.from(bitString), (function (i, bit) {
                     return React.createElement("div", {
+                                key: String(i),
                                 className: [
                                     (Belt_Option.isSome(currentKey), "w-5"),
                                     "flex flex-row justify-center"
@@ -539,6 +603,7 @@ function App$Species(Props) {
                                                 return intArrayToString(c) === modeId;
                                               }));
                                         return React.createElement("div", {
+                                                    key: modeId,
                                                     className: "flex flex-row"
                                                   }, React.createElement(App$Scale, {
                                                         onClick: (function (param) {
@@ -575,8 +640,9 @@ function App$Species(Props) {
                                                               })).join(", ") + "]"));
                                       })), React.createElement("div", {
                                       className: "text-xs text-green-600 flex flex-row "
-                                    }, Belt_Array.map(speciesDetails.autoCorrelations, (function (x) {
+                                    }, Belt_Array.mapWithIndex(speciesDetails.autoCorrelations, (function (i, x) {
                                             return React.createElement("div", {
+                                                        key: String(i),
                                                         className: ["w-5 flex flex-row items-center justify-center"].join(" ")
                                                       }, x);
                                           })))));
@@ -599,12 +665,28 @@ function App(Props) {
       });
   var setCurrentKey = match$1[1];
   var currentKey = match$1[0];
-  var graphKeys = Belt_Option.mapWithDefault(currentKey, Belt_Array.mapWithIndex(keys, (function (i, param) {
-              return String(i);
-            })), (function (shift) {
-          return rotate(keys, shift);
-        }));
-  var graphBits = Belt_Option.mapWithDefault(currentBits, Belt_Array.map(keys, (function (param) {
+  var graphKeys;
+  if (currentKey !== undefined) {
+    if (typeof currentKey === "number") {
+      switch (currentKey) {
+        case /* MinMaj */0 :
+            graphKeys = mMPs;
+            break;
+        case /* DimAug */1 :
+            graphKeys = dimAugs;
+            break;
+        case /* Semitone */2 :
+            graphKeys = semitones;
+            break;
+        
+      }
+    } else {
+      graphKeys = rotate(pitchKeys, currentKey._0);
+    }
+  } else {
+    graphKeys = semitones;
+  }
+  var graphBits = Belt_Option.mapWithDefault(currentBits, Belt_Array.map(Belt_Array.range(0, 11), (function (param) {
               return 0;
             })), (function (b) {
           return b;
@@ -627,18 +709,49 @@ function App(Props) {
                                     }));
                             }),
                           children: "None"
-                        }), Belt_Array.mapWithIndex(keys, (function (i, v) {
-                            var selected = Belt_Option.mapWithDefault(currentKey, false, (function (c) {
-                                    return c === i;
-                                  }));
+                        }), React.createElement(App$Key, {
+                          selected: Belt_Option.mapWithDefault(currentKey, false, (function (x) {
+                                  return x === /* MinMaj */0;
+                                })),
+                          onClick: (function (param) {
+                              Curry._1(setCurrentKey, (function (param) {
+                                      return /* MinMaj */0;
+                                    }));
+                            }),
+                          children: "Min-Maj Intervals"
+                        }), React.createElement(App$Key, {
+                          selected: Belt_Option.mapWithDefault(currentKey, false, (function (x) {
+                                  return x === /* DimAug */1;
+                                })),
+                          onClick: (function (param) {
+                              Curry._1(setCurrentKey, (function (param) {
+                                      return /* DimAug */1;
+                                    }));
+                            }),
+                          children: "Dim-Aug Intervals"
+                        }), React.createElement(App$Key, {
+                          selected: Belt_Option.mapWithDefault(currentKey, false, (function (x) {
+                                  return x === /* Semitone */2;
+                                })),
+                          onClick: (function (param) {
+                              Curry._1(setCurrentKey, (function (param) {
+                                      return /* Semitone */2;
+                                    }));
+                            }),
+                          children: "Semitone Intervals"
+                        }), Belt_Array.mapWithIndex(pitchKeys, (function (i, v) {
+                            var selected = currentKey !== undefined && typeof currentKey !== "number" ? currentKey._0 === i : false;
                             return React.createElement(App$Key, {
                                         selected: selected,
                                         onClick: (function (param) {
                                             Curry._1(setCurrentKey, (function (param) {
-                                                    return i;
+                                                    return /* Pitch */{
+                                                            _0: i
+                                                          };
                                                   }));
                                           }),
-                                        children: v
+                                        children: v,
+                                        key: v
                                       });
                           })))), React.createElement("div", {
                   className: "flex-1 h-full overflow-scroll pr-4"
@@ -687,15 +800,18 @@ function App(Props) {
                                                             "overflow-scroll p-2 pb-6 border"
                                                           ].join(" ")
                                                       }, Belt_Array.map(Belt_Array.reverse(Belt_MapString.toArray(species)), (function (param) {
+                                                              var speciesId = param[0];
                                                               return React.createElement(App$Species, {
                                                                           currentBits: currentBits,
                                                                           setCurrentBits: setCurrentBits,
                                                                           currentKey: currentKey,
-                                                                          speciesId: param[0],
-                                                                          speciesDetails: param[1]
+                                                                          speciesId: speciesId,
+                                                                          speciesDetails: param[1],
+                                                                          key: speciesId
                                                                         });
                                                             }))));
-                                      })
+                                      }),
+                                    key: String(genusId)
                                   });
                       }))));
 }
@@ -730,8 +846,11 @@ export {
   mapAppend ,
   groupBySpecies ,
   result ,
-  keys ,
-  keysShort ,
+  pitchKeys ,
+  pitchKeysShort ,
+  semitones ,
+  mMPs ,
+  dimAugs ,
   namedSpecies ,
   spacedToBits ,
   bitToDisplaySymbol ,
