@@ -310,7 +310,7 @@ let make = () => {
         })}
       </div>
     </div>
-    <div className="flex-1 h-full overflow-scroll px-4">
+    <div className="flex-1 h-full overflow-scroll pr-4">
       {result
       ->Map.Int.toArray
       ->reactMap(((k, v)) =>
@@ -327,10 +327,9 @@ let make = () => {
                     }
                   )
                 }}
-                className="flex flex-row items-center  ">
+                className="flex flex-row items-center px-4 ">
                 <div className="flex-1 text-lg"> {k->Int.toString->str} </div>
                 <div className="flex-1 text-sm whitespace-nowrap">
-                  {"count: "->str}
                   {v->Map.String.toArray->Array.length->Int.toString->str}
                 </div>
               </div>
@@ -358,28 +357,36 @@ let make = () => {
                         },
                       )
 
-                      <div className={[anySelected ? "" : ""]->join}>
+                      <div className={[anySelected ? "bg-blue-50" : "", ""]->join}>
                         <div className="flex flex-row items-center justify-start gap-3">
                           <Scale
                             selected={false}
                             onClick={_ => {
                               setSpeciesCollapsedState(x => !x)
-                              setCurrentBits(_ => species->stringToIntArray->Some)
+                              setCurrentBits(
+                                s =>
+                                  s->Option.mapWithDefault(
+                                    species->stringToIntArray->Some,
+                                    a =>
+                                      a->intArrayToString == species
+                                        ? None
+                                        : species->stringToIntArray->Some,
+                                  ),
+                              )
                             }}
                             currentKey={currentKey}
                             bitString={species}
                             kind={Species}
                           />
                           <div className="w-6"> {isSymmetric ? "x"->str : ""->str} </div>
-                          <div className=" text-green-500"> {numOfModes->Int.toString->str} </div>
-                          <div className="text-xs text-lime-500">
-                            {`[${autoCorrelations->Js.Array2.joinWith(_, ", ")}]`->str}
+                          <div className="text-sm whitespace-nowrap">
+                            {numOfModes->Int.toString->str}
                           </div>
                         </div>
                         <div
                           className={[
                             speciesCollapsedState ? "hidden " : "",
-                            "pt-0.5 pb-2 border-t border-neutral-700",
+                            "pt-0.5 pb-2 border-t border-neutral-400",
                           ]->join}>
                           {modes->reactMap(
                             mode => {
@@ -399,6 +406,18 @@ let make = () => {
                               />
                             },
                           )}
+                          <div className="text-xs text-green-600 flex flex-row ">
+                            {autoCorrelations->reactMap(
+                              x => {
+                                <div
+                                  className={[
+                                    "w-5 flex flex-row items-center justify-center",
+                                  ]->join}>
+                                  {x->str}
+                                </div>
+                              },
+                            )}
+                          </div>
                         </div>
                       </div>
                     }}

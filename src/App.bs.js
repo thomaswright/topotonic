@@ -402,7 +402,7 @@ function App(Props) {
                                         children: v
                                       });
                           })))), React.createElement("div", {
-                  className: "flex-1 h-full overflow-scroll px-4"
+                  className: "flex-1 h-full overflow-scroll pr-4"
                 }, Belt_Array.map(Belt_MapInt.toArray(result), (function (param) {
                         var v = param[1];
                         var k = param[0];
@@ -424,7 +424,7 @@ function App(Props) {
                                         return React.createElement("div", {
                                                     className: "mb-1"
                                                   }, React.createElement("div", {
-                                                        className: "flex flex-row items-center  ",
+                                                        className: "flex flex-row items-center px-4 ",
                                                         onClick: (function (param) {
                                                             Curry._1(setGenusCollapsedState, (function (s) {
                                                                     switch (s) {
@@ -442,7 +442,7 @@ function App(Props) {
                                                             className: "flex-1 text-lg"
                                                           }, String(k)), React.createElement("div", {
                                                             className: "flex-1 text-sm whitespace-nowrap"
-                                                          }, "count: ", String(Belt_MapString.toArray(v).length))), React.createElement("div", {
+                                                          }, String(Belt_MapString.toArray(v).length))), React.createElement("div", {
                                                         className: [
                                                             tmp,
                                                             "overflow-scroll p-2 pb-6 border"
@@ -456,13 +456,16 @@ function App(Props) {
                                                               var species = param[0];
                                                               return React.createElement(App$Collapsed, {
                                                                           render: (function (speciesCollapsedState, setSpeciesCollapsedState) {
-                                                                              any(modes, (function (mode) {
+                                                                              var anySelected = any(modes, (function (mode) {
                                                                                       return Belt_Option.mapWithDefault(currentBits, false, (function (c) {
                                                                                                     return intArrayToString(c) === arrayToString(mode);
                                                                                                   }));
                                                                                     }));
                                                                               return React.createElement("div", {
-                                                                                          className: [""].join(" ")
+                                                                                          className: [
+                                                                                              anySelected ? "bg-blue-50" : "",
+                                                                                              ""
+                                                                                            ].join(" ")
                                                                                         }, React.createElement("div", {
                                                                                               className: "flex flex-row items-center justify-start gap-3"
                                                                                             }, React.createElement(App$Scale, {
@@ -470,8 +473,14 @@ function App(Props) {
                                                                                                       Curry._1(setSpeciesCollapsedState, (function (x) {
                                                                                                               return !x;
                                                                                                             }));
-                                                                                                      Curry._1(setCurrentBits, (function (param) {
-                                                                                                              return stringArrayToIntArray(Array.from(species));
+                                                                                                      Curry._1(setCurrentBits, (function (s) {
+                                                                                                              return Belt_Option.mapWithDefault(s, stringArrayToIntArray(Array.from(species)), (function (a) {
+                                                                                                                            if (intArrayToString(a) === species) {
+                                                                                                                              return ;
+                                                                                                                            } else {
+                                                                                                                              return stringArrayToIntArray(Array.from(species));
+                                                                                                                            }
+                                                                                                                          }));
                                                                                                             }));
                                                                                                     }),
                                                                                                   bitString: species,
@@ -481,13 +490,11 @@ function App(Props) {
                                                                                                 }), React.createElement("div", {
                                                                                                   className: "w-6"
                                                                                                 }, isSymmetric ? "x" : ""), React.createElement("div", {
-                                                                                                  className: " text-green-500"
-                                                                                                }, String(numOfModes)), React.createElement("div", {
-                                                                                                  className: "text-xs text-lime-500"
-                                                                                                }, "[" + autoCorrelations.join(", ") + "]")), React.createElement("div", {
+                                                                                                  className: "text-sm whitespace-nowrap"
+                                                                                                }, String(numOfModes))), React.createElement("div", {
                                                                                               className: [
                                                                                                   speciesCollapsedState ? "hidden " : "",
-                                                                                                  "pt-0.5 pb-2 border-t border-neutral-700"
+                                                                                                  "pt-0.5 pb-2 border-t border-neutral-400"
                                                                                                 ].join(" ")
                                                                                             }, Belt_Array.map(modes, (function (mode) {
                                                                                                     var selected = Belt_Option.mapWithDefault(currentBits, false, (function (c) {
@@ -504,7 +511,13 @@ function App(Props) {
                                                                                                                 kind: /* Mode */1,
                                                                                                                 selected: selected
                                                                                                               });
-                                                                                                  }))));
+                                                                                                  })), React.createElement("div", {
+                                                                                                  className: "text-xs text-green-600 flex flex-row "
+                                                                                                }, Belt_Array.map(autoCorrelations, (function (x) {
+                                                                                                        return React.createElement("div", {
+                                                                                                                    className: ["w-5 flex flex-row items-center justify-center"].join(" ")
+                                                                                                                  }, x);
+                                                                                                      })))));
                                                                             })
                                                                         });
                                                             }))));
