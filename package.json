@@ -24,6 +24,7 @@
   },
   "dependencies": {
     "@rescript/react": "^0.10.3",
+    "canvas2svg": "^1.0.16",
     "react": "^18.2.0"
   }
 }
