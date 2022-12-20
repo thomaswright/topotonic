@@ -221,10 +221,10 @@ function groupBySpecies(groupedByCount) {
                                                                           return Belt_Array.concat(a, [value]);
                                                                         }));
                                                           }));
-                                            }))), (function (a) {
+                                            }))), (function (speciesKey) {
                                       return [
-                                              a,
-                                              Belt_Array.reverse(removeDuplicates(removeZeroStarts(getPermutations(Array.from(a)))))
+                                              speciesKey,
+                                              Belt_Array.reverse(removeDuplicates(removeZeroStarts(getPermutations(Array.from(speciesKey)))))
                                             ];
                                     }))), (function (k, a) {
                               var match = Belt_Array.get(a, 0);
@@ -443,7 +443,7 @@ function App$Species(Props) {
   var modes = Props.modes;
   var currentBits = Props.currentBits;
   var setCurrentBits = Props.setCurrentBits;
-  var species = Props.species;
+  var speciesId = Props.speciesId;
   var currentKey = Props.currentKey;
   var isSymmetric = Props.isSymmetric;
   var numOfModes = Props.numOfModes;
@@ -472,7 +472,7 @@ function App$Species(Props) {
                                           Belt_Option.mapWithDefault(currentBits, (Curry._1(setSpeciesHidden, (function (param) {
                                                         return false;
                                                       })), Curry._1(setCurrentBits, (function (param) {
-                                                        return stringArrayToIntArray(Array.from(species));
+                                                        return stringArrayToIntArray(Array.from(speciesId));
                                                       }))), (function (param) {
                                                   Curry._1(setSpeciesHidden, (function (param) {
                                                           if (speciesHidden) {
@@ -485,12 +485,12 @@ function App$Species(Props) {
                                                           if (anySelected) {
                                                             return ;
                                                           } else {
-                                                            return stringArrayToIntArray(Array.from(species));
+                                                            return stringArrayToIntArray(Array.from(speciesId));
                                                           }
                                                         }));
                                                 }));
                                         }),
-                                      bitString: species,
+                                      bitString: speciesId,
                                       currentKey: currentKey,
                                       kind: /* Species */0,
                                       selected: false
@@ -503,30 +503,30 @@ function App$Species(Props) {
                                       speciesHidden ? "hidden " : "",
                                       "pt-0.5 pb-2 border-t border-neutral-400"
                                     ].join(" ")
-                                }, Belt_Array.map(modes, (function (mode) {
+                                }, Belt_Array.map(modes, (function (modeId) {
                                         var selected = Belt_Option.mapWithDefault(currentBits, false, (function (c) {
-                                                return intArrayToString(c) === arrayToString(mode);
+                                                return intArrayToString(c) === arrayToString(modeId);
                                               }));
                                         return React.createElement("div", {
                                                     className: "flex flex-row"
                                                   }, React.createElement(App$Scale, {
                                                         onClick: (function (param) {
                                                             Curry._1(setCurrentBits, (function (param) {
-                                                                    return stringArrayToIntArray(mode);
+                                                                    return stringArrayToIntArray(modeId);
                                                                   }));
                                                           }),
-                                                        bitString: arrayToString(mode),
+                                                        bitString: arrayToString(modeId),
                                                         currentKey: currentKey,
                                                         kind: /* Mode */1,
                                                         selected: selected
                                                       }), Belt_Option.isSome(currentKey) ? Belt_Option.mapWithDefault(base, React.createElement("button", {
                                                               onClick: (function (param) {
                                                                   Curry._1(setBase, (function (param) {
-                                                                          return mode;
+                                                                          return modeId;
                                                                         }));
                                                                 })
                                                             }, "Base"), (function (b) {
-                                                            if (arrayToString(b) === arrayToString(mode)) {
+                                                            if (arrayToString(b) === arrayToString(modeId)) {
                                                               return React.createElement("button", {
                                                                           onClick: (function (param) {
                                                                               Curry._1(setBase, (function (param) {
@@ -608,8 +608,8 @@ function App(Props) {
                           })))), React.createElement("div", {
                   className: "flex-1 h-full overflow-scroll pr-4"
                 }, Belt_Array.map(Belt_MapInt.toArray(result), (function (param) {
-                        var v = param[1];
-                        var k = param[0];
+                        var species = param[1];
+                        var genusId = param[0];
                         return React.createElement(App$CollapsedTri, {
                                     render: (function (genusCollapsedState, setGenusCollapsedState) {
                                         var tmp;
@@ -644,20 +644,20 @@ function App(Props) {
                                                           })
                                                       }, React.createElement("div", {
                                                             className: "flex-1 text-lg"
-                                                          }, String(k)), React.createElement("div", {
+                                                          }, String(genusId)), React.createElement("div", {
                                                             className: "flex-1 text-sm whitespace-nowrap"
-                                                          }, String(Belt_MapString.toArray(v).length), " species")), React.createElement("div", {
+                                                          }, String(Belt_MapString.toArray(species).length), " species")), React.createElement("div", {
                                                         className: [
                                                             tmp,
                                                             "overflow-scroll p-2 pb-6 border"
                                                           ].join(" ")
-                                                      }, Belt_Array.map(Belt_Array.reverse(Belt_MapString.toArray(v)), (function (param) {
+                                                      }, Belt_Array.map(Belt_Array.reverse(Belt_MapString.toArray(species)), (function (param) {
                                                               var match = param[1];
                                                               return React.createElement(App$Species, {
                                                                           modes: match.modes,
                                                                           currentBits: currentBits,
                                                                           setCurrentBits: setCurrentBits,
-                                                                          species: param[0],
+                                                                          speciesId: param[0],
                                                                           currentKey: currentKey,
                                                                           isSymmetric: match.isSymmetric,
                                                                           numOfModes: match.numOfModes,

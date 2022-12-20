@@ -186,9 +186,9 @@ let groupBySpecies = groupedByCount =>
       )
     })
     ->Map.String.keysToArray
-    ->Array.map(a => (
-      a,
-      a->stringToArray->getPermutations->removeZeroStarts->removeDuplicates->Array.reverse,
+    ->Array.map(speciesKey => (
+      speciesKey,
+      speciesKey->stringToArray->getPermutations->removeZeroStarts->removeDuplicates->Array.reverse,
     ))
     ->Map.String.fromArray
     ->Map.String.mapWithKey((k, a) => {
@@ -326,7 +326,7 @@ module Species = {
     ~modes,
     ~currentBits,
     ~setCurrentBits,
-    ~species,
+    ~speciesId,
     ~currentKey,
     ~isSymmetric,
     ~numOfModes,
@@ -352,16 +352,16 @@ module Species = {
                 currentBits->Option.mapWithDefault(
                   {
                     setSpeciesHidden(_ => false)
-                    setCurrentBits(_ => species->stringToIntArray->Some)
+                    setCurrentBits(_ => speciesId->stringToIntArray->Some)
                   },
                   _ => {
                     setSpeciesHidden(_ => !speciesHidden ? anySelected : !speciesHidden)
-                    setCurrentBits(_ => anySelected ? None : species->stringToIntArray->Some)
+                    setCurrentBits(_ => anySelected ? None : speciesId->stringToIntArray->Some)
                   },
                 )
               }}
               currentKey={currentKey}
-              bitString={species}
+              bitString={speciesId}
               kind={Species}
             />
             <div className="w-6"> {isSymmetric ? "x"->str : ""->str} </div>
@@ -375,25 +375,25 @@ module Species = {
               speciesHidden ? "hidden " : "",
               "pt-0.5 pb-2 border-t border-neutral-400",
             ]->join}>
-            {modes->reactMap(mode => {
+            {modes->reactMap(modeId => {
               let selected =
                 currentBits->Option.mapWithDefault(false, c =>
-                  c->intArrayToString == mode->arrayToString
+                  c->intArrayToString == modeId->arrayToString
                 )
               <div className="flex flex-row">
                 <Scale
                   selected={selected}
-                  onClick={_ => setCurrentBits(_ => mode->stringArrayToIntArray->Some)}
+                  onClick={_ => setCurrentBits(_ => modeId->stringArrayToIntArray->Some)}
                   currentKey={currentKey}
-                  bitString={mode->arrayToString}
+                  bitString={modeId->arrayToString}
                   kind={Mode}
                 />
                 {currentKey->Option.isSome
                   ? {
                       base->Option.mapWithDefault(
-                        <button onClick={_ => setBase(_ => Some(mode))}> {"Base"->str} </button>,
+                        <button onClick={_ => setBase(_ => Some(modeId))}> {"Base"->str} </button>,
                         b =>
-                          b->arrayToString == mode->arrayToString
+                          b->arrayToString == modeId->arrayToString
                             ? <button onClick={_ => setBase(_ => None)}> {"Remove"->str} </button>
                             : React.null,
                       )
@@ -445,7 +445,7 @@ let make = () => {
     <div className="flex-1 h-full overflow-scroll pr-4">
       {result
       ->Map.Int.toArray
-      ->reactMap(((k, v)) =>
+      ->reactMap(((genusId, species)) =>
         <CollapsedTri
           render={(genusCollapsedState, setGenusCollapsedState) => {
             <div className={"mb-1"}>
@@ -460,9 +460,9 @@ let make = () => {
                   )
                 }}
                 className="flex flex-row items-center px-4 ">
-                <div className="flex-1 text-lg"> {k->Int.toString->str} </div>
+                <div className="flex-1 text-lg"> {genusId->Int.toString->str} </div>
                 <div className="flex-1 text-sm whitespace-nowrap">
-                  {v->Map.String.toArray->Array.length->Int.toString->str}
+                  {species->Map.String.toArray->Array.length->Int.toString->str}
                   {" species"->str}
                 </div>
               </div>
@@ -475,15 +475,15 @@ let make = () => {
                   },
                   "overflow-scroll p-2 pb-6 border",
                 ]->join}>
-                {v
+                {species
                 ->Map.String.toArray
                 ->Array.reverse
-                ->reactMap(((species, {modes, numOfModes, autoCorrelations, isSymmetric})) =>
+                ->reactMap(((speciesId, {modes, numOfModes, autoCorrelations, isSymmetric})) =>
                   <Species
                     modes={modes}
                     currentBits={currentBits}
                     setCurrentBits={setCurrentBits}
-                    species={species}
+                    speciesId={speciesId}
                     currentKey={currentKey}
                     isSymmetric={isSymmetric}
                     numOfModes={numOfModes}
