@@ -435,37 +435,45 @@ module Species = {
               speciesHidden ? "hidden " : "",
               "pt-0.5 pb-2 border-t border-neutral-400",
             ]->join}>
-            {speciesDetails.modes->reactMap(((modeId, rotationDegrees)) => {
-              let selected =
-                currentBits->Option.mapWithDefault(false, c => c->BitOps.intArrayToString == modeId)
-              <div key={modeId} className="flex flex-row">
-                <Scale
-                  selected={selected}
-                  onClick={_ => setCurrentBits(_ => modeId->BitOps.stringToIntArray->Some)}
-                  currentKey={currentKey}
-                  bitString={modeId}
-                  kind={modeId->BitOps.stringToStringArray->startsWith1 ? Mode : NonMode}
-                />
-                {currentKey->Option.isSome
-                  ? {
-                      base->Option.mapWithDefault(
-                        <button onClick={_ => setBase(_ => Some(modeId))}> {"Base"->str} </button>,
-                        b =>
-                          b == modeId
-                            ? <button onClick={_ => setBase(_ => None)}> {"Remove"->str} </button>
-                            : React.null,
-                      )
-                    }
-                  : React.null}
-                <div className="text-neutral-700 text-xs">
-                  {`[${rotationDegrees
-                    ->Array.map(degree =>
-                      bitToDisplaySymbol("1", degree, currentKey, degree->Int.toString)
+            {speciesHidden
+              ? React.null
+              : speciesDetails.modes->reactMap(((modeId, rotationDegrees)) => {
+                  let selected =
+                    currentBits->Option.mapWithDefault(false, c =>
+                      c->BitOps.intArrayToString == modeId
                     )
-                    ->Js.Array2.joinWith(_, ", ")}]`->str}
-                </div>
-              </div>
-            })}
+                  <div key={modeId} className="flex flex-row">
+                    <Scale
+                      selected={selected}
+                      onClick={_ => setCurrentBits(_ => modeId->BitOps.stringToIntArray->Some)}
+                      currentKey={currentKey}
+                      bitString={modeId}
+                      kind={modeId->BitOps.stringToStringArray->startsWith1 ? Mode : NonMode}
+                    />
+                    {currentKey->Option.isSome
+                      ? {
+                          base->Option.mapWithDefault(
+                            <button onClick={_ => setBase(_ => Some(modeId))}>
+                              {"Base"->str}
+                            </button>,
+                            b =>
+                              b == modeId
+                                ? <button onClick={_ => setBase(_ => None)}>
+                                    {"Remove"->str}
+                                  </button>
+                                : React.null,
+                          )
+                        }
+                      : React.null}
+                    <div className="text-neutral-700 text-xs">
+                      {`[${rotationDegrees
+                        ->Array.map(degree =>
+                          bitToDisplaySymbol("1", degree, currentKey, degree->Int.toString)
+                        )
+                        ->Js.Array2.joinWith(_, ", ")}]`->str}
+                    </div>
+                  </div>
+                })}
             <div className="text-xs text-green-600 flex flex-row ">
               {speciesDetails.autoCorrelations->reactMapWithIndex((i, x) => {
                 <div
@@ -570,19 +578,21 @@ let make = () => {
                   },
                   "overflow-scroll p-2 pb-6 border",
                 ]->join}>
-                {species
-                ->Map.String.toArray
-                ->Array.reverse
-                ->reactMap(((speciesId, speciesDetails)) =>
-                  <Species
-                    key={speciesId}
-                    currentBits={currentBits}
-                    setCurrentBits={setCurrentBits}
-                    currentKey={currentKey}
-                    speciesId={speciesId}
-                    speciesDetails={speciesDetails}
-                  />
-                )}
+                {genusCollapsedState == One
+                  ? React.null
+                  : species
+                    ->Map.String.toArray
+                    ->Array.reverse
+                    ->reactMap(((speciesId, speciesDetails)) =>
+                      <Species
+                        key={speciesId}
+                        currentBits={currentBits}
+                        setCurrentBits={setCurrentBits}
+                        currentKey={currentKey}
+                        speciesId={speciesId}
+                        speciesDetails={speciesDetails}
+                      />
+                    )}
               </div>
             </div>
           }}

@@ -597,48 +597,48 @@ function App$Species(Props) {
                                       speciesHidden ? "hidden " : "",
                                       "pt-0.5 pb-2 border-t border-neutral-400"
                                     ].join(" ")
-                                }, Belt_Array.map(speciesDetails.modes, (function (param) {
-                                        var modeId = param[0];
-                                        var selected = Belt_Option.mapWithDefault(currentBits, false, (function (c) {
-                                                return intArrayToString(c) === modeId;
-                                              }));
-                                        return React.createElement("div", {
-                                                    key: modeId,
-                                                    className: "flex flex-row"
-                                                  }, React.createElement(App$Scale, {
-                                                        onClick: (function (param) {
-                                                            Curry._1(setCurrentBits, (function (param) {
-                                                                    return stringArrayToIntArray(Array.from(modeId));
-                                                                  }));
-                                                          }),
-                                                        bitString: modeId,
-                                                        currentKey: currentKey,
-                                                        kind: startsWith1(Array.from(modeId)) ? /* Mode */1 : /* NonMode */2,
-                                                        selected: selected
-                                                      }), Belt_Option.isSome(currentKey) ? Belt_Option.mapWithDefault(base, React.createElement("button", {
-                                                              onClick: (function (param) {
-                                                                  Curry._1(setBase, (function (param) {
-                                                                          return modeId;
-                                                                        }));
-                                                                })
-                                                            }, "Base"), (function (b) {
-                                                            if (b === modeId) {
-                                                              return React.createElement("button", {
-                                                                          onClick: (function (param) {
-                                                                              Curry._1(setBase, (function (param) {
-                                                                                      
-                                                                                    }));
-                                                                            })
-                                                                        }, "Remove");
-                                                            } else {
-                                                              return null;
-                                                            }
-                                                          })) : null, React.createElement("div", {
-                                                        className: "text-neutral-700 text-xs"
-                                                      }, "[" + Belt_Array.map(param[1], (function (degree) {
-                                                                return bitToDisplaySymbol("1", degree, currentKey, String(degree));
-                                                              })).join(", ") + "]"));
-                                      })), React.createElement("div", {
+                                }, speciesHidden ? null : Belt_Array.map(speciesDetails.modes, (function (param) {
+                                          var modeId = param[0];
+                                          var selected = Belt_Option.mapWithDefault(currentBits, false, (function (c) {
+                                                  return intArrayToString(c) === modeId;
+                                                }));
+                                          return React.createElement("div", {
+                                                      key: modeId,
+                                                      className: "flex flex-row"
+                                                    }, React.createElement(App$Scale, {
+                                                          onClick: (function (param) {
+                                                              Curry._1(setCurrentBits, (function (param) {
+                                                                      return stringArrayToIntArray(Array.from(modeId));
+                                                                    }));
+                                                            }),
+                                                          bitString: modeId,
+                                                          currentKey: currentKey,
+                                                          kind: startsWith1(Array.from(modeId)) ? /* Mode */1 : /* NonMode */2,
+                                                          selected: selected
+                                                        }), Belt_Option.isSome(currentKey) ? Belt_Option.mapWithDefault(base, React.createElement("button", {
+                                                                onClick: (function (param) {
+                                                                    Curry._1(setBase, (function (param) {
+                                                                            return modeId;
+                                                                          }));
+                                                                  })
+                                                              }, "Base"), (function (b) {
+                                                              if (b === modeId) {
+                                                                return React.createElement("button", {
+                                                                            onClick: (function (param) {
+                                                                                Curry._1(setBase, (function (param) {
+                                                                                        
+                                                                                      }));
+                                                                              })
+                                                                          }, "Remove");
+                                                              } else {
+                                                                return null;
+                                                              }
+                                                            })) : null, React.createElement("div", {
+                                                          className: "text-neutral-700 text-xs"
+                                                        }, "[" + Belt_Array.map(param[1], (function (degree) {
+                                                                  return bitToDisplaySymbol("1", degree, currentKey, String(degree));
+                                                                })).join(", ") + "]"));
+                                        })), React.createElement("div", {
                                       className: "text-xs text-green-600 flex flex-row "
                                     }, Belt_Array.mapWithIndex(speciesDetails.autoCorrelations, (function (i, x) {
                                             return React.createElement("div", {
@@ -799,17 +799,17 @@ function App(Props) {
                                                             tmp,
                                                             "overflow-scroll p-2 pb-6 border"
                                                           ].join(" ")
-                                                      }, Belt_Array.map(Belt_Array.reverse(Belt_MapString.toArray(species)), (function (param) {
-                                                              var speciesId = param[0];
-                                                              return React.createElement(App$Species, {
-                                                                          currentBits: currentBits,
-                                                                          setCurrentBits: setCurrentBits,
-                                                                          currentKey: currentKey,
-                                                                          speciesId: speciesId,
-                                                                          speciesDetails: param[1],
-                                                                          key: speciesId
-                                                                        });
-                                                            }))));
+                                                      }, genusCollapsedState === /* One */0 ? null : Belt_Array.map(Belt_Array.reverse(Belt_MapString.toArray(species)), (function (param) {
+                                                                var speciesId = param[0];
+                                                                return React.createElement(App$Species, {
+                                                                            currentBits: currentBits,
+                                                                            setCurrentBits: setCurrentBits,
+                                                                            currentKey: currentKey,
+                                                                            speciesId: speciesId,
+                                                                            speciesDetails: param[1],
+                                                                            key: speciesId
+                                                                          });
+                                                              }))));
                                       }),
                                     key: String(genusId)
                                   });
