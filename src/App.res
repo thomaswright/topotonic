@@ -175,34 +175,34 @@ let hasBilateralSymmetry = (x: array<string>) => {
       }
 }
 
-let groupBySpecies = groupedByCount =>
-  groupedByCount->Map.Int.map(x => {
-    x
+let groupBySpecies = genusGrouping =>
+  genusGrouping->Map.Int.map(allPerms => {
+    allPerms
     ->Array.reduce(Map.String.empty, (acc, value) => {
-      let key = value->generateGreatest->arrayToString
+      let greatestPerm = value->generateGreatest->arrayToString
       acc->Map.String.update(
-        key,
-        x => x->Option.mapWithDefault([value]->Some, a => Array.concat(a, [value])->Some),
+        greatestPerm,
+        a => a->Option.mapWithDefault([value]->Some, b => Array.concat(b, [value])->Some),
       )
     })
     ->Map.String.keysToArray
-    ->Array.map(speciesKey => (
-      speciesKey,
-      speciesKey->stringToArray->getPermutations->removeZeroStarts->removeDuplicates->Array.reverse,
+    ->Array.map(speciesId => (
+      speciesId,
+      speciesId->stringToArray->getPermutations->removeZeroStarts->removeDuplicates->Array.reverse,
     ))
     ->Map.String.fromArray
-    ->Map.String.mapWithKey((k, a) => {
-      let _numOfAutoCorrelations = switch (a->Array.get(0), a->Array.get(1)) {
+    ->Map.String.mapWithKey((speciesId, modes) => {
+      let _numOfAutoCorrelations = switch (modes->Array.get(0), modes->Array.get(1)) {
       | (Some(a1), Some(a2)) =>
         Array.zip(a1, a2)->Array.keep(((a1, a2)) => a1 == "1" && a2 == "1")->Array.length
       | (_, _) => 0
       }
 
-      let permutations = k->stringToArray->getPermutations
+      let permutations = speciesId->stringToArray->getPermutations
       {
-        modes: a,
-        numOfModes: a->Array.length,
-        autoCorrelations: a
+        modes,
+        numOfModes: modes->Array.length,
+        autoCorrelations: modes
         ->Array.get(0)
         ->Option.mapWithDefault(
           [],

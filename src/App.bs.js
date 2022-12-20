@@ -212,23 +212,23 @@ function hasBilateralSymmetry(x) {
   return isSameArray(a$1, Belt_Array.reverse(b$1));
 }
 
-function groupBySpecies(groupedByCount) {
-  return Belt_MapInt.map(groupedByCount, (function (x) {
-                return Belt_MapString.mapWithKey(Belt_MapString.fromArray(Belt_Array.map(Belt_MapString.keysToArray(Belt_Array.reduce(x, undefined, (function (acc, value) {
-                                              var key = arrayToString(generateGreatest(value));
-                                              return Belt_MapString.update(acc, key, (function (x) {
-                                                            return Belt_Option.mapWithDefault(x, [value], (function (a) {
-                                                                          return Belt_Array.concat(a, [value]);
+function groupBySpecies(genusGrouping) {
+  return Belt_MapInt.map(genusGrouping, (function (allPerms) {
+                return Belt_MapString.mapWithKey(Belt_MapString.fromArray(Belt_Array.map(Belt_MapString.keysToArray(Belt_Array.reduce(allPerms, undefined, (function (acc, value) {
+                                              var greatestPerm = arrayToString(generateGreatest(value));
+                                              return Belt_MapString.update(acc, greatestPerm, (function (a) {
+                                                            return Belt_Option.mapWithDefault(a, [value], (function (b) {
+                                                                          return Belt_Array.concat(b, [value]);
                                                                         }));
                                                           }));
-                                            }))), (function (speciesKey) {
+                                            }))), (function (speciesId) {
                                       return [
-                                              speciesKey,
-                                              Belt_Array.reverse(removeDuplicates(removeZeroStarts(getPermutations(Array.from(speciesKey)))))
+                                              speciesId,
+                                              Belt_Array.reverse(removeDuplicates(removeZeroStarts(getPermutations(Array.from(speciesId)))))
                                             ];
-                                    }))), (function (k, a) {
-                              var match = Belt_Array.get(a, 0);
-                              var match$1 = Belt_Array.get(a, 1);
+                                    }))), (function (speciesId, modes) {
+                              var match = Belt_Array.get(modes, 0);
+                              var match$1 = Belt_Array.get(modes, 1);
                               if (match !== undefined) {
                                 if (match$1 !== undefined) {
                                   Belt_Array.keep(Belt_Array.zip(match, match$1), (function (param) {
@@ -241,11 +241,11 @@ function groupBySpecies(groupedByCount) {
                                 }
                                 
                               }
-                              var permutations = getPermutations(Array.from(k));
+                              var permutations = getPermutations(Array.from(speciesId));
                               return {
-                                      modes: a,
-                                      numOfModes: a.length,
-                                      autoCorrelations: Belt_Option.mapWithDefault(Belt_Array.get(a, 0), [], (function (match) {
+                                      modes: modes,
+                                      numOfModes: modes.length,
+                                      autoCorrelations: Belt_Option.mapWithDefault(Belt_Array.get(modes, 0), [], (function (match) {
                                               return Belt_Array.map(permutations, (function (p) {
                                                             if (arrayToString(p) === arrayToString(match)) {
                                                               return "_";
