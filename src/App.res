@@ -78,7 +78,7 @@ module BitOps = {
     })
 }
 
-let getAllPerms = numOfBits =>
+let getPermsForBitLength = numOfBits =>
   Array.range(0, (2. ** numOfBits->Int.toFloat -. 1.)->Float.toInt)->Array.map(x =>
     x->Js.Int.toStringWithRadix(~radix=2)->padLeft(numOfBits, "0")
   )
@@ -88,23 +88,21 @@ let count1s = bitArray =>
     value == "1" ? acc + 1 : acc
   })
 
-let groupByGenus = bitArrays =>
-  bitArrays->Array.reduce(Map.Int.empty, (acc, value) => {
+let groupByGenus = x =>
+  x->Array.reduce(Map.Int.empty, (acc, value) => {
     let genus = value->count1s
     acc->Map.Int.update(genus, a =>
       a->Option.mapWithDefault([value]->Some, b => Array.concat(b, [value])->Some)
     )
   })
 
-let rec cycleArray = (x, shift) => {
-  shift > 0
-    ? Array.concat(x->Js.Array2.sliceFrom(1), [x->Array.getExn(0)])->cycleArray(shift - 1)
-    : x
+let rec rotate = (x, shift) => {
+  shift > 0 ? Array.concat(x->Js.Array2.sliceFrom(1), [x->Array.getExn(0)])->rotate(shift - 1) : x
 }
 
-let getPermutations = x => {
+let getRotations = x => {
   let unordered = Array.range(0, x->Array.length - 1)->Array.map(i => {
-    x->cycleArray(i)
+    x->rotate(i)
   })
 
   let _orderedShiftingRight = Array.concat(
@@ -120,26 +118,26 @@ let getPermutations = x => {
   orderedShiftingLeft
 }
 
-let generateGreatest = x => {
-  let permutations = getPermutations(x)
+let getGreatestRotation = x => {
+  let rotations = getRotations(x)
 
-  permutations->Array.reduce(permutations->Array.getExn(0), (acc, value) => {
+  rotations->Array.reduce(rotations->Array.getExn(0), (acc, value) => {
     let valueDecRep = value->BitOps.stringArrayToInt
     let accDecRep = acc->BitOps.stringArrayToInt
     valueDecRep > accDecRep ? value : acc
   })
 }
 
-let removeZeroStarts = permutations => {
-  permutations->Array.keep(x => x->Array.getExn(0) == "1")
+let removeZeroStarts = x => {
+  x->Array.keep(a => a->Array.getExn(0) == "1")
 }
 
-let removeDuplicates = permutations => {
-  permutations
-  ->Array.map(x => (x->BitOps.stringArrayToString, ""))
+let removeDuplicates = x => {
+  x
+  ->Array.map(a => (a->BitOps.stringArrayToString, ""))
   ->Map.String.fromArray
   ->Map.String.keysToArray
-  ->Array.map(x => x->BitOps.stringToStringArray)
+  ->Array.map(a => a->BitOps.stringToStringArray)
 }
 
 type species = {
@@ -178,10 +176,10 @@ let hasBilateralSymmetry = (x: array<string>) => {
 }
 
 let groupBySpecies = genusGrouping =>
-  genusGrouping->Map.Int.map(allPerms => {
-    allPerms
+  genusGrouping->Map.Int.map(genusPerms => {
+    genusPerms
     ->Array.reduce(Map.String.empty, (acc, value) => {
-      let greatestPerm = value->generateGreatest->BitOps.stringArrayToString
+      let greatestPerm = value->getGreatestRotation->BitOps.stringArrayToString
       acc->Map.String.update(
         greatestPerm,
         a => a->Option.mapWithDefault([value]->Some, b => Array.concat(b, [value])->Some),
@@ -192,7 +190,7 @@ let groupBySpecies = genusGrouping =>
       speciesId,
       speciesId
       ->BitOps.stringToStringArray
-      ->getPermutations
+      ->getRotations
       ->removeZeroStarts
       ->removeDuplicates
       ->Array.reverse,
@@ -205,7 +203,7 @@ let groupBySpecies = genusGrouping =>
       | (_, _) => 0
       }
 
-      let permutations = speciesId->BitOps.stringToStringArray->getPermutations
+      let permutations = speciesId->BitOps.stringToStringArray->getRotations
       {
         modes,
         numOfModes: modes->Array.length,
@@ -231,7 +229,11 @@ let groupBySpecies = genusGrouping =>
   })
 
 let result =
-  Config.bits->getAllPerms->Array.map(BitOps.stringToStringArray)->groupByGenus->groupBySpecies
+  Config.bits
+  ->getPermsForBitLength
+  ->Array.map(BitOps.stringToStringArray)
+  ->groupByGenus
+  ->groupBySpecies
 
 let keys = [
   `C`,
@@ -309,7 +311,7 @@ module Scale = {
           ]->join}>
           {currentKey
           ->Option.mapWithDefault(bit, shift =>
-            bit == "0" ? "-" : keysShort->cycleArray(shift)->Array.get(i)->Option.getWithDefault("")
+            bit == "0" ? "-" : keysShort->rotate(shift)->Array.get(i)->Option.getWithDefault("")
           )
           ->str}
         </div>
@@ -434,7 +436,7 @@ let make = () => {
 
   let graphKeys =
     currentKey->Option.mapWithDefault(keys->Array.mapWithIndex((i, _) => i->Int.toString), shift =>
-      keys->cycleArray(shift)
+      keys->rotate(shift)
     )
   let graphBits = currentBits->Option.mapWithDefault(keys->Array.map(_ => 0), b => b)
 

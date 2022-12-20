@@ -119,7 +119,7 @@ var BitOps = {
   stringArrayToInt: stringArrayToInt
 };
 
-function getAllPerms(numOfBits) {
+function getPermsForBitLength(numOfBits) {
   return Belt_Array.map(Belt_Array.range(0, Math.pow(2, numOfBits) - 1 | 0), (function (x) {
                 return padLeft(x.toString(2), numOfBits, "0");
               }));
@@ -135,8 +135,8 @@ function count1s(bitArray) {
               }));
 }
 
-function groupByGenus(bitArrays) {
-  return Belt_Array.reduce(bitArrays, undefined, (function (acc, value) {
+function groupByGenus(x) {
+  return Belt_Array.reduce(x, undefined, (function (acc, value) {
                 var genus = count1s(value);
                 return Belt_MapInt.update(acc, genus, (function (a) {
                               return Belt_Option.mapWithDefault(a, [value], (function (b) {
@@ -146,7 +146,7 @@ function groupByGenus(bitArrays) {
               }));
 }
 
-function cycleArray(_x, _shift) {
+function rotate(_x, _shift) {
   while(true) {
     var shift = _shift;
     var x = _x;
@@ -159,17 +159,17 @@ function cycleArray(_x, _shift) {
   };
 }
 
-function getPermutations(x) {
+function getRotations(x) {
   var unordered = Belt_Array.map(Belt_Array.range(0, x.length - 1 | 0), (function (i) {
-          return cycleArray(x, i);
+          return rotate(x, i);
         }));
   Belt_Array.concat([Belt_Array.getExn(unordered, 0)], Belt_Array.reverse(unordered.slice(1)));
   return Belt_Array.concat([Belt_Array.getExn(unordered, 0)], unordered.slice(1));
 }
 
-function generateGreatest(x) {
-  var permutations = getPermutations(x);
-  return Belt_Array.reduce(permutations, Belt_Array.getExn(permutations, 0), (function (acc, value) {
+function getGreatestRotation(x) {
+  var rotations = getRotations(x);
+  return Belt_Array.reduce(rotations, Belt_Array.getExn(rotations, 0), (function (acc, value) {
                 var valueDecRep = stringArrayToInt(value);
                 var accDecRep = stringArrayToInt(acc);
                 if (valueDecRep > accDecRep) {
@@ -180,20 +180,20 @@ function generateGreatest(x) {
               }));
 }
 
-function removeZeroStarts(permutations) {
-  return Belt_Array.keep(permutations, (function (x) {
-                return Belt_Array.getExn(x, 0) === "1";
+function removeZeroStarts(x) {
+  return Belt_Array.keep(x, (function (a) {
+                return Belt_Array.getExn(a, 0) === "1";
               }));
 }
 
-function removeDuplicates(permutations) {
-  return Belt_Array.map(Belt_MapString.keysToArray(Belt_MapString.fromArray(Belt_Array.map(permutations, (function (x) {
+function removeDuplicates(x) {
+  return Belt_Array.map(Belt_MapString.keysToArray(Belt_MapString.fromArray(Belt_Array.map(x, (function (a) {
                             return [
-                                    stringArrayToString(x),
+                                    stringArrayToString(a),
                                     ""
                                   ];
-                          })))), (function (x) {
-                return Array.from(x);
+                          })))), (function (a) {
+                return Array.from(a);
               }));
 }
 
@@ -222,9 +222,9 @@ function hasBilateralSymmetry(x) {
 }
 
 function groupBySpecies(genusGrouping) {
-  return Belt_MapInt.map(genusGrouping, (function (allPerms) {
-                return Belt_MapString.mapWithKey(Belt_MapString.fromArray(Belt_Array.map(Belt_MapString.keysToArray(Belt_Array.reduce(allPerms, undefined, (function (acc, value) {
-                                              var greatestPerm = stringArrayToString(generateGreatest(value));
+  return Belt_MapInt.map(genusGrouping, (function (genusPerms) {
+                return Belt_MapString.mapWithKey(Belt_MapString.fromArray(Belt_Array.map(Belt_MapString.keysToArray(Belt_Array.reduce(genusPerms, undefined, (function (acc, value) {
+                                              var greatestPerm = stringArrayToString(getGreatestRotation(value));
                                               return Belt_MapString.update(acc, greatestPerm, (function (a) {
                                                             return Belt_Option.mapWithDefault(a, [value], (function (b) {
                                                                           return Belt_Array.concat(b, [value]);
@@ -233,7 +233,7 @@ function groupBySpecies(genusGrouping) {
                                             }))), (function (speciesId) {
                                       return [
                                               speciesId,
-                                              Belt_Array.reverse(removeDuplicates(removeZeroStarts(getPermutations(Array.from(speciesId)))))
+                                              Belt_Array.reverse(removeDuplicates(removeZeroStarts(getRotations(Array.from(speciesId)))))
                                             ];
                                     }))), (function (speciesId, modes) {
                               var match = Belt_Array.get(modes, 0);
@@ -250,7 +250,7 @@ function groupBySpecies(genusGrouping) {
                                 }
                                 
                               }
-                              var permutations = getPermutations(Array.from(speciesId));
+                              var permutations = getRotations(Array.from(speciesId));
                               return {
                                       modes: modes,
                                       numOfModes: modes.length,
@@ -275,7 +275,7 @@ function groupBySpecies(genusGrouping) {
               }));
 }
 
-var result = groupBySpecies(groupByGenus(Belt_Array.map(getAllPerms(12), stringToStringArray)));
+var result = groupBySpecies(groupByGenus(Belt_Array.map(getPermsForBitLength(12), stringToStringArray)));
 
 var keys = [
   "C",
@@ -421,7 +421,7 @@ function App$Scale(Props) {
                                       if (bit === "0") {
                                         return "-";
                                       } else {
-                                        return Belt_Option.getWithDefault(Belt_Array.get(cycleArray(keysShort, shift), i), "");
+                                        return Belt_Option.getWithDefault(Belt_Array.get(rotate(keysShort, shift), i), "");
                                       }
                                     })));
                   })));
@@ -576,7 +576,7 @@ function App(Props) {
   var graphKeys = Belt_Option.mapWithDefault(currentKey, Belt_Array.mapWithIndex(keys, (function (i, param) {
               return String(i);
             })), (function (shift) {
-          return cycleArray(keys, shift);
+          return rotate(keys, shift);
         }));
   var graphBits = Belt_Option.mapWithDefault(currentBits, Belt_Array.map(keys, (function (param) {
               return 0;
@@ -694,12 +694,12 @@ export {
   str ,
   padLeft ,
   BitOps ,
-  getAllPerms ,
+  getPermsForBitLength ,
   count1s ,
   groupByGenus ,
-  cycleArray ,
-  getPermutations ,
-  generateGreatest ,
+  rotate ,
+  getRotations ,
+  getGreatestRotation ,
   removeZeroStarts ,
   removeDuplicates ,
   isSameArray ,
