@@ -6,6 +6,7 @@ open Belt
 // - enharmonics
 // - named keys
 // - shifts
+// - all symmetries
 
 let join = Js.Array2.joinWith(_, " ")
 
@@ -307,6 +308,12 @@ let spacedToBits = a => {
 
 type kind = Species | Mode | NonMode
 
+let bitToDisplaySymbol = (bit, index, currentKey) => {
+  currentKey->Option.mapWithDefault(bit, shift =>
+    bit == "0" ? "-" : keysShort->rotate(shift)->Array.get(index)->Option.getWithDefault("")
+  )
+}
+
 module Scale = {
   @react.component
   let make = (~onClick, ~bitString, ~currentKey, ~kind: kind, ~selected: bool) => {
@@ -328,11 +335,7 @@ module Scale = {
             currentKey->Option.isSome ? "w-5" : "w-5",
             "flex flex-row justify-center",
           ]->join}>
-          {currentKey
-          ->Option.mapWithDefault(bit, shift =>
-            bit == "0" ? "-" : keysShort->rotate(shift)->Array.get(i)->Option.getWithDefault("")
-          )
-          ->str}
+          {bitToDisplaySymbol(bit, i, currentKey)->str}
         </div>
       })
       ->React.array}
@@ -418,7 +421,7 @@ module Species = {
             {speciesDetails.modes
             ->Map.String.toArray
             ->Array.reverse
-            ->reactMap(((modeId, _rotationDegrees)) => {
+            ->reactMap(((modeId, rotationDegrees)) => {
               let selected =
                 currentBits->Option.mapWithDefault(false, c => c->BitOps.intArrayToString == modeId)
               <div className="flex flex-row">
@@ -440,6 +443,11 @@ module Species = {
                       )
                     }
                   : React.null}
+                <div className="text-neutral-700 text-xs">
+                  {`[${rotationDegrees
+                    ->Array.map(degree => bitToDisplaySymbol("1", degree, currentKey))
+                    ->Js.Array2.joinWith(_, ", ")}]`->str}
+                </div>
               </div>
             })}
             <div className="text-xs text-green-600 flex flex-row ">

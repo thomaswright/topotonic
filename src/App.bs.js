@@ -392,6 +392,16 @@ function spacedToBits(a) {
               }));
 }
 
+function bitToDisplaySymbol(bit, index, currentKey) {
+  return Belt_Option.mapWithDefault(currentKey, bit, (function (shift) {
+                if (bit === "0") {
+                  return "-";
+                } else {
+                  return Belt_Option.getWithDefault(Belt_Array.get(rotate(keysShort, shift), index), "");
+                }
+              }));
+}
+
 function App$Scale(Props) {
   var onClick = Props.onClick;
   var bitString = Props.bitString;
@@ -423,13 +433,7 @@ function App$Scale(Props) {
                                     (Belt_Option.isSome(currentKey), "w-5"),
                                     "flex flex-row justify-center"
                                   ].join(" ")
-                              }, Belt_Option.mapWithDefault(currentKey, bit, (function (shift) {
-                                      if (bit === "0") {
-                                        return "-";
-                                      } else {
-                                        return Belt_Option.getWithDefault(Belt_Array.get(rotate(keysShort, shift), i), "");
-                                      }
-                                    })));
+                              }, bitToDisplaySymbol(bit, i, currentKey));
                   })));
 }
 
@@ -554,7 +558,11 @@ function App$Species(Props) {
                                                             } else {
                                                               return null;
                                                             }
-                                                          })) : null);
+                                                          })) : null, React.createElement("div", {
+                                                        className: "text-neutral-700 text-xs"
+                                                      }, "[" + Belt_Array.map(param[1], (function (degree) {
+                                                                return bitToDisplaySymbol("1", degree, currentKey);
+                                                              })).join(", ") + "]"));
                                       })), React.createElement("div", {
                                       className: "text-xs text-green-600 flex flex-row "
                                     }, Belt_Array.map(speciesDetails.autoCorrelations, (function (x) {
@@ -716,6 +724,7 @@ export {
   keysShort ,
   namedSpecies ,
   spacedToBits ,
+  bitToDisplaySymbol ,
   Scale ,
   Key ,
   Species ,
