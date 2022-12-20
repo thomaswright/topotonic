@@ -1,11 +1,76 @@
 import React from "react";
 
+function getTextAnchors8(deg) {
+  // returns [dominantBaseline, textAnchor]
+  // positioned with deg = 0 at the top
+  // going clockwise
+
+  if (deg > 337 || deg <= 22) {
+    return ["text-bottom", "middle"];
+  } else if (deg > 22 && deg <= 67) {
+    return ["text-bottom", "start"];
+  } else if (deg > 67 && deg <= 112) {
+    return ["middle", "start"];
+  } else if (deg > 112 && deg <= 157) {
+    return ["hanging", "start"];
+  } else if (deg > 157 && deg <= 202) {
+    return ["hanging", "middle"];
+  } else if (deg > 202 && deg <= 247) {
+    return ["hanging", "end"];
+  } else if (deg > 247 && deg <= 292) {
+    return ["middle", "end"];
+  } else if (deg > 292 && deg <= 337) {
+    return ["text-bottom", "end"];
+  } else {
+    return ["middle", "middle"];
+  }
+}
+
+function getTextAnchors12(deg) {
+  // returns [dominantBaseline, textAnchor]
+  // positioned with deg = 0 at the top
+  // going clockwise
+
+  if (deg > 345 || deg <= 15) {
+    return ["text-bottom", "middle"];
+  } else if (deg > 15 && deg <= 45) {
+    return ["text-bottom", "start"];
+  } else if (deg > 45 && deg <= 75) {
+    return ["middle", "start"];
+  } else if (deg > 75 && deg <= 105) {
+    return ["middle", "start"];
+  } else if (deg > 105 && deg <= 135) {
+    return ["middle", "start"];
+  } else if (deg > 135 && deg <= 165) {
+    return ["hanging", "start"];
+  } else if (deg > 165 && deg <= 195) {
+    return ["hanging", "middle"];
+  } else if (deg > 195 && deg <= 225) {
+    return ["hanging", "end"];
+  } else if (deg > 225 && deg <= 255) {
+    return ["middle", "end"];
+  } else if (deg > 255 && deg <= 285) {
+    return ["middle", "end"];
+  } else if (deg > 285 && deg <= 315) {
+    return ["middle", "end"];
+  } else if (deg > 315 && deg <= 345) {
+    return ["text-bottom", "end"];
+  } else {
+    return ["middle", "middle"];
+  }
+}
+
 const RadialText = ({ x, y, radius, deg, text }) => {
+  let [dominantBaseline, textAnchor] = getTextAnchors12(deg);
   return (
     <g transform={`translate(${x} ${y}) `}>
       <g transform={`rotate(${deg - 90}) translate(${radius} ${0}) `}>
         <g transform={`rotate(${-(deg - 90)})  `}>
-          <text dominantBaseline="middle" textAnchor="middle" fontSize={5}>
+          <text
+            dominantBaseline={dominantBaseline}
+            textAnchor={textAnchor}
+            fontSize={5}
+          >
             {text}
           </text>
         </g>
@@ -40,7 +105,7 @@ export const SVG = ({ data }) => {
     y: boxSize / 2,
   };
 
-  let radius = boxSize / 4;
+  let radius = boxSize / 3.5;
 
   return (
     <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
@@ -64,7 +129,7 @@ export const SVG = ({ data }) => {
             <RadialText
               x={center.x}
               y={center.y}
-              radius={radius * 1.3}
+              radius={radius * 1.2}
               deg={i * orderDegree}
               text={label}
             />
