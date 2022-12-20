@@ -56,17 +56,17 @@ let rec padLeft = (s, l, pad) => {
 type bitArray = array<string>
 
 module BitOps = {
-  let s_sa = x => x->Js.String2.castToArrayLike->Js.Array2.from
+  let stringToStringArray = x => x->Js.String2.castToArrayLike->Js.Array2.from
 
-  let sa_s = x => x->Array.reduce("", (acc, value) => acc ++ value)
+  let stringArrayToString = x => x->Array.reduce("", (acc, value) => acc ++ value)
 
-  let sa_ia = x => x->Array.map(x => x->Int.fromString->Option.getWithDefault(0))
+  let stringArrayToIntArray = x => x->Array.map(x => x->Int.fromString->Option.getWithDefault(0))
 
-  let s_ia = x => x->s_sa->sa_ia
+  let stringToIntArray = x => x->stringToStringArray->stringArrayToIntArray
 
-  let ia_s = x => x->Array.reduce("", (acc, value) => acc ++ value->Int.toString)
+  let intArrayToString = x => x->Array.reduce("", (acc, value) => acc ++ value->Int.toString)
 
-  let sa_decInt = x =>
+  let stringArrayToInt = x =>
     x
     ->Array.reverse
     ->Array.reduceWithIndex(0, (acc, value, i) => {
@@ -78,7 +78,7 @@ module BitOps = {
     })
 }
 
-let getBitStrings = numOfBits =>
+let getAllPerms = numOfBits =>
   Array.range(0, (2. ** numOfBits->Int.toFloat -. 1.)->Float.toInt)->Array.map(x =>
     x->Js.Int.toStringWithRadix(~radix=2)->padLeft(numOfBits, "0")
   )
@@ -124,8 +124,8 @@ let generateGreatest = x => {
   let permutations = getPermutations(x)
 
   permutations->Array.reduce(permutations->Array.getExn(0), (acc, value) => {
-    let valueDecRep = value->BitOps.sa_decInt
-    let accDecRep = acc->BitOps.sa_decInt
+    let valueDecRep = value->BitOps.stringArrayToInt
+    let accDecRep = acc->BitOps.stringArrayToInt
     valueDecRep > accDecRep ? value : acc
   })
 }
@@ -136,10 +136,10 @@ let removeZeroStarts = permutations => {
 
 let removeDuplicates = permutations => {
   permutations
-  ->Array.map(x => (x->BitOps.sa_s, ""))
+  ->Array.map(x => (x->BitOps.stringArrayToString, ""))
   ->Map.String.fromArray
   ->Map.String.keysToArray
-  ->Array.map(x => x->BitOps.s_sa)
+  ->Array.map(x => x->BitOps.stringToStringArray)
 }
 
 type species = {
@@ -181,7 +181,7 @@ let groupBySpecies = genusGrouping =>
   genusGrouping->Map.Int.map(allPerms => {
     allPerms
     ->Array.reduce(Map.String.empty, (acc, value) => {
-      let greatestPerm = value->generateGreatest->BitOps.sa_s
+      let greatestPerm = value->generateGreatest->BitOps.stringArrayToString
       acc->Map.String.update(
         greatestPerm,
         a => a->Option.mapWithDefault([value]->Some, b => Array.concat(b, [value])->Some),
@@ -190,7 +190,12 @@ let groupBySpecies = genusGrouping =>
     ->Map.String.keysToArray
     ->Array.map(speciesId => (
       speciesId,
-      speciesId->BitOps.s_sa->getPermutations->removeZeroStarts->removeDuplicates->Array.reverse,
+      speciesId
+      ->BitOps.stringToStringArray
+      ->getPermutations
+      ->removeZeroStarts
+      ->removeDuplicates
+      ->Array.reverse,
     ))
     ->Map.String.fromArray
     ->Map.String.mapWithKey((speciesId, modes) => {
@@ -200,7 +205,7 @@ let groupBySpecies = genusGrouping =>
       | (_, _) => 0
       }
 
-      let permutations = speciesId->BitOps.s_sa->getPermutations
+      let permutations = speciesId->BitOps.stringToStringArray->getPermutations
       {
         modes,
         numOfModes: modes->Array.length,
@@ -211,7 +216,7 @@ let groupBySpecies = genusGrouping =>
           match =>
             permutations->Array.map(
               p => {
-                p->BitOps.sa_s == match->BitOps.sa_s
+                p->BitOps.stringArrayToString == match->BitOps.stringArrayToString
                   ? "_"
                   : Array.zip(p, match)
                     ->Array.keep(((a1, a2)) => a1 == "1" && a2 == "1")
@@ -225,7 +230,8 @@ let groupBySpecies = genusGrouping =>
     })
   })
 
-let result = Config.bits->getBitStrings->Array.map(BitOps.s_sa)->groupByGenus->groupBySpecies
+let result =
+  Config.bits->getAllPerms->Array.map(BitOps.stringToStringArray)->groupByGenus->groupBySpecies
 
 let keys = [
   `C`,
@@ -294,7 +300,7 @@ module Scale = {
         },
       ]->join}>
       {bitString
-      ->BitOps.s_sa
+      ->BitOps.stringToStringArray
       ->Array.mapWithIndex((i, bit) => {
         <div
           className={[
@@ -339,7 +345,9 @@ module Species = {
     <Collapsed
       render={(speciesHidden, setSpeciesHidden) => {
         let anySelected = modes->any(mode => {
-          currentBits->Option.mapWithDefault(false, c => c->BitOps.ia_s == mode->BitOps.sa_s)
+          currentBits->Option.mapWithDefault(false, c =>
+            c->BitOps.intArrayToString == mode->BitOps.stringArrayToString
+          )
         })
 
         <div
@@ -354,11 +362,13 @@ module Species = {
                 currentBits->Option.mapWithDefault(
                   {
                     setSpeciesHidden(_ => false)
-                    setCurrentBits(_ => speciesId->BitOps.s_ia->Some)
+                    setCurrentBits(_ => speciesId->BitOps.stringToIntArray->Some)
                   },
                   _ => {
                     setSpeciesHidden(_ => !speciesHidden ? anySelected : !speciesHidden)
-                    setCurrentBits(_ => anySelected ? None : speciesId->BitOps.s_ia->Some)
+                    setCurrentBits(_ =>
+                      anySelected ? None : speciesId->BitOps.stringToIntArray->Some
+                    )
                   },
                 )
               }}
@@ -380,14 +390,14 @@ module Species = {
             {modes->reactMap(modeId => {
               let selected =
                 currentBits->Option.mapWithDefault(false, c =>
-                  c->BitOps.ia_s == modeId->BitOps.sa_s
+                  c->BitOps.intArrayToString == modeId->BitOps.stringArrayToString
                 )
               <div className="flex flex-row">
                 <Scale
                   selected={selected}
-                  onClick={_ => setCurrentBits(_ => modeId->BitOps.sa_ia->Some)}
+                  onClick={_ => setCurrentBits(_ => modeId->BitOps.stringArrayToIntArray->Some)}
                   currentKey={currentKey}
-                  bitString={modeId->BitOps.sa_s}
+                  bitString={modeId->BitOps.stringArrayToString}
                   kind={Mode}
                 />
                 {currentKey->Option.isSome
@@ -395,7 +405,7 @@ module Species = {
                       base->Option.mapWithDefault(
                         <button onClick={_ => setBase(_ => Some(modeId))}> {"Base"->str} </button>,
                         b =>
-                          b->BitOps.sa_s == modeId->BitOps.sa_s
+                          b->BitOps.stringArrayToString == modeId->BitOps.stringArrayToString
                             ? <button onClick={_ => setBase(_ => None)}> {"Remove"->str} </button>
                             : React.null,
                       )
