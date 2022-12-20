@@ -3,12 +3,33 @@
 import * as Curry from "rescript/lib/es6/curry.js";
 import * as React from "react";
 import * as Belt_Int from "rescript/lib/es6/belt_Int.js";
+import * as SVGJsx from "./SVG.jsx";
 import * as Belt_Array from "rescript/lib/es6/belt_Array.js";
 import * as Belt_MapInt from "rescript/lib/es6/belt_MapInt.js";
 import * as Belt_Option from "rescript/lib/es6/belt_Option.js";
 import * as Belt_MapString from "rescript/lib/es6/belt_MapString.js";
 
-console.log("Hello");
+function join(__x) {
+  return __x.join(" ");
+}
+
+function App$Collapsed(Props) {
+  var render = Props.render;
+  var match = React.useState(function () {
+        return true;
+      });
+  return Curry._2(render, match[0], match[1]);
+}
+
+var Collapsed = {
+  make: App$Collapsed
+};
+
+var make = SVGJsx.SVG;
+
+var SVG = {
+  make: make
+};
 
 var Config = {
   bits: 12
@@ -31,10 +52,6 @@ function padLeft(_s, l, pad) {
   };
 }
 
-var bitStrings = Belt_Array.map(Belt_Array.range(0, Math.pow(2, 12) - 1 | 0), (function (x) {
-        return padLeft(x.toString(2), 12, "0");
-      }));
-
 function stringToArray(x) {
   return Array.from(x);
 }
@@ -45,7 +62,21 @@ function arrayToString(x) {
               }));
 }
 
-var bitArrays = Belt_Array.map(bitStrings, stringToArray);
+function stringArrayToIntArray(x) {
+  return Belt_Array.map(x, (function (x) {
+                return Belt_Option.getWithDefault(Belt_Int.fromString(x), 0);
+              }));
+}
+
+function stringToIntArray(x) {
+  return stringArrayToIntArray(Array.from(x));
+}
+
+function getBitStrings(numOfBits) {
+  return Belt_Array.map(Belt_Array.range(0, Math.pow(2, numOfBits) - 1 | 0), (function (x) {
+                return padLeft(x.toString(2), numOfBits, "0");
+              }));
+}
 
 function count1s(bitArray) {
   return Belt_Array.reduce(bitArray, 0, (function (acc, value) {
@@ -57,14 +88,16 @@ function count1s(bitArray) {
               }));
 }
 
-var groupedByCount = Belt_Array.reduce(bitArrays, undefined, (function (acc, value) {
-        var count = count1s(value);
-        return Belt_MapInt.update(acc, count, (function (x) {
-                      return Belt_Option.mapWithDefault(x, [value], (function (a) {
-                                    return Belt_Array.concat(a, [value]);
-                                  }));
-                    }));
-      }));
+function groupByCount(bitArrays) {
+  return Belt_Array.reduce(bitArrays, undefined, (function (acc, value) {
+                var count = count1s(value);
+                return Belt_MapInt.update(acc, count, (function (x) {
+                              return Belt_Option.mapWithDefault(x, [value], (function (a) {
+                                            return Belt_Array.concat(a, [value]);
+                                          }));
+                            }));
+              }));
+}
 
 function cycleArray(_x, _shift) {
   while(true) {
@@ -87,15 +120,16 @@ function bitArrayToDec(x) {
               }));
 }
 
-function generatePermutations(x) {
+function getPermutations(x) {
   var unordered = Belt_Array.map(Belt_Array.range(0, x.length - 1 | 0), (function (i) {
           return cycleArray(x, i);
         }));
-  return Belt_Array.concat([Belt_Array.getExn(unordered, 0)], Belt_Array.reverse(unordered.slice(1)));
+  Belt_Array.concat([Belt_Array.getExn(unordered, 0)], Belt_Array.reverse(unordered.slice(1)));
+  return Belt_Array.concat([Belt_Array.getExn(unordered, 0)], unordered.slice(1));
 }
 
 function generateGreatest(x) {
-  var permutations = generatePermutations(x);
+  var permutations = getPermutations(x);
   return Belt_Array.reduce(permutations, Belt_Array.getExn(permutations, 0), (function (acc, value) {
                 var valueDecRep = bitArrayToDec(value);
                 var accDecRep = bitArrayToDec(acc);
@@ -107,97 +141,151 @@ function generateGreatest(x) {
               }));
 }
 
-var groupedBySpecies = Belt_MapInt.map(groupedByCount, (function (x) {
-        return Belt_Array.reduce(x, undefined, (function (acc, value) {
-                      var key = arrayToString(generateGreatest(value));
-                      return Belt_MapString.update(acc, key, (function (x) {
-                                    return Belt_Option.mapWithDefault(x, [value], (function (a) {
-                                                  return Belt_Array.concat(a, [value]);
-                                                }));
-                                  }));
-                    }));
-      }));
-
-function App$Collapsed(Props) {
-  var render = Props.render;
-  var match = React.useState(function () {
-        return true;
-      });
-  return Curry._2(render, match[0], match[1]);
+function removeZeroStarts(permutations) {
+  return Belt_Array.keep(permutations, (function (x) {
+                return Belt_Array.getExn(x, 0) === "1";
+              }));
 }
 
-var Collapsed = {
-  make: App$Collapsed
-};
+function removeDuplicates(permutations) {
+  return Belt_Array.map(Belt_MapString.keysToArray(Belt_MapString.fromArray(Belt_Array.map(permutations, (function (x) {
+                            return [
+                                    arrayToString(x),
+                                    ""
+                                  ];
+                          })))), (function (x) {
+                return Array.from(x);
+              }));
+}
+
+function groupBySpecies(groupedByCount) {
+  return Belt_MapInt.map(groupedByCount, (function (x) {
+                return Belt_MapString.fromArray(Belt_Array.map(Belt_MapString.keysToArray(Belt_Array.reduce(x, undefined, (function (acc, value) {
+                                          var key = arrayToString(generateGreatest(value));
+                                          return Belt_MapString.update(acc, key, (function (x) {
+                                                        return Belt_Option.mapWithDefault(x, [value], (function (a) {
+                                                                      return Belt_Array.concat(a, [value]);
+                                                                    }));
+                                                      }));
+                                        }))), (function (a) {
+                                  return [
+                                          a,
+                                          Belt_Array.reverse(removeDuplicates(removeZeroStarts(getPermutations(Array.from(a)))))
+                                        ];
+                                })));
+              }));
+}
+
+var result = groupBySpecies(groupByCount(Belt_Array.map(getBitStrings(12), stringToArray)));
 
 function App(Props) {
+  var match = React.useState(function () {
+        return [];
+      });
+  var setCurrentBits = match[1];
   return React.createElement("div", {
-              className: "font-mono"
-            }, Belt_Array.map(Belt_MapInt.toArray(groupedBySpecies), (function (param) {
-                    var v = param[1];
-                    var k = param[0];
-                    return React.createElement(App$Collapsed, {
-                                render: (function (numCollapsedState, setNumCollapsedState) {
-                                    return React.createElement("div", undefined, React.createElement("div", {
-                                                    className: "flex flex-row w-20 ",
-                                                    onClick: (function (param) {
-                                                        Curry._1(setNumCollapsedState, (function (x) {
-                                                                return !x;
-                                                              }));
-                                                      })
+              className: "flex flex-row h-screen w-screen"
+            }, React.createElement("div", {
+                  className: "h-80 w-80"
+                }, React.createElement(make, {
+                      bits: match[0]
+                    })), React.createElement("div", {
+                  className: "font-mono h-full overflow-scroll px-4"
+                }, Belt_Array.map(Belt_MapInt.toArray(result), (function (param) {
+                        var v = param[1];
+                        var k = param[0];
+                        return React.createElement(App$Collapsed, {
+                                    render: (function (numCollapsedState, setNumCollapsedState) {
+                                        return React.createElement("div", {
+                                                    className: "mb-1"
                                                   }, React.createElement("div", {
-                                                        className: "flex-1 text-red-500"
-                                                      }, String(k)), React.createElement("div", {
-                                                        className: "flex-1 text-blue-500"
-                                                      }, String(Belt_MapString.toArray(v).length))), React.createElement("div", {
-                                                    className: numCollapsedState ? "hidden" : ""
-                                                  }, Belt_Array.map(Belt_Array.reverse(Belt_MapString.toArray(v)), (function (param) {
-                                                          var k2 = param[0];
-                                                          return React.createElement(App$Collapsed, {
-                                                                      render: (function (speciesCollapsedState, setSpeciesCollapsedState) {
-                                                                          return React.createElement("div", undefined, React.createElement("div", {
-                                                                                          className: "font-bold",
-                                                                                          onClick: (function (param) {
-                                                                                              Curry._1(setSpeciesCollapsedState, (function (x) {
-                                                                                                      return !x;
-                                                                                                    }));
-                                                                                            })
-                                                                                        }, k2), React.createElement("div", {
-                                                                                          className: speciesCollapsedState ? "hidden" : ""
-                                                                                        }, Belt_Array.map(generatePermutations(Array.from(k2)), (function (x) {
-                                                                                                return React.createElement("div", undefined, arrayToString(x));
-                                                                                              }))));
-                                                                        })
-                                                                    });
-                                                        }))));
-                                  })
-                              });
-                  })), "Hello");
+                                                        className: "flex flex-row w-20 ",
+                                                        onClick: (function (param) {
+                                                            Curry._1(setNumCollapsedState, (function (x) {
+                                                                    return !x;
+                                                                  }));
+                                                          })
+                                                      }, React.createElement("div", {
+                                                            className: "flex-1 text-red-500"
+                                                          }, String(k)), React.createElement("div", {
+                                                            className: "flex-1 text-blue-500"
+                                                          }, String(Belt_MapString.toArray(v).length))), React.createElement("div", {
+                                                        className: [
+                                                            numCollapsedState ? "hidden" : "",
+                                                            "max-h-52 overflow-scroll pr-4"
+                                                          ].join(" ")
+                                                      }, Belt_Array.map(Belt_Array.reverse(Belt_MapString.toArray(v)), (function (param) {
+                                                              var v2 = param[1];
+                                                              var k2 = param[0];
+                                                              return React.createElement(App$Collapsed, {
+                                                                          render: (function (speciesCollapsedState, setSpeciesCollapsedState) {
+                                                                              return React.createElement("div", {
+                                                                                          className: ""
+                                                                                        }, React.createElement("div", {
+                                                                                              className: "flex flex-row justify-start gap-3"
+                                                                                            }, React.createElement("div", {
+                                                                                                  className: "font-bold",
+                                                                                                  onClick: (function (param) {
+                                                                                                      Curry._1(setSpeciesCollapsedState, (function (x) {
+                                                                                                              return !x;
+                                                                                                            }));
+                                                                                                      Curry._1(setCurrentBits, (function (param) {
+                                                                                                              return stringArrayToIntArray(Array.from(k2));
+                                                                                                            }));
+                                                                                                    })
+                                                                                                }, k2), React.createElement("div", {
+                                                                                                  className: " text-green-500"
+                                                                                                }, String(v2.length))), React.createElement("div", {
+                                                                                              className: [
+                                                                                                  speciesCollapsedState ? "hidden " : "",
+                                                                                                  "mb-2"
+                                                                                                ].join(" ")
+                                                                                            }, Belt_Array.map(v2, (function (x) {
+                                                                                                    return React.createElement("div", {
+                                                                                                                onClick: (function (param) {
+                                                                                                                    Curry._1(setCurrentBits, (function (param) {
+                                                                                                                            return stringArrayToIntArray(x);
+                                                                                                                          }));
+                                                                                                                  })
+                                                                                                              }, arrayToString(x));
+                                                                                                  }))));
+                                                                            })
+                                                                        });
+                                                            }))));
+                                      })
+                                  });
+                      }))));
 }
 
-var make = App;
+var make$1 = App;
 
 var $$default = App;
 
 export {
+  join ,
+  Collapsed ,
+  SVG ,
   Config ,
   reactMap ,
   str ,
   padLeft ,
-  bitStrings ,
   stringToArray ,
   arrayToString ,
-  bitArrays ,
+  stringArrayToIntArray ,
+  stringToIntArray ,
+  getBitStrings ,
   count1s ,
-  groupedByCount ,
+  groupByCount ,
   cycleArray ,
   bitArrayToDec ,
-  generatePermutations ,
+  getPermutations ,
   generateGreatest ,
-  groupedBySpecies ,
-  Collapsed ,
-  make ,
+  removeZeroStarts ,
+  removeDuplicates ,
+  groupBySpecies ,
+  result ,
+  make$1 as make,
   $$default ,
   $$default as default,
 }
-/*  Not a pure module */
+/* make Not a pure module */
