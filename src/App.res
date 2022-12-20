@@ -128,8 +128,10 @@ let getGreatestRotation = x => {
   })
 }
 
+let startsWith1 = a => a->Array.getExn(0) == "1"
+
 let removeZeroStarts = x => {
-  x->Array.keep(a => a->Array.getExn(0) == "1")
+  x->Array.keep(startsWith1)
 }
 
 let removeDuplicates = x => {
@@ -140,14 +142,14 @@ let removeDuplicates = x => {
   ->Array.map(a => a->BitOps.stringToStringArray)
 }
 
-type rotationDetails = {
-  shift: int,
-  rotation: array<string>,
-  startsWith1: bool,
-}
+// type rotationDetails = {
+//   shift: int,
+//   rotation: array<string>,
+//   startsWith1: bool,
+// }
 
 type speciesDetails = {
-  pitchClasses: Belt.Map.String.t<array<rotationDetails>>,
+  modes: Belt.Map.String.t<array<int>>,
   autoCorrelations: array<string>,
   isSymmetric: bool,
 }
@@ -193,28 +195,26 @@ let groupBySpecies = genusGrouping =>
     })
     ->Map.String.keysToArray
     ->Array.map(speciesId => {
-      let pitchClasses =
-        speciesId
-        ->BitOps.stringToStringArray
-        ->getRotations
-        ->Array.mapWithIndex(
-          (index, rotation) => {
-            shift: index,
-            rotation,
-            startsWith1: rotation->Array.getExn(0) == "1",
-          },
-        )
-        ->Array.reduce(
-          Map.String.empty,
-          (acc, value) => {
-            acc->mapAppend(value.rotation->BitOps.stringArrayToString, value)
-          },
-        )
+      let rotations = speciesId->BitOps.stringToStringArray->getRotations
+      // ->Array.mapWithIndex(
+      //   (index, rotation) => {
+      //     shift: index,
+      //     rotation,
+      //     startsWith1: rotation->Array.getExn(0) == "1",
+      //   },
+      // )
 
-      (speciesId, pitchClasses)
+      let modes = rotations->Array.reduceWithIndex(
+        Map.String.empty,
+        (acc, value, index) => {
+          acc->mapAppend(value->BitOps.stringArrayToString, index)
+        },
+      )
+
+      (speciesId, modes)
     })
     ->Map.String.fromArray
-    ->Map.String.mapWithKey((speciesId, pitchClasses) => {
+    ->Map.String.mapWithKey((speciesId, modes) => {
       // let _numOfAutoCorrelations = switch (modes->Array.get(0), modes->Array.get(1)) {
       // | (Some(a1), Some(a2)) =>
       //   Array.zip(a1, a2)->Array.keep(((a1, a2)) => a1 == "1" && a2 == "1")->Array.length
@@ -223,19 +223,18 @@ let groupBySpecies = genusGrouping =>
 
       let rotations = speciesId->BitOps.stringToStringArray->getRotations
       {
-        pitchClasses,
-        autoCorrelations: pitchClasses
-        ->Map.String.valuesToArray
+        modes,
+        autoCorrelations: modes
+        ->Map.String.keysToArray
         ->Array.get(0)
-        ->Option.flatMap(a => a->Array.get(0))
         ->Option.mapWithDefault(
           [],
-          ({rotation: match}) =>
+          modeId =>
             rotations->Array.map(
               p => {
-                p->BitOps.stringArrayToString == match->BitOps.stringArrayToString
+                p->BitOps.stringArrayToString == modeId
                   ? "_"
-                  : Array.zip(p, match)
+                  : Array.zip(p, modeId->BitOps.stringToStringArray)
                     ->Array.keep(((a1, a2)) => a1 == "1" && a2 == "1")
                     ->Array.length
                     ->Int.toString
@@ -364,7 +363,7 @@ module Species = {
     <Collapsed
       render={(speciesHidden, setSpeciesHidden) => {
         let anySelected =
-          speciesDetails.pitchClasses
+          speciesDetails.modes
           ->Map.String.keysToArray
           ->any(rotation => {
             currentBits->Option.mapWithDefault(false, c => c->BitOps.intArrayToString == rotation)
@@ -398,14 +397,17 @@ module Species = {
             />
             <div className="w-6"> {speciesDetails.isSymmetric ? "x"->str : ""->str} </div>
             <div className="text-sm whitespace-nowrap">
-              {speciesDetails.pitchClasses
-              ->Map.String.valuesToArray
-              ->Array.getExn(0) // All pitch classes should have the same number of modes
-              ->Array.keep(({startsWith1}) => startsWith1)
+              {speciesDetails.modes
+              ->Map.String.keysToArray
+              ->Array.keep(modeId => modeId->BitOps.stringToStringArray->startsWith1)
               ->Array.length
               ->Int.toString
               ->str}
               {" modes"->str}
+            </div>
+            <div className="text-sm whitespace-nowrap">
+              {speciesDetails.modes->Map.String.keysToArray->Array.length->Int.toString->str}
+              {" pitch classes"->str}
             </div>
           </div>
           <div
@@ -413,27 +415,26 @@ module Species = {
               speciesHidden ? "hidden " : "",
               "pt-0.5 pb-2 border-t border-neutral-400",
             ]->join}>
-            {speciesDetails.pitchClasses->reactMap(({rotation, startsWith1}) => {
+            {speciesDetails.modes
+            ->Map.String.toArray
+            ->Array.reverse
+            ->reactMap(((modeId, _rotationDegrees)) => {
               let selected =
-                currentBits->Option.mapWithDefault(false, c =>
-                  c->BitOps.intArrayToString == rotation->BitOps.stringArrayToString
-                )
+                currentBits->Option.mapWithDefault(false, c => c->BitOps.intArrayToString == modeId)
               <div className="flex flex-row">
                 <Scale
                   selected={selected}
-                  onClick={_ => setCurrentBits(_ => rotation->BitOps.stringArrayToIntArray->Some)}
+                  onClick={_ => setCurrentBits(_ => modeId->BitOps.stringToIntArray->Some)}
                   currentKey={currentKey}
-                  bitString={rotation->BitOps.stringArrayToString}
-                  kind={startsWith1 ? Mode : NonMode}
+                  bitString={modeId}
+                  kind={modeId->BitOps.stringToStringArray->startsWith1 ? Mode : NonMode}
                 />
                 {currentKey->Option.isSome
                   ? {
                       base->Option.mapWithDefault(
-                        <button onClick={_ => setBase(_ => Some(rotation))}>
-                          {"Base"->str}
-                        </button>,
+                        <button onClick={_ => setBase(_ => Some(modeId))}> {"Base"->str} </button>,
                         b =>
-                          b->BitOps.stringArrayToString == rotation->BitOps.stringArrayToString
+                          b == modeId
                             ? <button onClick={_ => setBase(_ => None)}> {"Remove"->str} </button>
                             : React.null,
                       )

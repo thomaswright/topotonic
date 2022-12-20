@@ -180,10 +180,12 @@ function getGreatestRotation(x) {
               }));
 }
 
+function startsWith1(a) {
+  return Belt_Array.getExn(a, 0) === "1";
+}
+
 function removeZeroStarts(x) {
-  return Belt_Array.keep(x, (function (a) {
-                return Belt_Array.getExn(a, 0) === "1";
-              }));
+  return Belt_Array.keep(x, startsWith1);
 }
 
 function removeDuplicates(x) {
@@ -221,38 +223,38 @@ function hasBilateralSymmetry(x) {
   return isSameArray(a$1, Belt_Array.reverse(b$1));
 }
 
+function mapAppend(m, k, v) {
+  return Belt_MapString.update(m, k, (function (a) {
+                return Belt_Option.mapWithDefault(a, [v], (function (b) {
+                              return Belt_Array.concat(b, [v]);
+                            }));
+              }));
+}
+
 function groupBySpecies(genusGrouping) {
   return Belt_MapInt.map(genusGrouping, (function (genusPerms) {
                 return Belt_MapString.mapWithKey(Belt_MapString.fromArray(Belt_Array.map(Belt_MapString.keysToArray(Belt_Array.reduce(genusPerms, undefined, (function (acc, value) {
                                               var greatestRotation = stringArrayToString(getGreatestRotation(value));
-                                              return Belt_MapString.update(acc, greatestRotation, (function (a) {
-                                                            return Belt_Option.mapWithDefault(a, [value], (function (b) {
-                                                                          return Belt_Array.concat(b, [value]);
-                                                                        }));
-                                                          }));
+                                              return mapAppend(acc, greatestRotation, value);
                                             }))), (function (speciesId) {
-                                      var rotations = Belt_Array.map(getRotations(Array.from(speciesId)), (function (rotation) {
-                                              return {
-                                                      rotation: rotation,
-                                                      startsWith1: Belt_Array.getExn(rotation, 0) === "1",
-                                                      greatestRotation: getGreatestRotation(rotation)
-                                                    };
+                                      var rotations = getRotations(Array.from(speciesId));
+                                      var modes = Belt_Array.reduceWithIndex(rotations, undefined, (function (acc, value, index) {
+                                              return mapAppend(acc, stringArrayToString(value), index);
                                             }));
                                       return [
                                               speciesId,
-                                              rotations
+                                              modes
                                             ];
-                                    }))), (function (speciesId, rotationDetails) {
+                                    }))), (function (speciesId, modes) {
                               var rotations = getRotations(Array.from(speciesId));
                               return {
-                                      rotationDetails: rotationDetails,
-                                      autoCorrelations: Belt_Option.mapWithDefault(Belt_Array.get(rotationDetails, 0), [], (function (param) {
-                                              var match = param.rotation;
+                                      modes: modes,
+                                      autoCorrelations: Belt_Option.mapWithDefault(Belt_Array.get(Belt_MapString.keysToArray(modes), 0), [], (function (modeId) {
                                               return Belt_Array.map(rotations, (function (p) {
-                                                            if (stringArrayToString(p) === stringArrayToString(match)) {
+                                                            if (stringArrayToString(p) === modeId) {
                                                               return "_";
                                                             } else {
-                                                              return String(Belt_Array.keep(Belt_Array.zip(p, match), (function (param) {
+                                                              return String(Belt_Array.keep(Belt_Array.zip(p, Array.from(modeId)), (function (param) {
                                                                                 if (param[0] === "1") {
                                                                                   return param[1] === "1";
                                                                                 } else {
@@ -465,10 +467,9 @@ function App$Species(Props) {
   var base = match[0];
   return React.createElement(App$Collapsed, {
               render: (function (speciesHidden, setSpeciesHidden) {
-                  var anySelected = any(speciesDetails.rotationDetails, (function (param) {
-                          var rotation = param.rotation;
+                  var anySelected = any(Belt_MapString.keysToArray(speciesDetails.modes), (function (rotation) {
                           return Belt_Option.mapWithDefault(currentBits, false, (function (c) {
-                                        return intArrayToString(c) === stringArrayToString(rotation);
+                                        return intArrayToString(c) === rotation;
                                       }));
                         }));
                   return React.createElement("div", {
@@ -509,38 +510,40 @@ function App$Species(Props) {
                                       className: "w-6"
                                     }, speciesDetails.isSymmetric ? "x" : ""), React.createElement("div", {
                                       className: "text-sm whitespace-nowrap"
-                                    }, String(Belt_Array.keep(speciesDetails.rotationDetails, (function (param) {
-                                                return param.startsWith1;
-                                              })).length), " modes")), React.createElement("div", {
+                                    }, String(Belt_Array.keep(Belt_MapString.keysToArray(speciesDetails.modes), (function (modeId) {
+                                                return startsWith1(Array.from(modeId));
+                                              })).length), " modes"), React.createElement("div", {
+                                      className: "text-sm whitespace-nowrap"
+                                    }, String(Belt_MapString.keysToArray(speciesDetails.modes).length), " pitch classes")), React.createElement("div", {
                                   className: [
                                       speciesHidden ? "hidden " : "",
                                       "pt-0.5 pb-2 border-t border-neutral-400"
                                     ].join(" ")
-                                }, Belt_Array.map(speciesDetails.rotationDetails, (function (param) {
-                                        var rotation = param.rotation;
+                                }, Belt_Array.map(Belt_Array.reverse(Belt_MapString.toArray(speciesDetails.modes)), (function (param) {
+                                        var modeId = param[0];
                                         var selected = Belt_Option.mapWithDefault(currentBits, false, (function (c) {
-                                                return intArrayToString(c) === stringArrayToString(rotation);
+                                                return intArrayToString(c) === modeId;
                                               }));
                                         return React.createElement("div", {
                                                     className: "flex flex-row"
                                                   }, React.createElement(App$Scale, {
                                                         onClick: (function (param) {
                                                             Curry._1(setCurrentBits, (function (param) {
-                                                                    return stringArrayToIntArray(rotation);
+                                                                    return stringArrayToIntArray(Array.from(modeId));
                                                                   }));
                                                           }),
-                                                        bitString: stringArrayToString(rotation),
+                                                        bitString: modeId,
                                                         currentKey: currentKey,
-                                                        kind: param.startsWith1 ? /* Mode */1 : /* NonMode */2,
+                                                        kind: startsWith1(Array.from(modeId)) ? /* Mode */1 : /* NonMode */2,
                                                         selected: selected
                                                       }), Belt_Option.isSome(currentKey) ? Belt_Option.mapWithDefault(base, React.createElement("button", {
                                                               onClick: (function (param) {
                                                                   Curry._1(setBase, (function (param) {
-                                                                          return rotation;
+                                                                          return modeId;
                                                                         }));
                                                                 })
                                                             }, "Base"), (function (b) {
-                                                            if (stringArrayToString(b) === stringArrayToString(rotation)) {
+                                                            if (b === modeId) {
                                                               return React.createElement("button", {
                                                                           onClick: (function (param) {
                                                                               Curry._1(setBase, (function (param) {
@@ -701,10 +704,12 @@ export {
   rotate ,
   getRotations ,
   getGreatestRotation ,
+  startsWith1 ,
   removeZeroStarts ,
   removeDuplicates ,
   isSameArray ,
   hasBilateralSymmetry ,
+  mapAppend ,
   groupBySpecies ,
   result ,
   keys ,
