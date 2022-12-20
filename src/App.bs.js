@@ -298,6 +298,96 @@ var keysShort = [
   "B"
 ];
 
+var namedSpecies = [
+  [
+    "110101101010",
+    ["Diatonic"],
+    [
+      [
+        "Locrian",
+        "7"
+      ],
+      [
+        "Ionian",
+        "1"
+      ],
+      [
+        "Dorian",
+        "2"
+      ],
+      [
+        "Phrygian",
+        "3"
+      ],
+      [
+        "Lydian",
+        "4"
+      ],
+      [
+        "Mixolydian",
+        "5"
+      ],
+      [
+        "Aeolian",
+        "6"
+      ]
+    ]
+  ],
+  [
+    "110110011010",
+    ["Harmonic Major"],
+    []
+  ],
+  [
+    "110101100110",
+    ["Harmonic Minor"],
+    []
+  ],
+  [
+    "",
+    [""],
+    []
+  ],
+  [
+    "",
+    [""],
+    []
+  ],
+  [
+    "",
+    [""],
+    []
+  ],
+  [
+    "",
+    [""],
+    []
+  ]
+];
+
+function spacedToBits(a) {
+  return Belt_Array.reduce(a, "1", (function (acc, value) {
+                var tmp;
+                switch (value) {
+                  case 1 :
+                      tmp = "1";
+                      break;
+                  case 2 :
+                      tmp = "10";
+                      break;
+                  case 3 :
+                      tmp = "100";
+                      break;
+                  case 4 :
+                      tmp = "1000";
+                      break;
+                  default:
+                    tmp = "";
+                }
+                return acc + tmp;
+              }));
+}
+
 function App$Scale(Props) {
   var onClick = Props.onClick;
   var bitString = Props.bitString;
@@ -306,7 +396,7 @@ function App$Scale(Props) {
   var selected = Props.selected;
   return React.createElement("div", {
               className: [
-                  " flex flex-row rounded-sm",
+                  " flex flex-row ",
                   kind ? (
                       selected ? "bg-blue-300" : ""
                     ) : "font-bold"
@@ -347,6 +437,120 @@ function App$Key(Props) {
 
 var Key = {
   make: App$Key
+};
+
+function App$Species(Props) {
+  var modes = Props.modes;
+  var currentBits = Props.currentBits;
+  var setCurrentBits = Props.setCurrentBits;
+  var species = Props.species;
+  var currentKey = Props.currentKey;
+  var isSymmetric = Props.isSymmetric;
+  var numOfModes = Props.numOfModes;
+  var autoCorrelations = Props.autoCorrelations;
+  var match = React.useState(function () {
+        
+      });
+  var setBase = match[1];
+  var base = match[0];
+  return React.createElement(App$Collapsed, {
+              render: (function (speciesHidden, setSpeciesHidden) {
+                  var anySelected = any(modes, (function (mode) {
+                          return Belt_Option.mapWithDefault(currentBits, false, (function (c) {
+                                        return intArrayToString(c) === arrayToString(mode);
+                                      }));
+                        }));
+                  return React.createElement("div", {
+                              className: [
+                                  speciesHidden ? "border-transparent" : "bg-blue-50 border-blue-200 mb-1",
+                                  "border rounded-sm"
+                                ].join(" ")
+                            }, React.createElement("div", {
+                                  className: "flex flex-row items-center justify-start gap-3"
+                                }, React.createElement(App$Scale, {
+                                      onClick: (function (param) {
+                                          Belt_Option.mapWithDefault(currentBits, (Curry._1(setSpeciesHidden, (function (param) {
+                                                        return false;
+                                                      })), Curry._1(setCurrentBits, (function (param) {
+                                                        return stringArrayToIntArray(Array.from(species));
+                                                      }))), (function (param) {
+                                                  Curry._1(setSpeciesHidden, (function (param) {
+                                                          if (speciesHidden) {
+                                                            return !speciesHidden;
+                                                          } else {
+                                                            return anySelected;
+                                                          }
+                                                        }));
+                                                  Curry._1(setCurrentBits, (function (param) {
+                                                          if (anySelected) {
+                                                            return ;
+                                                          } else {
+                                                            return stringArrayToIntArray(Array.from(species));
+                                                          }
+                                                        }));
+                                                }));
+                                        }),
+                                      bitString: species,
+                                      currentKey: currentKey,
+                                      kind: /* Species */0,
+                                      selected: false
+                                    }), React.createElement("div", {
+                                      className: "w-6"
+                                    }, isSymmetric ? "x" : ""), React.createElement("div", {
+                                      className: "text-sm whitespace-nowrap"
+                                    }, String(numOfModes), " modes")), React.createElement("div", {
+                                  className: [
+                                      speciesHidden ? "hidden " : "",
+                                      "pt-0.5 pb-2 border-t border-neutral-400"
+                                    ].join(" ")
+                                }, Belt_Array.map(modes, (function (mode) {
+                                        var selected = Belt_Option.mapWithDefault(currentBits, false, (function (c) {
+                                                return intArrayToString(c) === arrayToString(mode);
+                                              }));
+                                        return React.createElement("div", {
+                                                    className: "flex flex-row"
+                                                  }, React.createElement(App$Scale, {
+                                                        onClick: (function (param) {
+                                                            Curry._1(setCurrentBits, (function (param) {
+                                                                    return stringArrayToIntArray(mode);
+                                                                  }));
+                                                          }),
+                                                        bitString: arrayToString(mode),
+                                                        currentKey: currentKey,
+                                                        kind: /* Mode */1,
+                                                        selected: selected
+                                                      }), Belt_Option.isSome(currentKey) ? Belt_Option.mapWithDefault(base, React.createElement("button", {
+                                                              onClick: (function (param) {
+                                                                  Curry._1(setBase, (function (param) {
+                                                                          return mode;
+                                                                        }));
+                                                                })
+                                                            }, "Base"), (function (b) {
+                                                            if (arrayToString(b) === arrayToString(mode)) {
+                                                              return React.createElement("button", {
+                                                                          onClick: (function (param) {
+                                                                              Curry._1(setBase, (function (param) {
+                                                                                      
+                                                                                    }));
+                                                                            })
+                                                                        }, "Remove");
+                                                            } else {
+                                                              return null;
+                                                            }
+                                                          })) : null);
+                                      })), React.createElement("div", {
+                                      className: "text-xs text-green-600 flex flex-row "
+                                    }, Belt_Array.map(autoCorrelations, (function (x) {
+                                            return React.createElement("div", {
+                                                        className: ["w-5 flex flex-row items-center justify-center"].join(" ")
+                                                      }, x);
+                                          })))));
+                })
+            });
+}
+
+var Species = {
+  make: App$Species
 };
 
 function App(Props) {
@@ -442,83 +646,22 @@ function App(Props) {
                                                             className: "flex-1 text-lg"
                                                           }, String(k)), React.createElement("div", {
                                                             className: "flex-1 text-sm whitespace-nowrap"
-                                                          }, String(Belt_MapString.toArray(v).length))), React.createElement("div", {
+                                                          }, String(Belt_MapString.toArray(v).length), " species")), React.createElement("div", {
                                                         className: [
                                                             tmp,
                                                             "overflow-scroll p-2 pb-6 border"
                                                           ].join(" ")
                                                       }, Belt_Array.map(Belt_Array.reverse(Belt_MapString.toArray(v)), (function (param) {
                                                               var match = param[1];
-                                                              var isSymmetric = match.isSymmetric;
-                                                              var autoCorrelations = match.autoCorrelations;
-                                                              var numOfModes = match.numOfModes;
-                                                              var modes = match.modes;
-                                                              var species = param[0];
-                                                              return React.createElement(App$Collapsed, {
-                                                                          render: (function (speciesCollapsedState, setSpeciesCollapsedState) {
-                                                                              var anySelected = any(modes, (function (mode) {
-                                                                                      return Belt_Option.mapWithDefault(currentBits, false, (function (c) {
-                                                                                                    return intArrayToString(c) === arrayToString(mode);
-                                                                                                  }));
-                                                                                    }));
-                                                                              return React.createElement("div", {
-                                                                                          className: [
-                                                                                              anySelected ? "bg-blue-50" : "",
-                                                                                              ""
-                                                                                            ].join(" ")
-                                                                                        }, React.createElement("div", {
-                                                                                              className: "flex flex-row items-center justify-start gap-3"
-                                                                                            }, React.createElement(App$Scale, {
-                                                                                                  onClick: (function (param) {
-                                                                                                      Curry._1(setSpeciesCollapsedState, (function (x) {
-                                                                                                              return !x;
-                                                                                                            }));
-                                                                                                      Curry._1(setCurrentBits, (function (s) {
-                                                                                                              return Belt_Option.mapWithDefault(s, stringArrayToIntArray(Array.from(species)), (function (a) {
-                                                                                                                            if (intArrayToString(a) === species) {
-                                                                                                                              return ;
-                                                                                                                            } else {
-                                                                                                                              return stringArrayToIntArray(Array.from(species));
-                                                                                                                            }
-                                                                                                                          }));
-                                                                                                            }));
-                                                                                                    }),
-                                                                                                  bitString: species,
-                                                                                                  currentKey: currentKey,
-                                                                                                  kind: /* Species */0,
-                                                                                                  selected: false
-                                                                                                }), React.createElement("div", {
-                                                                                                  className: "w-6"
-                                                                                                }, isSymmetric ? "x" : ""), React.createElement("div", {
-                                                                                                  className: "text-sm whitespace-nowrap"
-                                                                                                }, String(numOfModes))), React.createElement("div", {
-                                                                                              className: [
-                                                                                                  speciesCollapsedState ? "hidden " : "",
-                                                                                                  "pt-0.5 pb-2 border-t border-neutral-400"
-                                                                                                ].join(" ")
-                                                                                            }, Belt_Array.map(modes, (function (mode) {
-                                                                                                    var selected = Belt_Option.mapWithDefault(currentBits, false, (function (c) {
-                                                                                                            return intArrayToString(c) === arrayToString(mode);
-                                                                                                          }));
-                                                                                                    return React.createElement(App$Scale, {
-                                                                                                                onClick: (function (param) {
-                                                                                                                    Curry._1(setCurrentBits, (function (param) {
-                                                                                                                            return stringArrayToIntArray(mode);
-                                                                                                                          }));
-                                                                                                                  }),
-                                                                                                                bitString: arrayToString(mode),
-                                                                                                                currentKey: currentKey,
-                                                                                                                kind: /* Mode */1,
-                                                                                                                selected: selected
-                                                                                                              });
-                                                                                                  })), React.createElement("div", {
-                                                                                                  className: "text-xs text-green-600 flex flex-row "
-                                                                                                }, Belt_Array.map(autoCorrelations, (function (x) {
-                                                                                                        return React.createElement("div", {
-                                                                                                                    className: ["w-5 flex flex-row items-center justify-center"].join(" ")
-                                                                                                                  }, x);
-                                                                                                      })))));
-                                                                            })
+                                                              return React.createElement(App$Species, {
+                                                                          modes: match.modes,
+                                                                          currentBits: currentBits,
+                                                                          setCurrentBits: setCurrentBits,
+                                                                          species: param[0],
+                                                                          currentKey: currentKey,
+                                                                          isSymmetric: match.isSymmetric,
+                                                                          numOfModes: match.numOfModes,
+                                                                          autoCorrelations: match.autoCorrelations
                                                                         });
                                                             }))));
                                       })
@@ -561,8 +704,11 @@ export {
   result ,
   keys ,
   keysShort ,
+  namedSpecies ,
+  spacedToBits ,
   Scale ,
   Key ,
+  Species ,
   make$1 as make,
   $$default ,
   $$default as default,

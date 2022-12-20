@@ -1,9 +1,11 @@
 open Belt
 
 // todo:
-// - any symmetry
 // - symmetry with respect to root
-// - number of shares
+// - pitch classes
+// - enharmonics
+// - named keys
+// - shifts
 
 let join = Js.Array2.joinWith(_, " ")
 
@@ -240,6 +242,41 @@ let keys = [
 
 let keysShort = [`C`, `C♯`, `D`, `D♯`, `E`, `F`, `F♯`, `G`, `G♯`, `A`, `A♯`, `B`]
 
+let namedSpecies = [
+  (
+    "110101101010",
+    ["Diatonic"],
+    [
+      ["Locrian", "7"],
+      ["Ionian", "1"],
+      ["Dorian", "2"],
+      ["Phrygian", "3"],
+      ["Lydian", "4"],
+      ["Mixolydian", "5"],
+      ["Aeolian", "6"],
+    ],
+  ),
+  ("110110011010", ["Harmonic Major"], []),
+  ("110101100110", ["Harmonic Minor"], []),
+  ("", [""], []),
+  ("", [""], []),
+  ("", [""], []),
+  ("", [""], []),
+]
+
+let spacedToBits = a => {
+  a->Array.reduce("1", (acc, value) => {
+    acc ++
+    switch value {
+    | 1 => "1"
+    | 2 => "10"
+    | 3 => "100"
+    | 4 => "1000"
+    | _ => ""
+    }
+  })
+}
+
 type kind = Species | Mode
 
 module Scale = {
@@ -248,7 +285,7 @@ module Scale = {
     <div
       onClick={onClick}
       className={[
-        " flex flex-row rounded-sm",
+        " flex flex-row ",
         switch kind {
         | Species => "font-bold"
         | Mode => selected ? "bg-blue-300" : ""
@@ -280,6 +317,101 @@ module Key = {
     <div className={[selected ? "bg-blue-300" : "", "rounded p-1 pl-2"]->join} onClick={onClick}>
       {children}
     </div>
+  }
+}
+
+module Species = {
+  @react.component
+  let make = (
+    ~modes,
+    ~currentBits,
+    ~setCurrentBits,
+    ~species,
+    ~currentKey,
+    ~isSymmetric,
+    ~numOfModes,
+    ~autoCorrelations,
+  ) => {
+    let (base, setBase) = React.useState(_ => None)
+
+    <Collapsed
+      render={(speciesHidden, setSpeciesHidden) => {
+        let anySelected = modes->any(mode => {
+          currentBits->Option.mapWithDefault(false, c => c->intArrayToString == mode->arrayToString)
+        })
+
+        <div
+          className={[
+            !speciesHidden ? "bg-blue-50 border-blue-200 mb-1" : "border-transparent",
+            "border rounded-sm",
+          ]->join}>
+          <div className="flex flex-row items-center justify-start gap-3">
+            <Scale
+              selected={false}
+              onClick={_ => {
+                currentBits->Option.mapWithDefault(
+                  {
+                    setSpeciesHidden(_ => false)
+                    setCurrentBits(_ => species->stringToIntArray->Some)
+                  },
+                  _ => {
+                    setSpeciesHidden(_ => !speciesHidden ? anySelected : !speciesHidden)
+                    setCurrentBits(_ => anySelected ? None : species->stringToIntArray->Some)
+                  },
+                )
+              }}
+              currentKey={currentKey}
+              bitString={species}
+              kind={Species}
+            />
+            <div className="w-6"> {isSymmetric ? "x"->str : ""->str} </div>
+            <div className="text-sm whitespace-nowrap">
+              {numOfModes->Int.toString->str}
+              {" modes"->str}
+            </div>
+          </div>
+          <div
+            className={[
+              speciesHidden ? "hidden " : "",
+              "pt-0.5 pb-2 border-t border-neutral-400",
+            ]->join}>
+            {modes->reactMap(mode => {
+              let selected =
+                currentBits->Option.mapWithDefault(false, c =>
+                  c->intArrayToString == mode->arrayToString
+                )
+              <div className="flex flex-row">
+                <Scale
+                  selected={selected}
+                  onClick={_ => setCurrentBits(_ => mode->stringArrayToIntArray->Some)}
+                  currentKey={currentKey}
+                  bitString={mode->arrayToString}
+                  kind={Mode}
+                />
+                {currentKey->Option.isSome
+                  ? {
+                      base->Option.mapWithDefault(
+                        <button onClick={_ => setBase(_ => Some(mode))}> {"Base"->str} </button>,
+                        b =>
+                          b->arrayToString == mode->arrayToString
+                            ? <button onClick={_ => setBase(_ => None)}> {"Remove"->str} </button>
+                            : React.null,
+                      )
+                    }
+                  : React.null}
+              </div>
+            })}
+            <div className="text-xs text-green-600 flex flex-row ">
+              {autoCorrelations->reactMap(x => {
+                <div className={["w-5 flex flex-row items-center justify-center"]->join}>
+                  {x->str}
+                </div>
+              })}
+            </div>
+          </div>
+        </div>
+      }}
+    />
   }
 }
 
@@ -331,6 +463,7 @@ let make = () => {
                 <div className="flex-1 text-lg"> {k->Int.toString->str} </div>
                 <div className="flex-1 text-sm whitespace-nowrap">
                   {v->Map.String.toArray->Array.length->Int.toString->str}
+                  {" species"->str}
                 </div>
               </div>
               <div
@@ -346,81 +479,15 @@ let make = () => {
                 ->Map.String.toArray
                 ->Array.reverse
                 ->reactMap(((species, {modes, numOfModes, autoCorrelations, isSymmetric})) =>
-                  <Collapsed
-                    render={(speciesCollapsedState, setSpeciesCollapsedState) => {
-                      let anySelected = modes->any(
-                        mode => {
-                          currentBits->Option.mapWithDefault(
-                            false,
-                            c => c->intArrayToString == mode->arrayToString,
-                          )
-                        },
-                      )
-
-                      <div className={[anySelected ? "bg-blue-50" : "", ""]->join}>
-                        <div className="flex flex-row items-center justify-start gap-3">
-                          <Scale
-                            selected={false}
-                            onClick={_ => {
-                              setSpeciesCollapsedState(x => !x)
-                              setCurrentBits(
-                                s =>
-                                  s->Option.mapWithDefault(
-                                    species->stringToIntArray->Some,
-                                    a =>
-                                      a->intArrayToString == species
-                                        ? None
-                                        : species->stringToIntArray->Some,
-                                  ),
-                              )
-                            }}
-                            currentKey={currentKey}
-                            bitString={species}
-                            kind={Species}
-                          />
-                          <div className="w-6"> {isSymmetric ? "x"->str : ""->str} </div>
-                          <div className="text-sm whitespace-nowrap">
-                            {numOfModes->Int.toString->str}
-                          </div>
-                        </div>
-                        <div
-                          className={[
-                            speciesCollapsedState ? "hidden " : "",
-                            "pt-0.5 pb-2 border-t border-neutral-400",
-                          ]->join}>
-                          {modes->reactMap(
-                            mode => {
-                              let selected =
-                                currentBits->Option.mapWithDefault(
-                                  false,
-                                  c => c->intArrayToString == mode->arrayToString,
-                                )
-
-                              <Scale
-                                selected={selected}
-                                onClick={_ =>
-                                  setCurrentBits(_ => mode->stringArrayToIntArray->Some)}
-                                currentKey={currentKey}
-                                bitString={mode->arrayToString}
-                                kind={Mode}
-                              />
-                            },
-                          )}
-                          <div className="text-xs text-green-600 flex flex-row ">
-                            {autoCorrelations->reactMap(
-                              x => {
-                                <div
-                                  className={[
-                                    "w-5 flex flex-row items-center justify-center",
-                                  ]->join}>
-                                  {x->str}
-                                </div>
-                              },
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    }}
+                  <Species
+                    modes={modes}
+                    currentBits={currentBits}
+                    setCurrentBits={setCurrentBits}
+                    species={species}
+                    currentKey={currentKey}
+                    isSymmetric={isSymmetric}
+                    numOfModes={numOfModes}
+                    autoCorrelations={autoCorrelations}
                   />
                 )}
               </div>
