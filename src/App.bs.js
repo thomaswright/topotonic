@@ -47,6 +47,8 @@ var Config = {
 
 var reactMap = Belt_Array.map;
 
+var reactMapWithIndex = Belt_Array.mapWithIndex;
+
 function str(prim) {
   return prim;
 }
@@ -256,32 +258,84 @@ var result = groupBySpecies(groupByCount(Belt_Array.map(getBitStrings(12), strin
 
 function App(Props) {
   var match = React.useState(function () {
-        return [];
+        
       });
   var setCurrentBits = match[1];
   var currentBits = match[0];
-  any(getPermutations([
-            "1",
-            "1",
-            "1",
-            "1",
-            "1",
-            "1",
-            "0",
-            "0",
-            "0",
-            "0",
-            "0",
-            "0"
-          ]), hasBilateralSymmetry);
+  var match$1 = React.useState(function () {
+        
+      });
+  var setCurrentKey = match$1[1];
+  var currentKey = match$1[0];
+  var keys = [
+    "C",
+    "C♯/D♭",
+    "D",
+    "D♯/E♭",
+    "E",
+    "F",
+    "F♯/G♭",
+    "G",
+    "G♯/A♭",
+    "A",
+    "A♯/B♭",
+    "B"
+  ];
+  var keysShort = [
+    "C",
+    "C♯",
+    "D",
+    "D♯",
+    "E",
+    "F",
+    "F♯",
+    "G",
+    "G♯",
+    "A",
+    "A♯",
+    "B"
+  ];
+  var graphKeys = Belt_Option.mapWithDefault(currentKey, Belt_Array.mapWithIndex(keys, (function (i, param) {
+              return String(i);
+            })), (function (shift) {
+          return cycleArray(keys, shift);
+        }));
+  var graphBits = Belt_Option.mapWithDefault(currentBits, Belt_Array.map(keys, (function (param) {
+              return 0;
+            })), (function (b) {
+          return b;
+        }));
   return React.createElement("div", {
-              className: "flex flex-row h-screen w-screen"
+              className: "flex flex-row h-screen w-screen font-mono"
             }, React.createElement("div", {
-                  className: "h-80 w-80"
-                }, React.createElement(make, {
-                      bits: currentBits
-                    })), React.createElement("div", {
-                  className: "flex-1 font-mono h-full overflow-scroll px-4"
+                  className: " h-full flex flex-col px-4"
+                }, React.createElement("div", {
+                      className: "h-80 w-80"
+                    }, React.createElement(make, {
+                          data: Belt_Array.zip(graphKeys, graphBits)
+                        })), React.createElement("div", {
+                      className: "flex-1 overflow-scroll p-1"
+                    }, React.createElement("div", {
+                          className: Belt_Option.isNone(currentKey) ? "bg-blue-300" : "",
+                          onClick: (function (param) {
+                              Curry._1(setCurrentKey, (function (param) {
+                                      
+                                    }));
+                            })
+                        }, "None"), Belt_Array.mapWithIndex(keys, (function (i, v) {
+                            var selected = Belt_Option.mapWithDefault(currentKey, false, (function (c) {
+                                    return c === i;
+                                  }));
+                            return React.createElement("div", {
+                                        className: selected ? "bg-blue-300" : "",
+                                        onClick: (function (param) {
+                                            Curry._1(setCurrentKey, (function (param) {
+                                                    return i;
+                                                  }));
+                                          })
+                                      }, v);
+                          })))), React.createElement("div", {
+                  className: "flex-1 h-full overflow-scroll px-4"
                 }, Belt_Array.map(Belt_MapInt.toArray(result), (function (param) {
                         var v = param[1];
                         var k = param[0];
@@ -303,7 +357,7 @@ function App(Props) {
                                                           }, String(Belt_MapString.toArray(v).length))), React.createElement("div", {
                                                         className: [
                                                             numCollapsedState ? "hidden" : "",
-                                                            "max-h-52 overflow-scroll pr-4 border"
+                                                            "max-h-64 overflow-scroll pr-4 border"
                                                           ].join(" ")
                                                       }, Belt_Array.map(Belt_Array.reverse(Belt_MapString.toArray(v)), (function (param) {
                                                               var match = param[1];
@@ -319,7 +373,7 @@ function App(Props) {
                                                                                         }, React.createElement("div", {
                                                                                               className: "flex flex-row justify-start gap-3"
                                                                                             }, React.createElement("div", {
-                                                                                                  className: "font-bold",
+                                                                                                  className: "font-bold font-mono flex flex-row ",
                                                                                                   onClick: (function (param) {
                                                                                                       Curry._1(setSpeciesCollapsedState, (function (x) {
                                                                                                               return !x;
@@ -328,9 +382,22 @@ function App(Props) {
                                                                                                               return stringArrayToIntArray(Array.from(k2));
                                                                                                             }));
                                                                                                     })
-                                                                                                }, k2), React.createElement("div", {
-                                                                                                  className: ""
-                                                                                                }, isSymmetric ? "x" : "_"), React.createElement("div", {
+                                                                                                }, Belt_Array.mapWithIndex(Array.from(k2), (function (i, bit) {
+                                                                                                        return React.createElement("div", {
+                                                                                                                    className: [
+                                                                                                                        (Belt_Option.isSome(currentKey), "w-5"),
+                                                                                                                        "flex flex-row justify-center"
+                                                                                                                      ].join(" ")
+                                                                                                                  }, Belt_Option.mapWithDefault(currentKey, bit, (function (shift) {
+                                                                                                                          if (bit === "0") {
+                                                                                                                            return "-";
+                                                                                                                          } else {
+                                                                                                                            return Belt_Option.getWithDefault(Belt_Array.get(cycleArray(keysShort, shift), i), "");
+                                                                                                                          }
+                                                                                                                        })));
+                                                                                                      }))), React.createElement("div", {
+                                                                                                  className: "w-6"
+                                                                                                }, isSymmetric ? "x" : ""), React.createElement("div", {
                                                                                                   className: " text-green-500"
                                                                                                 }, String(numOfModes)), React.createElement("div", {
                                                                                                   className: "text-xs text-lime-500"
@@ -340,7 +407,9 @@ function App(Props) {
                                                                                                   "mb-2"
                                                                                                 ].join(" ")
                                                                                             }, Belt_Array.map(modes, (function (x) {
-                                                                                                    var selected = intArrayToString(currentBits) === arrayToString(x);
+                                                                                                    var selected = Belt_Option.mapWithDefault(currentBits, false, (function (c) {
+                                                                                                            return intArrayToString(c) === arrayToString(x);
+                                                                                                          }));
                                                                                                     return React.createElement("div", {
                                                                                                                 className: selected ? "bg-blue-300" : "",
                                                                                                                 onClick: (function (param) {
@@ -369,6 +438,7 @@ export {
   SVG ,
   Config ,
   reactMap ,
+  reactMapWithIndex ,
   str ,
   padLeft ,
   stringToArray ,

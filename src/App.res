@@ -23,7 +23,7 @@ module Collapsed = {
 
 module SVG = {
   @module("./SVG.jsx") @react.component
-  external make: (~bits: array<int>) => React.element = "SVG"
+  external make: (~data: array<(string, int)>) => React.element = "SVG"
 }
 
 module Config = {
@@ -31,6 +31,9 @@ module Config = {
 }
 
 let reactMap = (a, f) => a->Array.map(f)->React.array
+
+let reactMapWithIndex = (a, f) => a->Array.mapWithIndex(f)->React.array
+
 let str = React.string
 
 let rec padLeft = (s, l, pad) => {
@@ -211,18 +214,53 @@ let result = Config.bits->getBitStrings->Array.map(stringToArray)->groupByCount-
 
 @react.component
 let make = () => {
-  let (currentBits, setCurrentBits) = React.useState(_ => [])
+  let (currentBits, setCurrentBits) = React.useState(_ => None)
+  let (currentKey: option<int>, setCurrentKey) = React.useState(_ => None)
 
-  let _ =
-    ["1", "1", "1", "1", "1", "1", "0", "0", "0", "0", "0", "0"]
-    ->getPermutations
-    ->any(p => p->hasBilateralSymmetry)
+  let keys = [
+    `C`,
+    `C♯/D♭`,
+    `D`,
+    `D♯/E♭`,
+    `E`,
+    `F`,
+    `F♯/G♭`,
+    `G`,
+    `G♯/A♭`,
+    `A`,
+    `A♯/B♭`,
+    `B`,
+  ]
 
-  <div className={"flex flex-row h-screen w-screen"}>
-    <div className={"h-80 w-80"}>
-      <SVG bits={currentBits} />
+  let keysShort = [`C`, `C♯`, `D`, `D♯`, `E`, `F`, `F♯`, `G`, `G♯`, `A`, `A♯`, `B`]
+
+  let graphKeys =
+    currentKey->Option.mapWithDefault(keys->Array.mapWithIndex((i, _) => i->Int.toString), shift =>
+      keys->cycleArray(shift)
+    )
+  let graphBits = currentBits->Option.mapWithDefault(keys->Array.map(_ => 0), b => b)
+
+  <div className={"flex flex-row h-screen w-screen font-mono"}>
+    <div className=" h-full flex flex-col px-4">
+      <div className={"h-80 w-80"}>
+        <SVG data={Array.zip(graphKeys, graphBits)} />
+      </div>
+      <div className={"flex-1 overflow-scroll p-1"}>
+        <div
+          className={currentKey->Option.isNone ? "bg-blue-300" : ""}
+          onClick={_ => setCurrentKey(_ => None)}>
+          {"None"->str}
+        </div>
+        {keys->reactMapWithIndex((i, v) => {
+          let selected = currentKey->Option.mapWithDefault(false, c => c == i)
+
+          <div className={selected ? "bg-blue-300" : ""} onClick={_ => setCurrentKey(_ => Some(i))}>
+            {v->str}
+          </div>
+        })}
+      </div>
     </div>
-    <div className="flex-1 font-mono h-full overflow-scroll px-4">
+    <div className="flex-1 h-full overflow-scroll px-4">
       {result
       ->Map.Int.toArray
       ->reactMap(((k, v)) =>
@@ -238,7 +276,7 @@ let make = () => {
               <div
                 className={[
                   numCollapsedState ? "hidden" : "",
-                  "max-h-52 overflow-scroll pr-4 border",
+                  "max-h-64 overflow-scroll pr-4 border",
                 ]->join}>
                 {v
                 ->Map.String.toArray
@@ -251,12 +289,36 @@ let make = () => {
                           <div
                             onClick={_ => {
                               setSpeciesCollapsedState(x => !x)
-                              setCurrentBits(_ => k2->stringToIntArray)
+                              setCurrentBits(_ => k2->stringToIntArray->Some)
                             }}
-                            className="font-bold">
-                            {k2->str}
+                            className="font-bold font-mono flex flex-row ">
+                            {k2
+                            ->stringToArray
+                            ->Array.mapWithIndex(
+                              (i, bit) => {
+                                <div
+                                  className={[
+                                    currentKey->Option.isSome ? "w-5" : "w-5",
+                                    "flex flex-row justify-center",
+                                  ]->join}>
+                                  {currentKey
+                                  ->Option.mapWithDefault(
+                                    bit,
+                                    shift =>
+                                      bit == "0"
+                                        ? "-"
+                                        : keysShort
+                                          ->cycleArray(shift)
+                                          ->Array.get(i)
+                                          ->Option.getWithDefault(""),
+                                  )
+                                  ->str}
+                                </div>
+                              },
+                            )
+                            ->React.array}
                           </div>
-                          <div className=""> {isSymmetric ? "x"->str : "_"->str} </div>
+                          <div className="w-6"> {isSymmetric ? "x"->str : ""->str} </div>
                           <div className=" text-green-500"> {numOfModes->Int.toString->str} </div>
                           <div className="text-xs text-lime-500">
                             {`[${autoCorrelations->Js.Array2.joinWith(_, ", ")}]`->str}
@@ -265,10 +327,14 @@ let make = () => {
                         <div className={[speciesCollapsedState ? "hidden " : "", "mb-2"]->join}>
                           {modes->reactMap(
                             x => {
-                              let selected = currentBits->intArrayToString == x->arrayToString
+                              let selected =
+                                currentBits->Option.mapWithDefault(
+                                  false,
+                                  c => c->intArrayToString == x->arrayToString,
+                                )
                               <div
                                 className={selected ? "bg-blue-300" : ""}
-                                onClick={_ => setCurrentBits(_ => x->stringArrayToIntArray)}>
+                                onClick={_ => setCurrentBits(_ => x->stringArrayToIntArray->Some)}>
                                 {x->arrayToString->str}
                               </div>
                             },

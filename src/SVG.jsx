@@ -29,15 +29,17 @@ const range = (start, end) => {
   return recurse([], start, end);
 };
 
-export const SVG = ({ bits }) => {
-  let order = 12;
+export const SVG = ({ data }) => {
+  console.log({ data });
+  let order = data.length;
   let boxSize = 100;
-  let orderDegree = 360 / 12;
+  let orderDegree = 360 / order;
 
   let center = {
     x: boxSize / 2,
     y: boxSize / 2,
   };
+
   let radius = boxSize / 4;
 
   return (
@@ -49,7 +51,7 @@ export const SVG = ({ bits }) => {
         fill="none"
         stroke="black"
       />
-      {range(0, order - 1).map((i) => {
+      {data.map(([label, bit], i) => {
         return (
           <g>
             <RadialLine
@@ -64,22 +66,20 @@ export const SVG = ({ bits }) => {
               y={center.y}
               radius={radius * 1.3}
               deg={i * orderDegree}
-              text={i}
+              text={label}
             />
+            {bit === 1 ? (
+              <RadialLine
+                x={center.x}
+                y={center.y}
+                start={0}
+                end={radius}
+                deg={i * orderDegree}
+                color={"red"}
+              />
+            ) : null}
           </g>
         );
-      })}
-      {bits.map((x, i) => {
-        return x === 1 ? (
-          <RadialLine
-            x={center.x}
-            y={center.y}
-            start={0}
-            end={radius}
-            deg={i * orderDegree}
-            color={"red"}
-          />
-        ) : null;
       })}
     </svg>
   );
