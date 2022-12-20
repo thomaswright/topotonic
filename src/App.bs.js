@@ -13,6 +13,16 @@ function join(__x) {
   return __x.join(" ");
 }
 
+function any(a, test) {
+  return Belt_Array.reduce(a, false, (function (acc, element) {
+                if (acc) {
+                  return true;
+                } else {
+                  return Curry._1(test, element);
+                }
+              }));
+}
+
 function App$Collapsed(Props) {
   var render = Props.render;
   var match = React.useState(function () {
@@ -70,6 +80,12 @@ function stringArrayToIntArray(x) {
 
 function stringToIntArray(x) {
   return stringArrayToIntArray(Array.from(x));
+}
+
+function intArrayToString(x) {
+  return Belt_Array.reduce(x, "", (function (acc, value) {
+                return acc + String(value);
+              }));
 }
 
 function getBitStrings(numOfBits) {
@@ -158,21 +174,81 @@ function removeDuplicates(permutations) {
               }));
 }
 
+function isSameArray(a, b) {
+  return Belt_Array.every(Belt_Array.zip(a, b), (function (param) {
+                return param[0] === param[1];
+              }));
+}
+
+function hasBilateralSymmetry(x) {
+  var l = x.length;
+  if (l % 2 === 0) {
+    var a = x.slice(1, l / 2 | 0);
+    var b = Belt_Array.reverse(x.slice((l / 2 | 0) + 1 | 0));
+    var c = x.slice(0, l / 2 | 0);
+    var d = Belt_Array.reverse(x.slice(l / 2 | 0));
+    if (isSameArray(a, b)) {
+      return true;
+    } else {
+      return isSameArray(c, d);
+    }
+  }
+  var a$1 = x.slice(1, (l + 1 | 0) / 2 | 0);
+  var b$1 = x.slice((l + 1 | 0) / 2 | 0);
+  return isSameArray(a$1, Belt_Array.reverse(b$1));
+}
+
 function groupBySpecies(groupedByCount) {
   return Belt_MapInt.map(groupedByCount, (function (x) {
-                return Belt_MapString.fromArray(Belt_Array.map(Belt_MapString.keysToArray(Belt_Array.reduce(x, undefined, (function (acc, value) {
-                                          var key = arrayToString(generateGreatest(value));
-                                          return Belt_MapString.update(acc, key, (function (x) {
-                                                        return Belt_Option.mapWithDefault(x, [value], (function (a) {
-                                                                      return Belt_Array.concat(a, [value]);
-                                                                    }));
-                                                      }));
-                                        }))), (function (a) {
-                                  return [
-                                          a,
-                                          Belt_Array.reverse(removeDuplicates(removeZeroStarts(getPermutations(Array.from(a)))))
-                                        ];
-                                })));
+                return Belt_MapString.mapWithKey(Belt_MapString.fromArray(Belt_Array.map(Belt_MapString.keysToArray(Belt_Array.reduce(x, undefined, (function (acc, value) {
+                                              var key = arrayToString(generateGreatest(value));
+                                              return Belt_MapString.update(acc, key, (function (x) {
+                                                            return Belt_Option.mapWithDefault(x, [value], (function (a) {
+                                                                          return Belt_Array.concat(a, [value]);
+                                                                        }));
+                                                          }));
+                                            }))), (function (a) {
+                                      return [
+                                              a,
+                                              Belt_Array.reverse(removeDuplicates(removeZeroStarts(getPermutations(Array.from(a)))))
+                                            ];
+                                    }))), (function (k, a) {
+                              var match = Belt_Array.get(a, 0);
+                              var match$1 = Belt_Array.get(a, 1);
+                              if (match !== undefined) {
+                                if (match$1 !== undefined) {
+                                  Belt_Array.keep(Belt_Array.zip(match, match$1), (function (param) {
+                                          if (param[0] === "1") {
+                                            return param[1] === "1";
+                                          } else {
+                                            return false;
+                                          }
+                                        })).length;
+                                }
+                                
+                              }
+                              var permutations = getPermutations(Array.from(k));
+                              return {
+                                      modes: a,
+                                      numOfModes: a.length,
+                                      autoCorrelations: Belt_Option.mapWithDefault(Belt_Array.get(a, 0), [], (function (match) {
+                                              return Belt_Array.map(permutations, (function (p) {
+                                                            if (arrayToString(p) === arrayToString(match)) {
+                                                              return "_";
+                                                            } else {
+                                                              return String(Belt_Array.keep(Belt_Array.zip(p, match), (function (param) {
+                                                                                if (param[0] === "1") {
+                                                                                  return param[1] === "1";
+                                                                                } else {
+                                                                                  return false;
+                                                                                }
+                                                                              })).length);
+                                                            }
+                                                          }));
+                                            })),
+                                      isSymmetric: any(permutations, hasBilateralSymmetry)
+                                    };
+                            }));
               }));
 }
 
@@ -183,14 +259,29 @@ function App(Props) {
         return [];
       });
   var setCurrentBits = match[1];
+  var currentBits = match[0];
+  any(getPermutations([
+            "1",
+            "1",
+            "1",
+            "1",
+            "1",
+            "1",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0"
+          ]), hasBilateralSymmetry);
   return React.createElement("div", {
               className: "flex flex-row h-screen w-screen"
             }, React.createElement("div", {
                   className: "h-80 w-80"
                 }, React.createElement(make, {
-                      bits: match[0]
+                      bits: currentBits
                     })), React.createElement("div", {
-                  className: "font-mono h-full overflow-scroll px-4"
+                  className: "flex-1 font-mono h-full overflow-scroll px-4"
                 }, Belt_Array.map(Belt_MapInt.toArray(result), (function (param) {
                         var v = param[1];
                         var k = param[0];
@@ -212,10 +303,14 @@ function App(Props) {
                                                           }, String(Belt_MapString.toArray(v).length))), React.createElement("div", {
                                                         className: [
                                                             numCollapsedState ? "hidden" : "",
-                                                            "max-h-52 overflow-scroll pr-4"
+                                                            "max-h-52 overflow-scroll pr-4 border"
                                                           ].join(" ")
                                                       }, Belt_Array.map(Belt_Array.reverse(Belt_MapString.toArray(v)), (function (param) {
-                                                              var v2 = param[1];
+                                                              var match = param[1];
+                                                              var isSymmetric = match.isSymmetric;
+                                                              var autoCorrelations = match.autoCorrelations;
+                                                              var numOfModes = match.numOfModes;
+                                                              var modes = match.modes;
                                                               var k2 = param[0];
                                                               return React.createElement(App$Collapsed, {
                                                                           render: (function (speciesCollapsedState, setSpeciesCollapsedState) {
@@ -234,14 +329,20 @@ function App(Props) {
                                                                                                             }));
                                                                                                     })
                                                                                                 }, k2), React.createElement("div", {
+                                                                                                  className: ""
+                                                                                                }, isSymmetric ? "x" : "_"), React.createElement("div", {
                                                                                                   className: " text-green-500"
-                                                                                                }, String(v2.length))), React.createElement("div", {
+                                                                                                }, String(numOfModes)), React.createElement("div", {
+                                                                                                  className: "text-xs text-lime-500"
+                                                                                                }, "[" + autoCorrelations.join(", ") + "]")), React.createElement("div", {
                                                                                               className: [
                                                                                                   speciesCollapsedState ? "hidden " : "",
                                                                                                   "mb-2"
                                                                                                 ].join(" ")
-                                                                                            }, Belt_Array.map(v2, (function (x) {
+                                                                                            }, Belt_Array.map(modes, (function (x) {
+                                                                                                    var selected = intArrayToString(currentBits) === arrayToString(x);
                                                                                                     return React.createElement("div", {
+                                                                                                                className: selected ? "bg-blue-300" : "",
                                                                                                                 onClick: (function (param) {
                                                                                                                     Curry._1(setCurrentBits, (function (param) {
                                                                                                                             return stringArrayToIntArray(x);
@@ -263,6 +364,7 @@ var $$default = App;
 
 export {
   join ,
+  any ,
   Collapsed ,
   SVG ,
   Config ,
@@ -273,6 +375,7 @@ export {
   arrayToString ,
   stringArrayToIntArray ,
   stringToIntArray ,
+  intArrayToString ,
   getBitStrings ,
   count1s ,
   groupByCount ,
@@ -282,6 +385,8 @@ export {
   generateGreatest ,
   removeZeroStarts ,
   removeDuplicates ,
+  isSameArray ,
+  hasBilateralSymmetry ,
   groupBySpecies ,
   result ,
   make$1 as make,

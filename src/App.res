@@ -1,6 +1,16 @@
 open Belt
 
+// todo:
+// - any symmetry
+// - symmetry with respect to root
+// - number of shares
+
 let join = Js.Array2.joinWith(_, " ")
+
+let any = (a, test) =>
+  a->Array.reduce(false, (acc, element) => {
+    acc ? true : test(element)
+  })
 
 module Collapsed = {
   @react.component
@@ -34,6 +44,8 @@ let arrayToString = x => x->Array.reduce("", (acc, value) => acc ++ value)
 let stringArrayToIntArray = x => x->Array.map(x => x->Int.fromString->Option.getWithDefault(0))
 
 let stringToIntArray = x => x->stringToArray->stringArrayToIntArray
+
+let intArrayToString = x => x->Array.reduce("", (acc, value) => acc ++ value->Int.toString)
 
 let getBitStrings = numOfBits =>
   Array.range(0, (2. ** numOfBits->Int.toFloat -. 1.)->Float.toInt)->Array.map(x =>
@@ -112,6 +124,41 @@ let removeDuplicates = permutations => {
   ->Array.map(x => x->stringToArray)
 }
 
+type species = {
+  modes: array<array<string>>,
+  numOfModes: int,
+  autoCorrelations: array<string>,
+  isSymmetric: bool,
+}
+
+let isSameArray = (a: array<string>, b: array<string>) =>
+  Array.zip(a, b)->Array.every(((a1, b1)) => a1 == b1)
+
+let hasBilateralSymmetry = (x: array<string>) => {
+  let l = x->Array.length
+
+  mod(l, 2) == 0
+    ? {
+        let (a, b) = (
+          x->Js.Array2.slice(~start=1, ~end_=l / 2),
+          x->Js.Array2.sliceFrom(l / 2 + 1)->Array.reverse,
+        )
+        let (c, d) = (
+          x->Js.Array2.slice(~start=0, ~end_=l / 2),
+          x->Js.Array2.sliceFrom(l / 2)->Array.reverse,
+        )
+        // Js.log4(a, b, c, d)
+        isSameArray(a, b) || isSameArray(c, d)
+      }
+    : {
+        let (a, b) = (
+          x->Js.Array2.slice(~start=1, ~end_=(l + 1) / 2),
+          x->Js.Array2.sliceFrom((l + 1) / 2),
+        )
+        isSameArray(a, b->Array.reverse)
+      }
+}
+
 let groupBySpecies = groupedByCount =>
   groupedByCount->Map.Int.map(x => {
     x
@@ -128,6 +175,36 @@ let groupBySpecies = groupedByCount =>
       a->stringToArray->getPermutations->removeZeroStarts->removeDuplicates->Array.reverse,
     ))
     ->Map.String.fromArray
+    ->Map.String.mapWithKey((k, a) => {
+      let _numOfAutoCorrelations = switch (a->Array.get(0), a->Array.get(1)) {
+      | (Some(a1), Some(a2)) =>
+        Array.zip(a1, a2)->Array.keep(((a1, a2)) => a1 == "1" && a2 == "1")->Array.length
+      | (_, _) => 0
+      }
+
+      let permutations = k->stringToArray->getPermutations
+      {
+        modes: a,
+        numOfModes: a->Array.length,
+        autoCorrelations: a
+        ->Array.get(0)
+        ->Option.mapWithDefault(
+          [],
+          match =>
+            permutations->Array.map(
+              p => {
+                p->arrayToString == match->arrayToString
+                  ? "_"
+                  : Array.zip(p, match)
+                    ->Array.keep(((a1, a2)) => a1 == "1" && a2 == "1")
+                    ->Array.length
+                    ->Int.toString
+              },
+            ),
+        ),
+        isSymmetric: permutations->any(p => p->hasBilateralSymmetry),
+      }
+    })
   })
 
 let result = Config.bits->getBitStrings->Array.map(stringToArray)->groupByCount->groupBySpecies
@@ -135,11 +212,17 @@ let result = Config.bits->getBitStrings->Array.map(stringToArray)->groupByCount-
 @react.component
 let make = () => {
   let (currentBits, setCurrentBits) = React.useState(_ => [])
+
+  let _ =
+    ["1", "1", "1", "1", "1", "1", "0", "0", "0", "0", "0", "0"]
+    ->getPermutations
+    ->any(p => p->hasBilateralSymmetry)
+
   <div className={"flex flex-row h-screen w-screen"}>
     <div className={"h-80 w-80"}>
       <SVG bits={currentBits} />
     </div>
-    <div className="font-mono h-full overflow-scroll px-4">
+    <div className="flex-1 font-mono h-full overflow-scroll px-4">
       {result
       ->Map.Int.toArray
       ->reactMap(((k, v)) =>
@@ -155,12 +238,12 @@ let make = () => {
               <div
                 className={[
                   numCollapsedState ? "hidden" : "",
-                  "max-h-52 overflow-scroll pr-4",
+                  "max-h-52 overflow-scroll pr-4 border",
                 ]->join}>
                 {v
                 ->Map.String.toArray
                 ->Array.reverse
-                ->reactMap(((k2, v2)) =>
+                ->reactMap(((k2, {modes, numOfModes, autoCorrelations, isSymmetric})) =>
                   <Collapsed
                     render={(speciesCollapsedState, setSpeciesCollapsedState) => {
                       <div className="">
@@ -173,14 +256,19 @@ let make = () => {
                             className="font-bold">
                             {k2->str}
                           </div>
-                          <div className=" text-green-500">
-                            {v2->Array.length->Int.toString->str}
+                          <div className=""> {isSymmetric ? "x"->str : "_"->str} </div>
+                          <div className=" text-green-500"> {numOfModes->Int.toString->str} </div>
+                          <div className="text-xs text-lime-500">
+                            {`[${autoCorrelations->Js.Array2.joinWith(_, ", ")}]`->str}
                           </div>
                         </div>
                         <div className={[speciesCollapsedState ? "hidden " : "", "mb-2"]->join}>
-                          {v2->reactMap(
+                          {modes->reactMap(
                             x => {
-                              <div onClick={_ => setCurrentBits(_ => x->stringArrayToIntArray)}>
+                              let selected = currentBits->intArrayToString == x->arrayToString
+                              <div
+                                className={selected ? "bg-blue-300" : ""}
+                                onClick={_ => setCurrentBits(_ => x->stringArrayToIntArray)}>
                                 {x->arrayToString->str}
                               </div>
                             },
@@ -195,13 +283,6 @@ let make = () => {
           }}
         />
       )}
-      // {bitStrings->reactMap(x =>
-      //   <div>
-      //     {x->str}
-      //     // {count1s(stringToArray(x))->Int.toString->str}
-      //   </div>
-      // )}
-      // {"Hello"->str}
     </div>
   </div>
 }
