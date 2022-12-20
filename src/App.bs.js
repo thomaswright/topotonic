@@ -758,36 +758,15 @@ function App(Props) {
                 }, Belt_Array.map(Belt_MapInt.toArray(result), (function (param) {
                         var species = param[1];
                         var genusId = param[0];
-                        return React.createElement(App$CollapsedTri, {
+                        return React.createElement(App$Collapsed, {
                                     render: (function (genusCollapsedState, setGenusCollapsedState) {
-                                        var tmp;
-                                        switch (genusCollapsedState) {
-                                          case /* One */0 :
-                                              tmp = "hidden";
-                                              break;
-                                          case /* Two */1 :
-                                              tmp = "max-h-64";
-                                              break;
-                                          case /* Three */2 :
-                                              tmp = "";
-                                              break;
-                                          
-                                        }
                                         return React.createElement("div", {
                                                     className: "mb-1"
                                                   }, React.createElement("div", {
                                                         className: "flex flex-row items-center px-4 ",
                                                         onClick: (function (param) {
                                                             Curry._1(setGenusCollapsedState, (function (s) {
-                                                                    switch (s) {
-                                                                      case /* One */0 :
-                                                                          return /* Two */1;
-                                                                      case /* Two */1 :
-                                                                          return /* Three */2;
-                                                                      case /* Three */2 :
-                                                                          return /* One */0;
-                                                                      
-                                                                    }
+                                                                    return !s;
                                                                   }));
                                                           })
                                                       }, React.createElement("div", {
@@ -796,10 +775,10 @@ function App(Props) {
                                                             className: "flex-1 text-sm whitespace-nowrap"
                                                           }, String(Belt_MapString.toArray(species).length), " species")), React.createElement("div", {
                                                         className: [
-                                                            tmp,
+                                                            genusCollapsedState ? "hidden" : "",
                                                             "overflow-scroll p-2 pb-6 border"
                                                           ].join(" ")
-                                                      }, genusCollapsedState === /* One */0 ? null : Belt_Array.map(Belt_Array.reverse(Belt_MapString.toArray(species)), (function (param) {
+                                                      }, genusCollapsedState ? null : Belt_Array.map(Belt_Array.reverse(Belt_MapString.toArray(species)), (function (param) {
                                                                 var speciesId = param[0];
                                                                 return React.createElement(App$Species, {
                                                                             currentBits: currentBits,

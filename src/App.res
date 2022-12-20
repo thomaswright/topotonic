@@ -548,19 +548,13 @@ let make = () => {
       {result
       ->Map.Int.toArray
       ->reactMap(((genusId, species)) =>
-        <CollapsedTri
+        <Collapsed
           key={genusId->Int.toString}
           render={(genusCollapsedState, setGenusCollapsedState) => {
             <div className={"mb-1"}>
               <div
                 onClick={_ => {
-                  setGenusCollapsedState(s =>
-                    switch s {
-                    | One => Two
-                    | Two => Three
-                    | Three => One
-                    }
-                  )
+                  setGenusCollapsedState(s => !s)
                 }}
                 className="flex flex-row items-center px-4 ">
                 <div className="flex-1 text-lg"> {genusId->Int.toString->str} </div>
@@ -571,14 +565,10 @@ let make = () => {
               </div>
               <div
                 className={[
-                  switch genusCollapsedState {
-                  | One => "hidden"
-                  | Two => "max-h-64"
-                  | Three => ""
-                  },
+                  genusCollapsedState ? "hidden" : "",
                   "overflow-scroll p-2 pb-6 border",
                 ]->join}>
-                {genusCollapsedState == One
+                {genusCollapsedState
                   ? React.null
                   : species
                     ->Map.String.toArray
