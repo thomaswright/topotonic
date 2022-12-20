@@ -231,30 +231,23 @@ function groupBySpecies(genusGrouping) {
                                                                         }));
                                                           }));
                                             }))), (function (speciesId) {
+                                      var rotations = Belt_Array.map(getRotations(Array.from(speciesId)), (function (rotation) {
+                                              return {
+                                                      rotation: rotation,
+                                                      startsWith1: Belt_Array.getExn(rotation, 0) === "1",
+                                                      greatestRotation: getGreatestRotation(rotation)
+                                                    };
+                                            }));
                                       return [
                                               speciesId,
-                                              Belt_Array.reverse(removeDuplicates(removeZeroStarts(getRotations(Array.from(speciesId)))))
+                                              rotations
                                             ];
-                                    }))), (function (speciesId, modes) {
-                              var match = Belt_Array.get(modes, 0);
-                              var match$1 = Belt_Array.get(modes, 1);
-                              if (match !== undefined) {
-                                if (match$1 !== undefined) {
-                                  Belt_Array.keep(Belt_Array.zip(match, match$1), (function (param) {
-                                          if (param[0] === "1") {
-                                            return param[1] === "1";
-                                          } else {
-                                            return false;
-                                          }
-                                        })).length;
-                                }
-                                
-                              }
+                                    }))), (function (speciesId, rotationDetails) {
                               var rotations = getRotations(Array.from(speciesId));
                               return {
-                                      modes: modes,
-                                      numOfModes: modes.length,
-                                      autoCorrelations: Belt_Option.mapWithDefault(Belt_Array.get(modes, 0), [], (function (match) {
+                                      rotationDetails: rotationDetails,
+                                      autoCorrelations: Belt_Option.mapWithDefault(Belt_Array.get(rotationDetails, 0), [], (function (param) {
+                                              var match = param.rotation;
                                               return Belt_Array.map(rotations, (function (p) {
                                                             if (stringArrayToString(p) === stringArrayToString(match)) {
                                                               return "_";
@@ -403,12 +396,23 @@ function App$Scale(Props) {
   var currentKey = Props.currentKey;
   var kind = Props.kind;
   var selected = Props.selected;
+  var tmp;
+  switch (kind) {
+    case /* Species */0 :
+        tmp = "font-bold";
+        break;
+    case /* Mode */1 :
+        tmp = selected ? "bg-blue-300" : "";
+        break;
+    case /* NonMode */2 :
+        tmp = selected ? "text-neutral-400 bg-blue-300" : "text-neutral-400";
+        break;
+    
+  }
   return React.createElement("div", {
               className: [
                   " flex flex-row ",
-                  kind ? (
-                      selected ? "bg-blue-300" : ""
-                    ) : "font-bold"
+                  tmp
                 ].join(" "),
               onClick: onClick
             }, Belt_Array.mapWithIndex(Array.from(bitString), (function (i, bit) {
@@ -449,14 +453,11 @@ var Key = {
 };
 
 function App$Species(Props) {
-  var modes = Props.modes;
   var currentBits = Props.currentBits;
   var setCurrentBits = Props.setCurrentBits;
-  var speciesId = Props.speciesId;
   var currentKey = Props.currentKey;
-  var isSymmetric = Props.isSymmetric;
-  var numOfModes = Props.numOfModes;
-  var autoCorrelations = Props.autoCorrelations;
+  var speciesId = Props.speciesId;
+  var speciesDetails = Props.speciesDetails;
   var match = React.useState(function () {
         
       });
@@ -464,9 +465,10 @@ function App$Species(Props) {
   var base = match[0];
   return React.createElement(App$Collapsed, {
               render: (function (speciesHidden, setSpeciesHidden) {
-                  var anySelected = any(modes, (function (mode) {
+                  var anySelected = any(speciesDetails.rotationDetails, (function (param) {
+                          var rotation = param.rotation;
                           return Belt_Option.mapWithDefault(currentBits, false, (function (c) {
-                                        return intArrayToString(c) === stringArrayToString(mode);
+                                        return intArrayToString(c) === stringArrayToString(rotation);
                                       }));
                         }));
                   return React.createElement("div", {
@@ -505,37 +507,40 @@ function App$Species(Props) {
                                       selected: false
                                     }), React.createElement("div", {
                                       className: "w-6"
-                                    }, isSymmetric ? "x" : ""), React.createElement("div", {
+                                    }, speciesDetails.isSymmetric ? "x" : ""), React.createElement("div", {
                                       className: "text-sm whitespace-nowrap"
-                                    }, String(numOfModes), " modes")), React.createElement("div", {
+                                    }, String(Belt_Array.keep(speciesDetails.rotationDetails, (function (param) {
+                                                return param.startsWith1;
+                                              })).length), " modes")), React.createElement("div", {
                                   className: [
                                       speciesHidden ? "hidden " : "",
                                       "pt-0.5 pb-2 border-t border-neutral-400"
                                     ].join(" ")
-                                }, Belt_Array.map(modes, (function (modeId) {
+                                }, Belt_Array.map(speciesDetails.rotationDetails, (function (param) {
+                                        var rotation = param.rotation;
                                         var selected = Belt_Option.mapWithDefault(currentBits, false, (function (c) {
-                                                return intArrayToString(c) === stringArrayToString(modeId);
+                                                return intArrayToString(c) === stringArrayToString(rotation);
                                               }));
                                         return React.createElement("div", {
                                                     className: "flex flex-row"
                                                   }, React.createElement(App$Scale, {
                                                         onClick: (function (param) {
                                                             Curry._1(setCurrentBits, (function (param) {
-                                                                    return stringArrayToIntArray(modeId);
+                                                                    return stringArrayToIntArray(rotation);
                                                                   }));
                                                           }),
-                                                        bitString: stringArrayToString(modeId),
+                                                        bitString: stringArrayToString(rotation),
                                                         currentKey: currentKey,
-                                                        kind: /* Mode */1,
+                                                        kind: param.startsWith1 ? /* Mode */1 : /* NonMode */2,
                                                         selected: selected
                                                       }), Belt_Option.isSome(currentKey) ? Belt_Option.mapWithDefault(base, React.createElement("button", {
                                                               onClick: (function (param) {
                                                                   Curry._1(setBase, (function (param) {
-                                                                          return modeId;
+                                                                          return rotation;
                                                                         }));
                                                                 })
                                                             }, "Base"), (function (b) {
-                                                            if (stringArrayToString(b) === stringArrayToString(modeId)) {
+                                                            if (stringArrayToString(b) === stringArrayToString(rotation)) {
                                                               return React.createElement("button", {
                                                                           onClick: (function (param) {
                                                                               Curry._1(setBase, (function (param) {
@@ -549,7 +554,7 @@ function App$Species(Props) {
                                                           })) : null);
                                       })), React.createElement("div", {
                                       className: "text-xs text-green-600 flex flex-row "
-                                    }, Belt_Array.map(autoCorrelations, (function (x) {
+                                    }, Belt_Array.map(speciesDetails.autoCorrelations, (function (x) {
                                             return React.createElement("div", {
                                                         className: ["w-5 flex flex-row items-center justify-center"].join(" ")
                                                       }, x);
@@ -661,16 +666,12 @@ function App(Props) {
                                                             "overflow-scroll p-2 pb-6 border"
                                                           ].join(" ")
                                                       }, Belt_Array.map(Belt_Array.reverse(Belt_MapString.toArray(species)), (function (param) {
-                                                              var match = param[1];
                                                               return React.createElement(App$Species, {
-                                                                          modes: match.modes,
                                                                           currentBits: currentBits,
                                                                           setCurrentBits: setCurrentBits,
-                                                                          speciesId: param[0],
                                                                           currentKey: currentKey,
-                                                                          isSymmetric: match.isSymmetric,
-                                                                          numOfModes: match.numOfModes,
-                                                                          autoCorrelations: match.autoCorrelations
+                                                                          speciesId: param[0],
+                                                                          speciesDetails: param[1]
                                                                         });
                                                             }))));
                                       })
