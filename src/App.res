@@ -77,6 +77,8 @@ module BitOps = {
         (valueInt->Int.toFloat *. 2. ** i->Int.toFloat)->Int.fromFloat + acc
       })
     })
+
+  let stringToInt = x => x->stringToStringArray->stringArrayToInt
 }
 
 let getPermsForBitLength = numOfBits =>
@@ -150,7 +152,7 @@ let removeDuplicates = x => {
 // }
 
 type speciesDetails = {
-  modes: Belt.Map.String.t<array<int>>,
+  modes: array<(string, array<int>)>,
   autoCorrelations: array<string>,
   isSymmetric: bool,
 }
@@ -205,12 +207,16 @@ let groupBySpecies = genusGrouping =>
       //   },
       // )
 
-      let modes = rotations->Array.reduceWithIndex(
-        Map.String.empty,
-        (acc, value, index) => {
-          acc->mapAppend(value->BitOps.stringArrayToString, index)
-        },
-      )
+      let modes =
+        rotations
+        ->Array.reduceWithIndex(
+          Map.String.empty,
+          (acc, value, index) => {
+            acc->mapAppend(value->BitOps.stringArrayToString, index)
+          },
+        )
+        ->Map.String.toArray
+        ->Belt.SortArray.stableSortBy(((_, a), (_, b)) => a->Array.getExn(0) - b->Array.getExn(0))
 
       (speciesId, modes)
     })
@@ -226,11 +232,10 @@ let groupBySpecies = genusGrouping =>
       {
         modes,
         autoCorrelations: modes
-        ->Map.String.keysToArray
         ->Array.get(0)
         ->Option.mapWithDefault(
           [],
-          modeId =>
+          ((modeId, _)) =>
             rotations->Array.map(
               p => {
                 p->BitOps.stringArrayToString == modeId
@@ -271,6 +276,8 @@ let keys = [
 
 let keysShort = [`C`, `C♯`, `D`, `D♯`, `E`, `F`, `F♯`, `G`, `G♯`, `A`, `A♯`, `B`]
 
+// let intervals = [`C`, `C♯`, `D`, `D♯`, `E`, `F`, `F♯`, `G`, `G♯`, `A`, `A♯`, `B`]
+
 let namedSpecies = [
   (
     "110101101010",
@@ -308,8 +315,10 @@ let spacedToBits = a => {
 
 type kind = Species | Mode | NonMode
 
-let bitToDisplaySymbol = (bit, index, currentKey) => {
-  currentKey->Option.mapWithDefault(bit, shift =>
+// type bitDisplay = Bit | Index
+
+let bitToDisplaySymbol = (bit, index, currentKey, default) => {
+  currentKey->Option.mapWithDefault(default, shift =>
     bit == "0" ? "-" : keysShort->rotate(shift)->Array.get(index)->Option.getWithDefault("")
   )
 }
@@ -335,7 +344,7 @@ module Scale = {
             currentKey->Option.isSome ? "w-5" : "w-5",
             "flex flex-row justify-center",
           ]->join}>
-          {bitToDisplaySymbol(bit, i, currentKey)->str}
+          {bitToDisplaySymbol(bit, i, currentKey, bit)->str}
         </div>
       })
       ->React.array}
@@ -365,12 +374,9 @@ module Species = {
 
     <Collapsed
       render={(speciesHidden, setSpeciesHidden) => {
-        let anySelected =
-          speciesDetails.modes
-          ->Map.String.keysToArray
-          ->any(rotation => {
-            currentBits->Option.mapWithDefault(false, c => c->BitOps.intArrayToString == rotation)
-          })
+        let anySelected = speciesDetails.modes->any(((rotation, _)) => {
+          currentBits->Option.mapWithDefault(false, c => c->BitOps.intArrayToString == rotation)
+        })
 
         <div
           className={[
@@ -401,15 +407,14 @@ module Species = {
             <div className="w-6"> {speciesDetails.isSymmetric ? "x"->str : ""->str} </div>
             <div className="text-sm whitespace-nowrap">
               {speciesDetails.modes
-              ->Map.String.keysToArray
-              ->Array.keep(modeId => modeId->BitOps.stringToStringArray->startsWith1)
+              ->Array.keep(((modeId, _)) => modeId->BitOps.stringToStringArray->startsWith1)
               ->Array.length
               ->Int.toString
               ->str}
               {" modes"->str}
             </div>
             <div className="text-sm whitespace-nowrap">
-              {speciesDetails.modes->Map.String.keysToArray->Array.length->Int.toString->str}
+              {speciesDetails.modes->Array.length->Int.toString->str}
               {" pitch classes"->str}
             </div>
           </div>
@@ -418,10 +423,7 @@ module Species = {
               speciesHidden ? "hidden " : "",
               "pt-0.5 pb-2 border-t border-neutral-400",
             ]->join}>
-            {speciesDetails.modes
-            ->Map.String.toArray
-            ->Array.reverse
-            ->reactMap(((modeId, rotationDegrees)) => {
+            {speciesDetails.modes->reactMap(((modeId, rotationDegrees)) => {
               let selected =
                 currentBits->Option.mapWithDefault(false, c => c->BitOps.intArrayToString == modeId)
               <div className="flex flex-row">
@@ -445,7 +447,9 @@ module Species = {
                   : React.null}
                 <div className="text-neutral-700 text-xs">
                   {`[${rotationDegrees
-                    ->Array.map(degree => bitToDisplaySymbol("1", degree, currentKey))
+                    ->Array.map(degree =>
+                      bitToDisplaySymbol("1", degree, currentKey, degree->Int.toString)
+                    )
                     ->Js.Array2.joinWith(_, ", ")}]`->str}
                 </div>
               </div>

@@ -8,6 +8,7 @@ import * as Belt_Array from "rescript/lib/es6/belt_Array.js";
 import * as Belt_MapInt from "rescript/lib/es6/belt_MapInt.js";
 import * as Belt_Option from "rescript/lib/es6/belt_Option.js";
 import * as Belt_MapString from "rescript/lib/es6/belt_MapString.js";
+import * as Belt_SortArray from "rescript/lib/es6/belt_SortArray.js";
 
 function join(__x) {
   return __x.join(" ");
@@ -110,13 +111,18 @@ function stringArrayToInt(x) {
               }));
 }
 
+function stringToInt(x) {
+  return stringArrayToInt(Array.from(x));
+}
+
 var BitOps = {
   stringToStringArray: stringToStringArray,
   stringArrayToString: stringArrayToString,
   stringArrayToIntArray: stringArrayToIntArray,
   stringToIntArray: stringToIntArray,
   intArrayToString: intArrayToString,
-  stringArrayToInt: stringArrayToInt
+  stringArrayToInt: stringArrayToInt,
+  stringToInt: stringToInt
 };
 
 function getPermsForBitLength(numOfBits) {
@@ -238,8 +244,10 @@ function groupBySpecies(genusGrouping) {
                                               return mapAppend(acc, greatestRotation, value);
                                             }))), (function (speciesId) {
                                       var rotations = getRotations(Array.from(speciesId));
-                                      var modes = Belt_Array.reduceWithIndex(rotations, undefined, (function (acc, value, index) {
-                                              return mapAppend(acc, stringArrayToString(value), index);
+                                      var modes = Belt_SortArray.stableSortBy(Belt_MapString.toArray(Belt_Array.reduceWithIndex(rotations, undefined, (function (acc, value, index) {
+                                                      return mapAppend(acc, stringArrayToString(value), index);
+                                                    }))), (function (param, param$1) {
+                                              return Belt_Array.getExn(param[1], 0) - Belt_Array.getExn(param$1[1], 0) | 0;
                                             }));
                                       return [
                                               speciesId,
@@ -249,7 +257,8 @@ function groupBySpecies(genusGrouping) {
                               var rotations = getRotations(Array.from(speciesId));
                               return {
                                       modes: modes,
-                                      autoCorrelations: Belt_Option.mapWithDefault(Belt_Array.get(Belt_MapString.keysToArray(modes), 0), [], (function (modeId) {
+                                      autoCorrelations: Belt_Option.mapWithDefault(Belt_Array.get(modes, 0), [], (function (param) {
+                                              var modeId = param[0];
                                               return Belt_Array.map(rotations, (function (p) {
                                                             if (stringArrayToString(p) === modeId) {
                                                               return "_";
@@ -392,8 +401,8 @@ function spacedToBits(a) {
               }));
 }
 
-function bitToDisplaySymbol(bit, index, currentKey) {
-  return Belt_Option.mapWithDefault(currentKey, bit, (function (shift) {
+function bitToDisplaySymbol(bit, index, currentKey, $$default) {
+  return Belt_Option.mapWithDefault(currentKey, $$default, (function (shift) {
                 if (bit === "0") {
                   return "-";
                 } else {
@@ -433,7 +442,7 @@ function App$Scale(Props) {
                                     (Belt_Option.isSome(currentKey), "w-5"),
                                     "flex flex-row justify-center"
                                   ].join(" ")
-                              }, bitToDisplaySymbol(bit, i, currentKey));
+                              }, bitToDisplaySymbol(bit, i, currentKey, bit));
                   })));
 }
 
@@ -471,7 +480,8 @@ function App$Species(Props) {
   var base = match[0];
   return React.createElement(App$Collapsed, {
               render: (function (speciesHidden, setSpeciesHidden) {
-                  var anySelected = any(Belt_MapString.keysToArray(speciesDetails.modes), (function (rotation) {
+                  var anySelected = any(speciesDetails.modes, (function (param) {
+                          var rotation = param[0];
                           return Belt_Option.mapWithDefault(currentBits, false, (function (c) {
                                         return intArrayToString(c) === rotation;
                                       }));
@@ -514,16 +524,16 @@ function App$Species(Props) {
                                       className: "w-6"
                                     }, speciesDetails.isSymmetric ? "x" : ""), React.createElement("div", {
                                       className: "text-sm whitespace-nowrap"
-                                    }, String(Belt_Array.keep(Belt_MapString.keysToArray(speciesDetails.modes), (function (modeId) {
-                                                return startsWith1(Array.from(modeId));
+                                    }, String(Belt_Array.keep(speciesDetails.modes, (function (param) {
+                                                return startsWith1(Array.from(param[0]));
                                               })).length), " modes"), React.createElement("div", {
                                       className: "text-sm whitespace-nowrap"
-                                    }, String(Belt_MapString.keysToArray(speciesDetails.modes).length), " pitch classes")), React.createElement("div", {
+                                    }, String(speciesDetails.modes.length), " pitch classes")), React.createElement("div", {
                                   className: [
                                       speciesHidden ? "hidden " : "",
                                       "pt-0.5 pb-2 border-t border-neutral-400"
                                     ].join(" ")
-                                }, Belt_Array.map(Belt_Array.reverse(Belt_MapString.toArray(speciesDetails.modes)), (function (param) {
+                                }, Belt_Array.map(speciesDetails.modes, (function (param) {
                                         var modeId = param[0];
                                         var selected = Belt_Option.mapWithDefault(currentBits, false, (function (c) {
                                                 return intArrayToString(c) === modeId;
@@ -561,7 +571,7 @@ function App$Species(Props) {
                                                           })) : null, React.createElement("div", {
                                                         className: "text-neutral-700 text-xs"
                                                       }, "[" + Belt_Array.map(param[1], (function (degree) {
-                                                                return bitToDisplaySymbol("1", degree, currentKey);
+                                                                return bitToDisplaySymbol("1", degree, currentKey, String(degree));
                                                               })).join(", ") + "]"));
                                       })), React.createElement("div", {
                                       className: "text-xs text-green-600 flex flex-row "
