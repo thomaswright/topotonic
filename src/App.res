@@ -2,7 +2,6 @@ open Belt
 
 // todo:
 // - symmetry with respect to root
-// - pitch classes
 // - enharmonics
 // - named keys
 // - shifts
@@ -382,7 +381,7 @@ module Species = {
     ~speciesId,
     ~speciesDetails: speciesDetails,
   ) => {
-    let (base, setBase) = React.useState(_ => None)
+    // let (base, setBase) = React.useState(_ => None)
 
     <Collapsed
       render={(speciesHidden, setSpeciesHidden) => {
@@ -450,21 +449,21 @@ module Species = {
                       bitString={modeId}
                       kind={modeId->BitOps.stringToStringArray->startsWith1 ? Mode : NonMode}
                     />
-                    {currentKey->Option.isSome
-                      ? {
-                          base->Option.mapWithDefault(
-                            <button onClick={_ => setBase(_ => Some(modeId))}>
-                              {"Base"->str}
-                            </button>,
-                            b =>
-                              b == modeId
-                                ? <button onClick={_ => setBase(_ => None)}>
-                                    {"Remove"->str}
-                                  </button>
-                                : React.null,
-                          )
-                        }
-                      : React.null}
+                    // {currentKey->Option.isSome
+                    //   ? {
+                    //       base->Option.mapWithDefault(
+                    //         <button onClick={_ => setBase(_ => Some(modeId))}>
+                    //           {"Base"->str}
+                    //         </button>,
+                    //         b =>
+                    //           b == modeId
+                    //             ? <button onClick={_ => setBase(_ => None)}>
+                    //                 {"Remove"->str}
+                    //               </button>
+                    //             : React.null,
+                    //       )
+                    //     }
+                    //   : React.null}
                     <div className="text-neutral-700 text-xs">
                       {`[${rotationDegrees
                         ->Array.map(degree =>

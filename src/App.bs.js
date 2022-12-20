@@ -537,11 +537,6 @@ function App$Species(Props) {
   var currentKey = Props.currentKey;
   var speciesId = Props.speciesId;
   var speciesDetails = Props.speciesDetails;
-  var match = React.useState(function () {
-        
-      });
-  var setBase = match[1];
-  var base = match[0];
   return React.createElement(App$Collapsed, {
               render: (function (speciesHidden, setSpeciesHidden) {
                   var anySelected = any(speciesDetails.modes, (function (param) {
@@ -615,25 +610,7 @@ function App$Species(Props) {
                                                           currentKey: currentKey,
                                                           kind: startsWith1(Array.from(modeId)) ? /* Mode */1 : /* NonMode */2,
                                                           selected: selected
-                                                        }), Belt_Option.isSome(currentKey) ? Belt_Option.mapWithDefault(base, React.createElement("button", {
-                                                                onClick: (function (param) {
-                                                                    Curry._1(setBase, (function (param) {
-                                                                            return modeId;
-                                                                          }));
-                                                                  })
-                                                              }, "Base"), (function (b) {
-                                                              if (b === modeId) {
-                                                                return React.createElement("button", {
-                                                                            onClick: (function (param) {
-                                                                                Curry._1(setBase, (function (param) {
-                                                                                        
-                                                                                      }));
-                                                                              })
-                                                                          }, "Remove");
-                                                              } else {
-                                                                return null;
-                                                              }
-                                                            })) : null, React.createElement("div", {
+                                                        }), React.createElement("div", {
                                                           className: "text-neutral-700 text-xs"
                                                         }, "[" + Belt_Array.map(param[1], (function (degree) {
                                                                   return bitToDisplaySymbol("1", degree, currentKey, String(degree));
