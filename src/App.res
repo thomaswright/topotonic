@@ -2,10 +2,13 @@ open Belt
 
 // todo:
 // - symmetry with respect to root
-// - enharmonics
-// - named keys
-// - shifts
 // - all symmetries
+// - enharmonics
+// - temperments
+// - named keys
+// - reverse order ?
+// - shifts
+// - just interval
 
 let join = Js.Array2.joinWith(_, " ")
 
@@ -275,7 +278,8 @@ let pitchKeys = [
 let pitchKeysShort = [`C`, `C♯`, `D`, `D♯`, `E`, `F`, `F♯`, `G`, `G♯`, `A`, `A♯`, `B`]
 let semitones = [`0`, `1`, `2`, `3`, `4`, `5`, `6`, `7`, `8`, `9`, `10`, `11`]
 let mMPs = [`P1`, `m2`, `M2`, `m3`, `M3`, `P4`, `TT`, `P5`, `m6`, `M6`, `m7`, `M7`]
-let dimAugs = [`d2`, `A1`, `d3`, `A2`, `d4`, `A3`, `d5/A4`, `d6`, `A5`, `d7`, `A6`, `d8`]
+// TODO: replace TT with d5/A4 when we have proper scaling
+let dimAugs = [`d2`, `A1`, `d3`, `A2`, `d4`, `A3`, `TT`, `d6`, `A5`, `d7`, `A6`, `d8`]
 
 let namedSpecies = [
   (
@@ -299,8 +303,8 @@ let namedSpecies = [
   ("", [""], []),
 ]
 
-let spacedToBits = a => {
-  a->Array.reduce("1", (acc, value) => {
+let stepsToBits = x => {
+  x->Array.reduce("1", (acc, value) => {
     acc ++
     switch value {
     | 1 => "1"
@@ -312,21 +316,31 @@ let spacedToBits = a => {
   })
 }
 
-type key = Pitch(int) | MinMaj | DimAug | Semitone
+let bitsToSteps = x => {
+  x
+  ->Js.String2.split("1")
+  ->Array.map(a => {
+    a->Js.String2.length + 1
+  })
+  ->Belt.Array.sliceToEnd(1)
+}
+
+type key = Pitch(int) | MinMaj | DimAug | Semitone | Steps
 
 type kind = Species | Mode | NonMode
 
 // type bitDisplay = Bit | Index
 
-let bitToDisplaySymbol = (bit, index, currentKey, default) => {
+let bitToDisplaySymbol = (bit, index, currentKey) => {
   switch currentKey {
-  | None => default
+  | None => bit
   | Some(x) => {
       let a = switch x {
       | Pitch(shift) => pitchKeysShort->rotate(shift)
       | DimAug => dimAugs
       | Semitone => semitones
       | MinMaj => mMPs
+      | Steps => semitones
       }
       bit == "0" ? "-" : a->Array.get(index)->Option.getWithDefault("")
     }
@@ -346,19 +360,27 @@ module Scale = {
         | NonMode => selected ? "text-neutral-400 bg-blue-300" : "text-neutral-400"
         },
       ]->join}>
-      {bitString
-      ->BitOps.stringToStringArray
-      ->Array.mapWithIndex((i, bit) => {
-        <div
-          key={i->Int.toString}
-          className={[
-            currentKey->Option.isSome ? "w-5" : "w-5",
-            "flex flex-row justify-center",
-          ]->join}>
-          {bitToDisplaySymbol(bit, i, currentKey, bit)->str}
-        </div>
-      })
-      ->React.array}
+      {switch currentKey {
+      | Some(Steps) =>
+        bitString
+        ->bitsToSteps
+        ->Array.mapWithIndex((i, step) => {
+          <div key={i->Int.toString} className={["w-5 flex flex-row justify-center"]->join}>
+            {step->Int.toString->str}
+          </div>
+        })
+        ->React.array
+
+      | _ =>
+        bitString
+        ->BitOps.stringToStringArray
+        ->Array.mapWithIndex((i, bit) => {
+          <div key={i->Int.toString} className={["w-5 flex flex-row justify-center"]->join}>
+            {bitToDisplaySymbol(bit, i, currentKey)->str}
+          </div>
+        })
+        ->React.array
+      }}
     </div>
   }
 }
@@ -371,6 +393,10 @@ module Key = {
     </div>
   }
 }
+
+// ->Array.map(degree =>
+//   bitToDisplaySymbol("1", degree, currentKey, degree->Int.toString)
+// )
 
 module Species = {
   @react.component
@@ -392,7 +418,7 @@ module Species = {
         <div
           className={[
             !speciesHidden ? "bg-blue-50 border-blue-200 mb-1" : "border-transparent",
-            "border rounded-sm",
+            "border rounded",
           ]->join}>
           <div className="flex flex-row items-center justify-start gap-3">
             <Scale
@@ -464,12 +490,9 @@ module Species = {
                     //       )
                     //     }
                     //   : React.null}
+
                     <div className="text-neutral-700 text-xs">
-                      {`[${rotationDegrees
-                        ->Array.map(degree =>
-                          bitToDisplaySymbol("1", degree, currentKey, degree->Int.toString)
-                        )
-                        ->Js.Array2.joinWith(_, ", ")}]`->str}
+                      {`[${rotationDegrees->Js.Array2.joinWith(_, ", ")}]`->str}
                     </div>
                   </div>
                 })}
@@ -497,10 +520,11 @@ let make = () => {
   let graphKeys = {
     switch currentKey {
     | None => semitones
-    | Some(Pitch(shift)) => pitchKeys->rotate(shift)
-    | Some(DimAug) => dimAugs
     | Some(Semitone) => semitones
+    | Some(Steps) => semitones
+    | Some(DimAug) => dimAugs
     | Some(MinMaj) => mMPs
+    | Some(Pitch(shift)) => pitchKeys->rotate(shift)
     }
   }
 
@@ -530,6 +554,11 @@ let make = () => {
           selected={currentKey->Option.mapWithDefault(false, x => x == Semitone)}
           onClick={_ => setCurrentKey(_ => Some(Semitone))}>
           {"Semitone Intervals"->str}
+        </Key>
+        <Key
+          selected={currentKey->Option.mapWithDefault(false, x => x == Steps)}
+          onClick={_ => setCurrentKey(_ => Some(Steps))}>
+          {"Semitone Steps"->str}
         </Key>
         {pitchKeys->reactMapWithIndex((i, v) => {
           let selected = switch currentKey {
@@ -565,13 +594,12 @@ let make = () => {
               <div
                 className={[
                   genusCollapsedState ? "hidden" : "",
-                  "overflow-scroll p-2 pb-6 border",
+                  "overflow-scroll p-2 pb-6 border rounded",
                 ]->join}>
                 {genusCollapsedState
                   ? React.null
                   : species
                     ->Map.String.toArray
-                    ->Array.reverse
                     ->reactMap(((speciesId, speciesDetails)) =>
                       <Species
                         key={speciesId}

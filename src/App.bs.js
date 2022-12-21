@@ -348,7 +348,7 @@ var dimAugs = [
   "A2",
   "d4",
   "A3",
-  "d5/A4",
+  "TT",
   "d6",
   "A5",
   "d7",
@@ -423,8 +423,8 @@ var namedSpecies = [
   ]
 ];
 
-function spacedToBits(a) {
-  return Belt_Array.reduce(a, "1", (function (acc, value) {
+function stepsToBits(x) {
+  return Belt_Array.reduce(x, "1", (function (acc, value) {
                 var tmp;
                 switch (value) {
                   case 1 :
@@ -446,27 +446,21 @@ function spacedToBits(a) {
               }));
 }
 
-function bitToDisplaySymbol(bit, index, currentKey, $$default) {
+function bitsToSteps(x) {
+  return Belt_Array.sliceToEnd(Belt_Array.map(x.split("1"), (function (a) {
+                    return a.length + 1 | 0;
+                  })), 1);
+}
+
+function bitToDisplaySymbol(bit, index, currentKey) {
   if (currentKey === undefined) {
-    return $$default;
+    return bit;
   }
-  var a;
-  if (typeof currentKey === "number") {
-    switch (currentKey) {
-      case /* MinMaj */0 :
-          a = mMPs;
-          break;
-      case /* DimAug */1 :
-          a = dimAugs;
-          break;
-      case /* Semitone */2 :
-          a = semitones;
-          break;
-      
-    }
-  } else {
-    a = rotate(pitchKeysShort, currentKey._0);
-  }
+  var a = typeof currentKey === "number" ? (
+      currentKey !== 1 ? (
+          currentKey !== 0 ? semitones : mMPs
+        ) : dimAugs
+    ) : rotate(pitchKeysShort, currentKey._0);
   if (bit === "0") {
     return "-";
   } else {
@@ -493,21 +487,33 @@ function App$Scale(Props) {
         break;
     
   }
+  var tmp$1;
+  var exit = 0;
+  if (currentKey !== undefined && typeof currentKey === "number" && currentKey >= 3) {
+    tmp$1 = Belt_Array.mapWithIndex(bitsToSteps(bitString), (function (i, step) {
+            return React.createElement("div", {
+                        key: String(i),
+                        className: ["w-5 flex flex-row justify-center"].join(" ")
+                      }, String(step));
+          }));
+  } else {
+    exit = 1;
+  }
+  if (exit === 1) {
+    tmp$1 = Belt_Array.mapWithIndex(Array.from(bitString), (function (i, bit) {
+            return React.createElement("div", {
+                        key: String(i),
+                        className: ["w-5 flex flex-row justify-center"].join(" ")
+                      }, bitToDisplaySymbol(bit, i, currentKey));
+          }));
+  }
   return React.createElement("div", {
               className: [
                   " flex flex-row ",
                   tmp
                 ].join(" "),
               onClick: onClick
-            }, Belt_Array.mapWithIndex(Array.from(bitString), (function (i, bit) {
-                    return React.createElement("div", {
-                                key: String(i),
-                                className: [
-                                    (Belt_Option.isSome(currentKey), "w-5"),
-                                    "flex flex-row justify-center"
-                                  ].join(" ")
-                              }, bitToDisplaySymbol(bit, i, currentKey, bit));
-                  })));
+            }, tmp$1);
 }
 
 var Scale = {
@@ -548,7 +554,7 @@ function App$Species(Props) {
                   return React.createElement("div", {
                               className: [
                                   speciesHidden ? "border-transparent" : "bg-blue-50 border-blue-200 mb-1",
-                                  "border rounded-sm"
+                                  "border rounded"
                                 ].join(" ")
                             }, React.createElement("div", {
                                   className: "flex flex-row items-center justify-start gap-3"
@@ -612,9 +618,7 @@ function App$Species(Props) {
                                                           selected: selected
                                                         }), React.createElement("div", {
                                                           className: "text-neutral-700 text-xs"
-                                                        }, "[" + Belt_Array.map(param[1], (function (degree) {
-                                                                  return bitToDisplaySymbol("1", degree, currentKey, String(degree));
-                                                                })).join(", ") + "]"));
+                                                        }, "[" + param[1].join(", ") + "]"));
                                         })), React.createElement("div", {
                                       className: "text-xs text-green-600 flex flex-row "
                                     }, Belt_Array.mapWithIndex(speciesDetails.autoCorrelations, (function (i, x) {
@@ -642,27 +646,13 @@ function App(Props) {
       });
   var setCurrentKey = match$1[1];
   var currentKey = match$1[0];
-  var graphKeys;
-  if (currentKey !== undefined) {
-    if (typeof currentKey === "number") {
-      switch (currentKey) {
-        case /* MinMaj */0 :
-            graphKeys = mMPs;
-            break;
-        case /* DimAug */1 :
-            graphKeys = dimAugs;
-            break;
-        case /* Semitone */2 :
-            graphKeys = semitones;
-            break;
-        
-      }
-    } else {
-      graphKeys = rotate(pitchKeys, currentKey._0);
-    }
-  } else {
-    graphKeys = semitones;
-  }
+  var graphKeys = currentKey !== undefined ? (
+      typeof currentKey === "number" ? (
+          currentKey !== 1 ? (
+              currentKey !== 0 ? semitones : mMPs
+            ) : dimAugs
+        ) : rotate(pitchKeys, currentKey._0)
+    ) : semitones;
   var graphBits = Belt_Option.mapWithDefault(currentBits, Belt_Array.map(Belt_Array.range(0, 11), (function (param) {
               return 0;
             })), (function (b) {
@@ -716,6 +706,16 @@ function App(Props) {
                                     }));
                             }),
                           children: "Semitone Intervals"
+                        }), React.createElement(App$Key, {
+                          selected: Belt_Option.mapWithDefault(currentKey, false, (function (x) {
+                                  return x === /* Steps */3;
+                                })),
+                          onClick: (function (param) {
+                              Curry._1(setCurrentKey, (function (param) {
+                                      return /* Steps */3;
+                                    }));
+                            }),
+                          children: "Semitone Steps"
                         }), Belt_Array.mapWithIndex(pitchKeys, (function (i, v) {
                             var selected = currentKey !== undefined && typeof currentKey !== "number" ? currentKey._0 === i : false;
                             return React.createElement(App$Key, {
@@ -753,9 +753,9 @@ function App(Props) {
                                                           }, String(Belt_MapString.toArray(species).length), " species")), React.createElement("div", {
                                                         className: [
                                                             genusCollapsedState ? "hidden" : "",
-                                                            "overflow-scroll p-2 pb-6 border"
+                                                            "overflow-scroll p-2 pb-6 border rounded"
                                                           ].join(" ")
-                                                      }, genusCollapsedState ? null : Belt_Array.map(Belt_Array.reverse(Belt_MapString.toArray(species)), (function (param) {
+                                                      }, genusCollapsedState ? null : Belt_Array.map(Belt_MapString.toArray(species), (function (param) {
                                                                 var speciesId = param[0];
                                                                 return React.createElement(App$Species, {
                                                                             currentBits: currentBits,
@@ -808,7 +808,8 @@ export {
   mMPs ,
   dimAugs ,
   namedSpecies ,
-  spacedToBits ,
+  stepsToBits ,
+  bitsToSteps ,
   bitToDisplaySymbol ,
   Scale ,
   Key ,
