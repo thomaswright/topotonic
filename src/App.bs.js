@@ -5,6 +5,7 @@ import * as React from "react";
 import * as Belt_Int from "rescript/lib/es6/belt_Int.js";
 import * as SVGJsx from "./SVG.jsx";
 import * as Belt_Array from "rescript/lib/es6/belt_Array.js";
+import * as IconsJsx from "./Icons.jsx";
 import * as Belt_MapInt from "rescript/lib/es6/belt_MapInt.js";
 import * as Belt_Option from "rescript/lib/es6/belt_Option.js";
 import * as Belt_MapString from "rescript/lib/es6/belt_MapString.js";
@@ -48,10 +49,16 @@ var CollapsedTri = {
   make: App$CollapsedTri
 };
 
-var make = SVGJsx.SVG;
+var make = IconsJsx.Logo;
+
+var Logo = {
+  make: make
+};
+
+var make$1 = SVGJsx.SVG;
 
 var SVG = {
-  make: make
+  make: make$1
 };
 
 var Config = {
@@ -568,6 +575,40 @@ var Species = {
   make: App$Species
 };
 
+function App$PageTitle(Props) {
+  return React.createElement("div", {
+              className: "font-sans absolute flex flex-row top-0 left-0 pl-3 pt-3"
+            }, React.createElement("div", {
+                  className: " text-[rgb(25,0,175)]  italic text-4xl font-bold"
+                }, "T"), React.createElement("div", {
+                  className: "mt-1.5 -ml-0.5"
+                }, React.createElement("div", {
+                      className: " text-[rgb(25,0,175)] font-bold text-xl"
+                    }, "opotonic"), React.createElement("div", {
+                      className: "text-cyan-600 text-[10px] font-bold italic -mt-1"
+                    }, "by T. Wright")));
+}
+
+var PageTitle = {
+  make: App$PageTitle
+};
+
+function App$PageTitle2(Props) {
+  return React.createElement("div", {
+              className: "font-sans absolute flex flex-row top-0 left-0 pl-3 pt-3"
+            }, React.createElement(make, {}), React.createElement("div", {
+                  className: " -ml-2"
+                }, React.createElement("div", {
+                      className: " text-[rgb(25,0,175)] font-bold text-xl"
+                    }, "opotonic"), React.createElement("div", {
+                      className: "text-cyan-600 text-[10px] font-bold italic -mt-1"
+                    }, "by T. Wright")));
+}
+
+var PageTitle2 = {
+  make: App$PageTitle2
+};
+
 function App(Props) {
   var match = React.useState(function () {
         
@@ -593,14 +634,14 @@ function App(Props) {
         }));
   return React.createElement("div", {
               className: "flex flex-row h-screen w-screen font-mono"
-            }, React.createElement("div", {
+            }, React.createElement(App$PageTitle2, {}), React.createElement("div", {
                   className: " h-full flex flex-col p-4"
                 }, React.createElement("div", {
                       className: "h-80 w-80"
-                    }, React.createElement(make, {
+                    }, React.createElement(make$1, {
                           data: Belt_Array.zip(graphKeys, graphBits)
                         })), React.createElement("div", {
-                      className: "flex-1 overflow-scroll p-1 border rounded"
+                      className: " flex-1 overflow-scroll p-1 border rounded"
                     }, React.createElement(App$Key, {
                           selected: Belt_Option.isNone(currentKey),
                           onClick: (function (param) {
@@ -705,7 +746,7 @@ function App(Props) {
                       }))));
 }
 
-var make$1 = App;
+var make$2 = App;
 
 var $$default = App;
 
@@ -714,6 +755,7 @@ export {
   any ,
   Collapsed ,
   CollapsedTri ,
+  Logo ,
   SVG ,
   Config ,
   reactMap ,
@@ -746,7 +788,9 @@ export {
   Scale ,
   Key ,
   Species ,
-  make$1 as make,
+  PageTitle ,
+  PageTitle2 ,
+  make$2 as make,
   $$default ,
   $$default as default,
 }

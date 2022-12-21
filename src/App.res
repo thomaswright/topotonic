@@ -37,6 +37,11 @@ module CollapsedTri = {
   }
 }
 
+module Logo = {
+  @module("./Icons.jsx") @react.component
+  external make: unit => React.element = "Logo"
+}
+
 module SVG = {
   @module("./SVG.jsx") @react.component
   external make: (~data: array<(string, int)>) => React.element = "SVG"
@@ -492,6 +497,37 @@ module Species = {
   }
 }
 
+module PageTitle = {
+  @react.component
+  let make = () => {
+    <div className={"font-sans absolute flex flex-row top-0 left-0 pl-3 pt-3"}>
+      // <Logo />
+      <div className={" text-[rgb(25,0,175)]  italic text-4xl font-bold"}> {"T"->str} </div>
+      <div className={"mt-1.5 -ml-0.5"}>
+        <div className={" text-[rgb(25,0,175)] font-bold text-xl"}> {"opotonic"->str} </div>
+        <div className={"text-cyan-600 text-[10px] font-bold italic -mt-1"}>
+          {"by T. Wright"->str}
+        </div>
+      </div>
+    </div>
+  }
+}
+
+module PageTitle2 = {
+  @react.component
+  let make = () => {
+    <div className={"font-sans absolute flex flex-row top-0 left-0 pl-3 pt-3"}>
+      <Logo />
+      <div className={" -ml-2"}>
+        <div className={" text-[rgb(25,0,175)] font-bold text-xl"}> {"opotonic"->str} </div>
+        <div className={"text-cyan-600 text-[10px] font-bold italic -mt-1"}>
+          {"by T. Wright"->str}
+        </div>
+      </div>
+    </div>
+  }
+}
+
 @react.component
 let make = () => {
   let (currentBits, setCurrentBits) = React.useState(_ => None)
@@ -512,11 +548,12 @@ let make = () => {
     currentBits->Option.mapWithDefault(Array.range(0, Config.bits - 1)->Array.map(_ => 0), b => b)
 
   <div className={"flex flex-row h-screen w-screen font-mono"}>
+    <PageTitle2 />
     <div className=" h-full flex flex-col p-4">
       <div className={"h-80 w-80"}>
         <SVG data={Array.zip(graphKeys, graphBits)} />
       </div>
-      <div className={"flex-1 overflow-scroll p-1 border rounded"}>
+      <div className={" flex-1 overflow-scroll p-1 border rounded"}>
         <Key selected={currentKey->Option.isNone} onClick={_ => setCurrentKey(_ => None)}>
           {"None"->str}
         </Key>
