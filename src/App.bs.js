@@ -356,73 +356,6 @@ var dimAugs = [
   "d8"
 ];
 
-var namedSpecies = [
-  [
-    "110101101010",
-    ["Diatonic"],
-    [
-      [
-        "Locrian",
-        "7"
-      ],
-      [
-        "Ionian",
-        "1"
-      ],
-      [
-        "Dorian",
-        "2"
-      ],
-      [
-        "Phrygian",
-        "3"
-      ],
-      [
-        "Lydian",
-        "4"
-      ],
-      [
-        "Mixolydian",
-        "5"
-      ],
-      [
-        "Aeolian",
-        "6"
-      ]
-    ]
-  ],
-  [
-    "110110011010",
-    ["Harmonic Major"],
-    []
-  ],
-  [
-    "110101100110",
-    ["Harmonic Minor"],
-    []
-  ],
-  [
-    "",
-    [""],
-    []
-  ],
-  [
-    "",
-    [""],
-    []
-  ],
-  [
-    "",
-    [""],
-    []
-  ],
-  [
-    "",
-    [""],
-    []
-  ]
-];
-
 function stepsToBits(x) {
   return Belt_Array.reduce(x, "1", (function (acc, value) {
                 var tmp;
@@ -591,9 +524,9 @@ function App$Species(Props) {
                                       className: "text-sm whitespace-nowrap"
                                     }, String(Belt_Array.keep(speciesDetails.modes, (function (param) {
                                                 return startsWith1(Array.from(param[0]));
-                                              })).length), " modes"), React.createElement("div", {
+                                              })).length), ""), React.createElement("div", {
                                       className: "text-sm whitespace-nowrap"
-                                    }, String(speciesDetails.modes.length), " pitch classes")), React.createElement("div", {
+                                    }, String(speciesDetails.modes.length), "")), React.createElement("div", {
                                   className: [
                                       speciesHidden ? "hidden " : "",
                                       "pt-0.5 pb-2 border-t border-neutral-400"
@@ -807,7 +740,6 @@ export {
   semitones ,
   mMPs ,
   dimAugs ,
-  namedSpecies ,
   stepsToBits ,
   bitsToSteps ,
   bitToDisplaySymbol ,

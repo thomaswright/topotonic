@@ -260,6 +260,8 @@ let result =
   ->groupByGenus
   ->groupBySpecies
 
+// let namedData = Data.namedSpecies-> Array.
+
 let pitchKeys = [
   `C`,
   `C♯/D♭`,
@@ -280,28 +282,6 @@ let semitones = [`0`, `1`, `2`, `3`, `4`, `5`, `6`, `7`, `8`, `9`, `10`, `11`]
 let mMPs = [`P1`, `m2`, `M2`, `m3`, `M3`, `P4`, `TT`, `P5`, `m6`, `M6`, `m7`, `M7`]
 // TODO: replace TT with d5/A4 when we have proper scaling
 let dimAugs = [`d2`, `A1`, `d3`, `A2`, `d4`, `A3`, `TT`, `d6`, `A5`, `d7`, `A6`, `d8`]
-
-let namedSpecies = [
-  (
-    "110101101010",
-    ["Diatonic"],
-    [
-      ["Locrian", "7"],
-      ["Ionian", "1"],
-      ["Dorian", "2"],
-      ["Phrygian", "3"],
-      ["Lydian", "4"],
-      ["Mixolydian", "5"],
-      ["Aeolian", "6"],
-    ],
-  ),
-  ("110110011010", ["Harmonic Major"], []),
-  ("110101100110", ["Harmonic Minor"], []),
-  ("", [""], []),
-  ("", [""], []),
-  ("", [""], []),
-  ("", [""], []),
-]
 
 let stepsToBits = x => {
   x->Array.reduce("1", (acc, value) => {
@@ -448,11 +428,11 @@ module Species = {
               ->Array.length
               ->Int.toString
               ->str}
-              {" modes"->str}
+              {""->str}
             </div>
             <div className="text-sm whitespace-nowrap">
               {speciesDetails.modes->Array.length->Int.toString->str}
-              {" pitch classes"->str}
+              {""->str}
             </div>
           </div>
           <div
