@@ -4,8 +4,7 @@ const tailwindColors = require("tailwindcss/colors");
 
 const primary = tailwindColors["blue"];
 const secondary = tailwindColors["cyan"];
-const accent = tailwindColors["amber"];
-const neutral = tailwindColors["slate"];
+const accent = tailwindColors["red"];
 
 module.exports = {
   content: ["./src/**/*.{js,jsx,tsx,ts}"],
@@ -16,21 +15,6 @@ module.exports = {
         secondary,
         accent,
         plain: tailwindColors["slate"],
-        any: tailwindColors["sky"],
-        every: tailwindColors["purple"],
-        exclude: tailwindColors["red"],
-        selectedItem: tailwindColors["blue"],
-        ancItem: tailwindColors["sky"],
-        selectedTag: tailwindColors["slate"],
-        defaultMark: tailwindColors["slate"],
-        highlight1: tailwindColors["amber"],
-        highlight2: tailwindColors["emerald"],
-        highlight3: tailwindColors["rose"],
-        highlight4: tailwindColors["purple"],
-        violation: tailwindColors["red"],
-        nestLevel0: tailwindColors["blue"],
-        nestLevel1: tailwindColors["sky"],
-        nestLevel2: tailwindColors["teal"],
       },
     },
   },

@@ -1,4 +1,7 @@
 import React from "react";
+import tailwindColors from "tailwindcss/colors";
+
+const accentColor = "red";
 
 function getTextAnchors8(deg) {
   // returns [dominantBaseline, textAnchor]
@@ -60,7 +63,7 @@ function getTextAnchors12(deg) {
   }
 }
 
-const RadialText = ({ x, y, radius, deg, text }) => {
+const RadialText = ({ x, y, radius, deg, text, selected }) => {
   let [dominantBaseline, textAnchor] = getTextAnchors12(deg);
   return (
     <g transform={`translate(${x} ${y}) `}>
@@ -70,6 +73,8 @@ const RadialText = ({ x, y, radius, deg, text }) => {
             dominantBaseline={dominantBaseline}
             textAnchor={textAnchor}
             fontSize={5}
+            fill={selected ? tailwindColors[accentColor][600] : ""}
+            className={selected ? "font-bold" : ""}
           >
             {text}
           </text>
@@ -79,10 +84,25 @@ const RadialText = ({ x, y, radius, deg, text }) => {
   );
 };
 
-const RadialLine = ({ x, y, start, end, deg, color = "black" }) => {
+const RadialLine = ({
+  x,
+  y,
+  start,
+  end,
+  deg,
+  color = "black",
+  strokeWidth = 1,
+}) => {
   return (
     <g transform={`translate(${x} ${y}) rotate(${deg - 90})`}>
-      <line x1={start} x2={end} y1={0} y2={0} stroke={color} />
+      <line
+        x1={start}
+        x2={end}
+        y1={0}
+        y2={0}
+        stroke={color}
+        strokeWidth={strokeWidth}
+      />
     </g>
   );
 };
@@ -117,6 +137,7 @@ export const SVG = ({ data }) => {
         stroke="black"
       />
       {data.map(([label, bit], i) => {
+        const selected = bit === 1;
         return (
           <g key={i}>
             <RadialLine
@@ -127,20 +148,22 @@ export const SVG = ({ data }) => {
               deg={i * orderDegree}
             />
             <RadialText
+              selected={selected}
               x={center.x}
               y={center.y}
               radius={radius * 1.2}
               deg={i * orderDegree}
               text={label}
             />
-            {bit === 1 ? (
+            {selected ? (
               <RadialLine
                 x={center.x}
                 y={center.y}
                 start={0}
-                end={radius}
+                end={radius * 1.1}
                 deg={i * orderDegree}
-                color={"red"}
+                strokeWidth={1}
+                color={tailwindColors[accentColor][600]}
               />
             ) : null}
           </g>

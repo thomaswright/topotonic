@@ -1,14 +1,18 @@
 open Belt
 
-// todo:
-// - symmetry with respect to root
-// - all symmetries
-// - enharmonics
-// - temperments
-// - named keys
-// - reverse order ?
-// - shifts
-// - just interval
+/*
+todo:
+- symmetry with respect to root
+- all symmetries
+- enharmonics
+- temperments
+- named keys
+- reverse order ?
+- shifts
+- just interval
+
+
+*/
 
 let join = Js.Array2.joinWith(_, " ")
 
@@ -39,7 +43,7 @@ module CollapsedTri = {
 
 module Logo = {
   @module("./Icons.jsx") @react.component
-  external make: unit => React.element = "Logo"
+  external make: (~size: int) => React.element = "Logo"
 }
 
 module SVG = {
@@ -152,12 +156,6 @@ let removeDuplicates = x => {
   ->Array.map(a => a->BitOps.stringToStringArray)
 }
 
-// type rotationDetails = {
-//   shift: int,
-//   rotation: array<string>,
-//   startsWith1: bool,
-// }
-
 type speciesDetails = {
   modes: array<(string, array<int>)>,
   autoCorrelations: array<string>,
@@ -205,13 +203,6 @@ let groupBySpecies = genusGrouping =>
     ->Map.String.keysToArray
     ->Array.map(speciesId => {
       let rotations = speciesId->BitOps.stringToStringArray->getRotations
-      // ->Array.mapWithIndex(
-      //   (index, rotation) => {
-      //     shift: index,
-      //     rotation,
-      //     startsWith1: rotation->Array.getExn(0) == "1",
-      //   },
-      // )
 
       let modes =
         rotations
@@ -228,12 +219,6 @@ let groupBySpecies = genusGrouping =>
     })
     ->Map.String.fromArray
     ->Map.String.mapWithKey((speciesId, modes) => {
-      // let _numOfAutoCorrelations = switch (modes->Array.get(0), modes->Array.get(1)) {
-      // | (Some(a1), Some(a2)) =>
-      //   Array.zip(a1, a2)->Array.keep(((a1, a2)) => a1 == "1" && a2 == "1")->Array.length
-      // | (_, _) => 0
-      // }
-
       let rotations = speciesId->BitOps.stringToStringArray->getRotations
       {
         modes,
@@ -289,19 +274,21 @@ let mMPs = [`P1`, `m2`, `M2`, `m3`, `M3`, `P4`, `TT`, `P5`, `m6`, `M6`, `m7`, `M
 let dimAugs = [`d2`, `A1`, `d3`, `A2`, `d4`, `A3`, `TT`, `d6`, `A5`, `d7`, `A6`, `d8`]
 
 let stepsToBits = x => {
-  x->Array.reduce("1", (acc, value) => {
+  x->Array.reduce("", (acc, value) => {
     acc ++
     switch value {
     | 1 => "1"
     | 2 => "10"
     | 3 => "100"
     | 4 => "1000"
+    | 5 => "10000"
+    | 6 => "100000"
     | _ => ""
     }
   })
 }
 
-let bitsToSteps = x => {
+let bitsToSemitoneSteps = x => {
   x
   ->Js.String2.split("1")
   ->Array.map(a => {
@@ -310,7 +297,20 @@ let bitsToSteps = x => {
   ->Belt.Array.sliceToEnd(1)
 }
 
-type key = Pitch(int) | MinMaj | DimAug | Semitone | Steps
+let bitsToHalfnoteSteps = x => {
+  x
+  ->Js.String2.split("1")
+  ->Array.map(a => {
+    switch a->Js.String2.length + 1 {
+    | 1 => "H"
+    | 2 => "W"
+    | l => mod(l, 2) == 0 ? (l / 2)->Int.toString ++ "W" : l->Int.toString ++ "H"
+    }
+  })
+  ->Belt.Array.sliceToEnd(1)
+}
+
+type key = Pitch(int) | MinMaj | DimAug | Semitone | SemitoneSteps | HalfnoteSteps
 
 type kind = Species | Mode | NonMode
 
@@ -325,34 +325,47 @@ let bitToDisplaySymbol = (bit, index, currentKey) => {
       | DimAug => dimAugs
       | Semitone => semitones
       | MinMaj => mMPs
-      | Steps => semitones
+      | SemitoneSteps => semitones
+      | HalfnoteSteps => semitones
       }
-      bit == "0" ? "-" : a->Array.get(index)->Option.getWithDefault("")
+      bit == "0" ? `•` : a->Array.get(index)->Option.getWithDefault("")
     }
   }
 }
 
 module Scale = {
   @react.component
-  let make = (~onClick, ~bitString, ~currentKey: option<key>, ~kind: kind, ~selected: bool) => {
-    <div
-      onClick={onClick}
-      className={[
-        " flex flex-row ",
-        switch kind {
-        | Species => "font-bold"
-        | Mode => selected ? "bg-blue-300" : ""
-        | NonMode => selected ? "text-neutral-400 bg-blue-300" : "text-neutral-400"
-        },
-      ]->join}>
-      {switch currentKey {
-      | Some(Steps) =>
+  let make = (~bitString, ~currentKey: option<key>, ~kind: kind, ~selected as _: bool) => {
+    let container = (i, content) =>
+      <td
+        key={i->Int.toString}
+        className={[
+          "w-5 text-center align-middle",
+          "border border-collapse border-y-inherit border-x-primary-300 ",
+          switch kind {
+          | Species => "font-bold "
+          | Mode => ""
+          | NonMode => ""
+          },
+        ]->join}>
+        {content}
+      </td>
+
+    {
+      switch currentKey {
+      | Some(SemitoneSteps) =>
         bitString
-        ->bitsToSteps
+        ->bitsToSemitoneSteps
         ->Array.mapWithIndex((i, step) => {
-          <div key={i->Int.toString} className={["w-5 flex flex-row justify-center"]->join}>
-            {step->Int.toString->str}
-          </div>
+          container(i, step->Int.toString->str)
+        })
+        ->React.array
+
+      | Some(HalfnoteSteps) =>
+        bitString
+        ->bitsToHalfnoteSteps
+        ->Array.mapWithIndex((i, step) => {
+          container(i, step->str)
         })
         ->React.array
 
@@ -360,13 +373,11 @@ module Scale = {
         bitString
         ->BitOps.stringToStringArray
         ->Array.mapWithIndex((i, bit) => {
-          <div key={i->Int.toString} className={["w-5 flex flex-row justify-center"]->join}>
-            {bitToDisplaySymbol(bit, i, currentKey)->str}
-          </div>
+          container(i, bitToDisplaySymbol(bit, i, currentKey)->str)
         })
         ->React.array
-      }}
-    </div>
+      }
+    }
   }
 }
 
@@ -379,20 +390,65 @@ module Key = {
   }
 }
 
-// ->Array.map(degree =>
-//   bitToDisplaySymbol("1", degree, currentKey, degree->Int.toString)
-// )
-
 module Species = {
   @react.component
   let make = (
+    ~genusId,
     ~currentBits,
     ~setCurrentBits,
     ~currentKey: option<key>,
-    ~speciesId,
+    ~speciesId: string,
     ~speciesDetails: speciesDetails,
   ) => {
     // let (base, setBase) = React.useState(_ => None)
+
+    let scaleLength = switch currentKey {
+    | Some(SemitoneSteps) => speciesId->bitsToSemitoneSteps->Array.length
+    | Some(HalfnoteSteps) => speciesId->bitsToHalfnoteSteps->Array.length
+    | _ => speciesId->BitOps.stringToStringArray->Array.length
+    }
+
+    let _scaleRange = Array.range(1, scaleLength)
+
+    let speciesNameData = Data.namedSpecies->Array.keep(((sId, _, _)) => {
+      switch sId {
+      | Bits(s) => s
+      | Steps(s) => s->BitOps.stringToIntArray->stepsToBits
+      }
+      ->BitOps.stringToStringArray
+      ->getRotations
+      ->any(x => {
+        x->BitOps.stringArrayToString == speciesId
+      })
+    })
+
+    let speciesNames = speciesNameData->reactMap(((sId, sNames, _)) => {
+      <div
+        key={switch sId {
+        | Bits(s) => s
+        | Steps(s) => s
+        }}>
+        {sNames
+        ->Array.map(((_tradition, name)) => {
+          name
+        })
+        ->Js.Array2.joinWith(", ")
+        ->str}
+      </div>
+    })
+
+    let numModes =
+      speciesDetails.modes
+      ->Array.keep(((modeId, _)) => modeId->BitOps.stringToStringArray->startsWith1)
+      ->Array.length
+
+    let numPitchClasses = speciesDetails.modes->Array.length
+
+    let uniqueNumModes = numModes != genusId
+    // let uniqueNumPitchClasses = numPitchClasses != Config.bits
+
+    let modesDisplay =
+      <div> {`(${numModes->Int.toString}:${numPitchClasses->Int.toString})`->str} </div>
 
     <Collapsed
       render={(speciesHidden, setSpeciesHidden) => {
@@ -400,98 +456,110 @@ module Species = {
           currentBits->Option.mapWithDefault(false, c => c->BitOps.intArrayToString == rotation)
         })
 
-        <div
-          className={[
-            !speciesHidden ? "bg-blue-50 border-blue-200 mb-1" : "border-transparent",
-            "border rounded",
-          ]->join}>
-          <div className="flex flex-row items-center justify-start gap-3">
-            <Scale
-              selected={false}
-              onClick={_ => {
-                currentBits->Option.mapWithDefault(
-                  {
-                    setSpeciesHidden(_ => false)
-                    setCurrentBits(_ => speciesId->BitOps.stringToIntArray->Some)
-                  },
-                  _ => {
-                    setSpeciesHidden(_ => !speciesHidden ? anySelected : !speciesHidden)
-                    setCurrentBits(_ =>
-                      anySelected ? None : speciesId->BitOps.stringToIntArray->Some
-                    )
-                  },
-                )
-              }}
-              currentKey={currentKey}
-              bitString={speciesId}
-              kind={Species}
-            />
-            <div className="w-6"> {speciesDetails.isSymmetric ? "x"->str : ""->str} </div>
-            <div className="text-sm whitespace-nowrap">
-              {speciesDetails.modes
-              ->Array.keep(((modeId, _)) => modeId->BitOps.stringToStringArray->startsWith1)
-              ->Array.length
-              ->Int.toString
-              ->str}
-              {""->str}
-            </div>
-            <div className="text-sm whitespace-nowrap">
-              {speciesDetails.modes->Array.length->Int.toString->str}
-              {""->str}
-            </div>
-          </div>
-          <div
-            className={[
-              speciesHidden ? "hidden " : "",
-              "pt-0.5 pb-2 border-t border-neutral-400",
-            ]->join}>
-            {speciesHidden
-              ? React.null
-              : speciesDetails.modes->reactMap(((modeId, rotationDegrees)) => {
-                  let selected =
-                    currentBits->Option.mapWithDefault(false, c =>
-                      c->BitOps.intArrayToString == modeId
-                    )
-                  <div key={modeId} className="flex flex-row">
-                    <Scale
-                      selected={selected}
-                      onClick={_ => setCurrentBits(_ => modeId->BitOps.stringToIntArray->Some)}
-                      currentKey={currentKey}
-                      bitString={modeId}
-                      kind={modeId->BitOps.stringToStringArray->startsWith1 ? Mode : NonMode}
-                    />
-                    // {currentKey->Option.isSome
-                    //   ? {
-                    //       base->Option.mapWithDefault(
-                    //         <button onClick={_ => setBase(_ => Some(modeId))}>
-                    //           {"Base"->str}
-                    //         </button>,
-                    //         b =>
-                    //           b == modeId
-                    //             ? <button onClick={_ => setBase(_ => None)}>
-                    //                 {"Remove"->str}
-                    //               </button>
-                    //             : React.null,
-                    //       )
-                    //     }
-                    //   : React.null}
+        let _speciesIdModeSelected =
+          currentBits->Option.mapWithDefault(false, c => c->BitOps.intArrayToString == speciesId)
 
-                    <div className="text-neutral-700 text-xs">
-                      {`[${rotationDegrees->Js.Array2.joinWith(_, ", ")}]`->str}
-                    </div>
-                  </div>
-                })}
-            <div className="text-xs text-green-600 flex flex-row ">
-              {speciesDetails.autoCorrelations->reactMapWithIndex((i, x) => {
-                <div
-                  key={i->Int.toString}
-                  className={["w-5 flex flex-row items-center justify-center"]->join}>
-                  {x->str}
-                </div>
+        <tbody className={[]->join}>
+          // {speciesHidden
+          // ?
+          <tr
+            className={["border-y-2 border-y-primary-900 bg-primary-300"]->join}
+            onClick={_ => {
+              currentBits->Option.mapWithDefault(
+                {
+                  setSpeciesHidden(_ => false)
+                  setCurrentBits(_ => speciesId->BitOps.stringToIntArray->Some)
+                },
+                _ => {
+                  setSpeciesHidden(_ => !speciesHidden ? anySelected : !speciesHidden)
+                  setCurrentBits(_ => anySelected ? None : speciesId->BitOps.stringToIntArray->Some)
+                },
+              )
+            }}>
+            <td className={"w-5 text-xs border-collapse border-r-2 border-r-primary-900 px-1"}>
+              {speciesId->BitOps.stringToInt->Int.toString->str}
+            </td>
+            <Scale selected={false} currentKey={currentKey} bitString={speciesId} kind={Species} />
+            <td className="font-bold border-collapse border-l-2 border-l-primary-900 px-1">
+              {speciesNames}
+              {uniqueNumModes ? modesDisplay : React.null}
+            </td>
+            <td className="w-6  border-collapse border-l-2 border-l-primary-900 ">
+              {speciesDetails.isSymmetric ? "x"->str : ""->str}
+            </td>
+          </tr>
+          {speciesHidden
+            ? React.null
+            : speciesDetails.modes->reactMapWithIndex((i, (modeId, _rotationDegrees)) => {
+                let selected =
+                  currentBits->Option.mapWithDefault(false, c =>
+                    c->BitOps.intArrayToString == modeId
+                  )
+
+                let modeKind = modeId->BitOps.stringToStringArray->startsWith1 ? Mode : NonMode
+
+                <tr
+                  onClick={_ => setCurrentBits(_ => modeId->BitOps.stringToIntArray->Some)}
+                  key={modeId}
+                  className={[
+                    "border-b border-b-primary-900",
+                    selected ? "font-bold" : "",
+                    switch modeKind {
+                    | Mode => selected ? "text-accent-600 " : "text-primary-700"
+                    | NonMode =>
+                      selected
+                        ? "bg-primary-200 text-accent-600"
+                        : "bg-primary-200 text-primary-500"
+                    | _ => ""
+                    },
+                  ]->join}>
+                  <td
+                    className={" text-xs text-center align-middle border-r-2 border-collapse border-r-primary-900"}>
+                    {i->Int.toString->str}
+                  </td>
+                  <Scale
+                    selected={selected} currentKey={currentKey} bitString={modeId} kind={modeKind}
+                  />
+                  <td className={"border-collapse border-l-2 border-l-primary-900 px-1"}>
+                    {speciesNameData
+                    ->Array.keepMap(((_, _, modes)) => {
+                      modes->Array.getBy(
+                        ((mId, _)) => {
+                          let match = switch mId {
+                          | Bits(s) => s
+                          | Steps(stepString) => stepString->BitOps.stringToIntArray->stepsToBits
+                          }
+
+                          modeId == match
+                        },
+                      )
+                    })
+                    ->Array.get(0)
+                    ->Option.mapWithDefault([], ((_, modeNames)) =>
+                      modeNames->Array.map(((_, name)) => name)
+                    )
+                    ->Js.Array2.joinWith(", ")
+                    ->str}
+                  </td>
+                  {speciesDetails.autoCorrelations
+                  ->Array.get(i)
+                  ->Option.mapWithDefault(React.null, x => {
+                    <td
+                      key={i->Int.toString ++ "auto-correlation"}
+                      className={[
+                        "text-center align-middle font-bold text-lime-600 border-collapse border-l-2 border-l-primary-900",
+                      ]->join}>
+                      {x->str}
+                    </td>
+                  })}
+                </tr>
               })}
-            </div>
-          </div>
-        </div>
+          {speciesHidden
+            ? React.null
+            : <tr className={""}>
+                <td className={"h-3 border-x-transparent bg-inherit"} />
+              </tr>}
+        </tbody>
       }}
     />
   }
@@ -516,13 +584,13 @@ module PageTitle = {
 module PageTitle2 = {
   @react.component
   let make = () => {
-    <div className={"font-sans absolute flex flex-row top-0 left-0 pl-3 pt-3"}>
-      <Logo />
+    <div className={"font-sans absolute flex flex-row top-5 left-5 "}>
+      <Logo size={32} />
       <div className={" -ml-2"}>
         <div className={" text-[rgb(25,0,175)] font-bold text-xl"}> {"opotonic"->str} </div>
-        <div className={"text-cyan-600 text-[10px] font-bold italic -mt-1"}>
-          {"by T. Wright"->str}
-        </div>
+        // <div className={"text-cyan-600 text-[10px] font-bold italic -mt-1"}>
+        //   {"by T. Wright"->str}
+        // </div>
       </div>
     </div>
   }
@@ -531,13 +599,14 @@ module PageTitle2 = {
 @react.component
 let make = () => {
   let (currentBits, setCurrentBits) = React.useState(_ => None)
-  let (currentKey: option<key>, setCurrentKey) = React.useState(_ => None)
+  let (currentKey: option<key>, setCurrentKey) = React.useState(_ => Some(Pitch(0)))
 
   let graphKeys = {
     switch currentKey {
     | None => semitones
     | Some(Semitone) => semitones
-    | Some(Steps) => semitones
+    | Some(SemitoneSteps) => semitones
+    | Some(HalfnoteSteps) => semitones
     | Some(DimAug) => dimAugs
     | Some(MinMaj) => mMPs
     | Some(Pitch(shift)) => pitchKeys->rotate(shift)
@@ -547,15 +616,25 @@ let make = () => {
   let graphBits =
     currentBits->Option.mapWithDefault(Array.range(0, Config.bits - 1)->Array.map(_ => 0), b => b)
 
-  <div className={"flex flex-row h-screen w-screen font-mono"}>
+  <div className={"flex flex-row h-screen w-screen "}>
     <PageTitle2 />
-    <div className=" h-full flex flex-col p-4">
+    <div className=" h-full flex flex-col p-2">
       <div className={"h-80 w-80"}>
         <SVG data={Array.zip(graphKeys, graphBits)} />
       </div>
       <div className={" flex-1 overflow-scroll p-1 border rounded"}>
+        {pitchKeys->reactMapWithIndex((i, v) => {
+          let selected = switch currentKey {
+          | Some(Pitch(c)) => c == i
+          | _ => false
+          }
+
+          <Key key={v} selected={selected} onClick={_ => setCurrentKey(_ => Some(Pitch(i)))}>
+            {v->str}
+          </Key>
+        })}
         <Key selected={currentKey->Option.isNone} onClick={_ => setCurrentKey(_ => None)}>
-          {"None"->str}
+          {"Binary"->str}
         </Key>
         <Key
           selected={currentKey->Option.mapWithDefault(false, x => x == MinMaj)}
@@ -573,20 +652,15 @@ let make = () => {
           {"Semitone Intervals"->str}
         </Key>
         <Key
-          selected={currentKey->Option.mapWithDefault(false, x => x == Steps)}
-          onClick={_ => setCurrentKey(_ => Some(Steps))}>
+          selected={currentKey->Option.mapWithDefault(false, x => x == SemitoneSteps)}
+          onClick={_ => setCurrentKey(_ => Some(SemitoneSteps))}>
           {"Semitone Steps"->str}
         </Key>
-        {pitchKeys->reactMapWithIndex((i, v) => {
-          let selected = switch currentKey {
-          | Some(Pitch(c)) => c == i
-          | _ => false
-          }
-
-          <Key key={v} selected={selected} onClick={_ => setCurrentKey(_ => Some(Pitch(i)))}>
-            {v->str}
-          </Key>
-        })}
+        <Key
+          selected={currentKey->Option.mapWithDefault(false, x => x == HalfnoteSteps)}
+          onClick={_ => setCurrentKey(_ => Some(HalfnoteSteps))}>
+          {"Halfnote Steps"->str}
+        </Key>
       </div>
     </div>
     <div className="flex-1 h-full overflow-scroll pr-4">
@@ -602,16 +676,18 @@ let make = () => {
                   setGenusCollapsedState(s => !s)
                 }}
                 className="flex flex-row items-center px-4 ">
-                <div className="flex-1 text-lg"> {genusId->Int.toString->str} </div>
-                <div className="flex-1 text-sm whitespace-nowrap">
+                <div className="min-w-[50px] text-2xl font-black">
+                  {genusId->Int.toString->str}
+                </div>
+                <div className=" text-sm font-bold whitespace-nowrap">
                   {species->Map.String.toArray->Array.length->Int.toString->str}
                   {" species"->str}
                 </div>
               </div>
-              <div
+              <table
                 className={[
                   genusCollapsedState ? "hidden" : "",
-                  "overflow-scroll p-2 pb-6 border rounded",
+                  "overflow-scroll border-4 border-primary-900 ",
                 ]->join}>
                 {genusCollapsedState
                   ? React.null
@@ -620,6 +696,7 @@ let make = () => {
                     ->reactMap(((speciesId, speciesDetails)) =>
                       <Species
                         key={speciesId}
+                        genusId={genusId}
                         currentBits={currentBits}
                         setCurrentBits={setCurrentBits}
                         currentKey={currentKey}
@@ -627,7 +704,7 @@ let make = () => {
                         speciesDetails={speciesDetails}
                       />
                     )}
-              </div>
+              </table>
             </div>
           }}
         />
