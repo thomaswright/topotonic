@@ -710,15 +710,15 @@ function App(Props) {
           return b;
         }));
   return React.createElement("div", {
-              className: "flex flex-row h-screen w-screen "
+              className: "flex md:flex-row flex-col h-screen w-screen "
             }, React.createElement(App$PageTitle2, {}), React.createElement("div", {
-                  className: " h-full flex flex-col p-2"
+                  className: "flex-1 h-full flex flex-col p-2 md:max-w-[320px]"
                 }, React.createElement("div", {
-                      className: "h-80 w-80"
+                      className: "h-80 w-80  self-center "
                     }, React.createElement(make$1, {
                           data: Belt_Array.zip(graphKeys, graphBits)
                         })), React.createElement("div", {
-                      className: " flex-1 overflow-scroll p-1 border rounded"
+                      className: " flex-1 overflow-scroll p-1 border rounded max-h-24 md:max-h-min "
                     }, Belt_Array.mapWithIndex(pitchKeys, (function (i, v) {
                             var selected = currentKey !== undefined && typeof currentKey !== "number" ? currentKey._0 === i : false;
                             return React.createElement(App$Key, {
@@ -792,7 +792,7 @@ function App(Props) {
                             }),
                           children: "Halfnote Steps"
                         }))), React.createElement("div", {
-                  className: "flex-1 h-full overflow-scroll pr-4"
+                  className: "md:flex-1 h-full overflow-scroll xs:px-2"
                 }, Belt_Array.map(Belt_MapInt.toArray(result), (function (param) {
                         var species = param[1];
                         var genusId = param[0];

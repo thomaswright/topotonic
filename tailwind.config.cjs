@@ -16,6 +16,9 @@ module.exports = {
         accent,
         plain: tailwindColors["slate"],
       },
+      screens: {
+        xs: "380px",
+      },
     },
   },
   plugins: [

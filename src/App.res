@@ -614,13 +614,13 @@ let make = () => {
   let graphBits =
     currentBits->Option.mapWithDefault(Array.range(0, Config.bits - 1)->Array.map(_ => 0), b => b)
 
-  <div className={"flex flex-row h-screen w-screen "}>
+  <div className={"flex md:flex-row flex-col h-screen w-screen "}>
     <PageTitle2 />
-    <div className=" h-full flex flex-col p-2">
-      <div className={"h-80 w-80"}>
+    <div className="flex-1 h-full flex flex-col p-2 md:max-w-[320px]">
+      <div className={"h-80 w-80  self-center "}>
         <SVG data={Array.zip(graphKeys, graphBits)} />
       </div>
-      <div className={" flex-1 overflow-scroll p-1 border rounded"}>
+      <div className={" flex-1 overflow-scroll p-1 border rounded max-h-24 md:max-h-min "}>
         {pitchKeys->reactMapWithIndex((i, v) => {
           let selected = switch currentKey {
           | Some(Pitch(c)) => c == i
@@ -661,7 +661,7 @@ let make = () => {
         </Key>
       </div>
     </div>
-    <div className="flex-1 h-full overflow-scroll pr-4">
+    <div className="md:flex-1 h-full overflow-scroll xs:px-2">
       {result
       ->Map.Int.toArray
       ->reactMap(((genusId, species)) =>
