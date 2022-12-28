@@ -3,14 +3,12 @@ open Belt
 /*
 todo:
 - symmetry with respect to root
-- all symmetries
-- enharmonics
-- temperments
-- named keys
-- reverse order ?
-- shifts
+- symmetries (n point, star n point)
+- enharmonics / temperments
 - just interval
-
+- if has mode but not species
+- all scales
+- score based on correlations * best intervals
 
 */
 
