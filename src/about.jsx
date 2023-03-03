@@ -13,7 +13,7 @@ const About = () => {
         the scale itself, then by the pitch classes.
       </p>
       <p>
-        For example, in a 5 note scales there are 66 ways to arrange these notes
+        For example, in a 5 note scale there are 66 ways to arrange these notes
         (on a 12 note system). The most famous of these is the Pentatonic scale.
         If you click on &quot;5 66 species&quot; then on the top scale, labeled
         &quot;Pentatonic&quot;, you'll see all the pitch classes. The modes are
