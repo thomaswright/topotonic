@@ -11,6 +11,7 @@ import * as Belt_MapInt from "rescript/lib/es6/belt_MapInt.js";
 import * as Belt_Option from "rescript/lib/es6/belt_Option.js";
 import * as Belt_MapString from "rescript/lib/es6/belt_MapString.js";
 import * as Belt_SortArray from "rescript/lib/es6/belt_SortArray.js";
+import * as Bs from "react-icons/bs";
 
 function join(__x) {
   return __x.join(" ");
@@ -61,6 +62,8 @@ var make$1 = SVGJsx.SVG;
 var SVG = {
   make: make$1
 };
+
+var Symmetry = {};
 
 var Config = {
   bits: 12
@@ -579,8 +582,8 @@ function App$Species(Props) {
                                     }), React.createElement("td", {
                                       className: "font-bold border-collapse border-l-2 border-l-primary-900 px-1"
                                     }, speciesNames, uniqueNumModes ? modesDisplay : null), React.createElement("td", {
-                                      className: "w-6  border-collapse border-l-2 border-l-primary-900 "
-                                    }, speciesDetails.isSymmetric ? "x" : "")), speciesHidden ? null : Belt_Array.mapWithIndex(speciesDetails.modes, (function (i, param) {
+                                      className: "w-6  border-collapse border-l-2 border-l-primary-900 px-1"
+                                    }, speciesDetails.isSymmetric ? React.createElement(Bs.BsSymmetryVertical, {}) : null)), speciesHidden ? null : Belt_Array.mapWithIndex(speciesDetails.modes, (function (i, param) {
                                       var modeId = param[0];
                                       var selected = Belt_Option.mapWithDefault(currentBits, false, (function (c) {
                                               return intArrayToString(c) === modeId;
@@ -634,7 +637,7 @@ function App$Species(Props) {
                                                             })).join(", ")), Belt_Option.mapWithDefault(Belt_Array.get(speciesDetails.autoCorrelations, i), null, (function (x) {
                                                         return React.createElement("td", {
                                                                     key: String(i) + "auto-correlation",
-                                                                    className: ["text-center align-middle font-bold text-lime-600 border-collapse border-l-2 border-l-primary-900"].join(" ")
+                                                                    className: ["text-center align-middle font-bold text-plain-700 border-collapse border-l-2 border-l-primary-900"].join(" ")
                                                                   }, x);
                                                       })));
                                     })), speciesHidden ? null : React.createElement("tr", {
@@ -845,6 +848,7 @@ export {
   CollapsedTri ,
   Logo ,
   SVG ,
+  Symmetry ,
   Config ,
   reactMap ,
   reactMapWithIndex ,

@@ -1,17 +1,5 @@
 open Belt
 
-/*
-todo:
-- symmetry with respect to root
-- symmetries (n point, star n point)
-- enharmonics / temperments
-- just interval
-- if has mode but not species
-- all scales
-- score based on correlations * best intervals
-
-*/
-
 let join = Js.Array2.joinWith(_, " ")
 
 let any = (a, test) =>
@@ -47,6 +35,12 @@ module Logo = {
 module SVG = {
   @module("./SVG.jsx") @react.component
   external make: (~data: array<(string, int)>) => React.element = "SVG"
+}
+
+module Symmetry = {
+  @module("react-icons/bs") @react.component
+  external make: (~size: int=?, ~color: string=?, ~className: string=?) => React.element =
+    "BsSymmetryVertical"
 }
 
 module Config = {
@@ -482,8 +476,8 @@ module Species = {
               {speciesNames}
               {uniqueNumModes ? modesDisplay : React.null}
             </td>
-            <td className="w-6  border-collapse border-l-2 border-l-primary-900 ">
-              {speciesDetails.isSymmetric ? "x"->str : ""->str}
+            <td className="w-6  border-collapse border-l-2 border-l-primary-900 px-1">
+              {speciesDetails.isSymmetric ? <Symmetry /> : React.null}
             </td>
           </tr>
           {speciesHidden
@@ -545,7 +539,7 @@ module Species = {
                     <td
                       key={i->Int.toString ++ "auto-correlation"}
                       className={[
-                        "text-center align-middle font-bold text-lime-600 border-collapse border-l-2 border-l-primary-900",
+                        "text-center align-middle font-bold text-plain-700 border-collapse border-l-2 border-l-primary-900",
                       ]->join}>
                       {x->str}
                     </td>
