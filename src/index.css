@@ -19,3 +19,16 @@ code {
 table {
   empty-cells: show;
 }
+
+#about p {
+  padding: 8px;
+}
+
+#about ul {
+  list-style: disc;
+  margin-left: 24px;
+}
+
+#about li {
+  padding: 8px;
+}

@@ -43,6 +43,12 @@ module Symmetry = {
     "BsSymmetryVertical"
 }
 
+module ChevronDown = {
+  @module("react-icons/fa") @react.component
+  external make: (~size: int=?, ~color: string=?, ~className: string=?) => React.element =
+    "FaChevronDown"
+}
+
 module Config = {
   let bits = 12
 }
@@ -588,6 +594,11 @@ module PageTitle2 = {
   }
 }
 
+module About = {
+  @module("./about.jsx") @react.component
+  external make: unit => React.element = "default"
+}
+
 @react.component
 let make = () => {
   let (currentBits, setCurrentBits) = React.useState(_ => None)
@@ -656,6 +667,21 @@ let make = () => {
       </div>
     </div>
     <div className="md:flex-1 h-full overflow-scroll xs:px-2">
+      <Collapsed
+        render={(collapsedState, setCollapsedState) => {
+          <div>
+            <button
+              onClick={_ => setCollapsedState(s => !s)}
+              className={"px-3 py-1 m-2 ml-3 font-bold bg-plain-200 rounded flex flex-row justify-center items-center gap-1"}>
+              {"About Topotonic"->str}
+              <ChevronDown />
+            </button>
+            <div className={[collapsedState ? "hidden" : ""]->join}>
+              <About />
+            </div>
+          </div>
+        }}
+      />
       {result
       ->Map.Int.toArray
       ->reactMap(((genusId, species)) =>

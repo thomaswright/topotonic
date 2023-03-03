@@ -7,11 +7,13 @@ import * as Belt_Int from "rescript/lib/es6/belt_Int.js";
 import * as SVGJsx from "./SVG.jsx";
 import * as Belt_Array from "rescript/lib/es6/belt_Array.js";
 import * as IconsJsx from "./Icons.jsx";
+import AboutJsx from "./about.jsx";
 import * as Belt_MapInt from "rescript/lib/es6/belt_MapInt.js";
 import * as Belt_Option from "rescript/lib/es6/belt_Option.js";
 import * as Belt_MapString from "rescript/lib/es6/belt_MapString.js";
 import * as Belt_SortArray from "rescript/lib/es6/belt_SortArray.js";
 import * as Bs from "react-icons/bs";
+import * as Fa from "react-icons/fa";
 
 function join(__x) {
   return __x.join(" ");
@@ -64,6 +66,8 @@ var SVG = {
 };
 
 var Symmetry = {};
+
+var ChevronDown = {};
 
 var Config = {
   bits: 12
@@ -687,6 +691,12 @@ var PageTitle2 = {
   make: App$PageTitle2
 };
 
+var make$2 = AboutJsx;
+
+var About = {
+  make: make$2
+};
+
 function App(Props) {
   var match = React.useState(function () {
         
@@ -796,7 +806,20 @@ function App(Props) {
                           children: "Halfnote Steps"
                         }))), React.createElement("div", {
                   className: "md:flex-1 h-full overflow-scroll xs:px-2"
-                }, Belt_Array.map(Belt_MapInt.toArray(result), (function (param) {
+                }, React.createElement(App$Collapsed, {
+                      render: (function (collapsedState, setCollapsedState) {
+                          return React.createElement("div", undefined, React.createElement("button", {
+                                          className: "px-3 py-1 m-2 ml-3 font-bold bg-plain-200 rounded flex flex-row justify-center items-center gap-1",
+                                          onClick: (function (param) {
+                                              Curry._1(setCollapsedState, (function (s) {
+                                                      return !s;
+                                                    }));
+                                            })
+                                        }, "About Topotonic", React.createElement(Fa.FaChevronDown, {})), React.createElement("div", {
+                                          className: [collapsedState ? "hidden" : ""].join(" ")
+                                        }, React.createElement(make$2, {})));
+                        })
+                    }), Belt_Array.map(Belt_MapInt.toArray(result), (function (param) {
                         var species = param[1];
                         var genusId = param[0];
                         return React.createElement(App$Collapsed, {
@@ -837,7 +860,7 @@ function App(Props) {
                       }))));
 }
 
-var make$2 = App;
+var make$3 = App;
 
 var $$default = App;
 
@@ -849,6 +872,7 @@ export {
   Logo ,
   SVG ,
   Symmetry ,
+  ChevronDown ,
   Config ,
   reactMap ,
   reactMapWithIndex ,
@@ -883,7 +907,8 @@ export {
   Species ,
   PageTitle ,
   PageTitle2 ,
-  make$2 as make,
+  About ,
+  make$3 as make,
   $$default ,
   $$default as default,
 }
