@@ -445,11 +445,60 @@ function App$Scale(Props) {
   var bitString = Props.bitString;
   var currentKey = Props.currentKey;
   var kind = Props.kind;
+  var x = currentKey !== undefined && typeof currentKey === "number" ? (
+      currentKey !== 3 ? (
+          currentKey >= 4 ? bitsToHalfnoteSteps(bitString).length : 12
+        ) : bitsToSemitoneSteps(bitString).length
+    ) : 12;
+  var gridCols;
+  switch (x) {
+    case 0 :
+        gridCols = "grid-cols-0";
+        break;
+    case 1 :
+        gridCols = "grid-cols-1";
+        break;
+    case 2 :
+        gridCols = "grid-cols-2";
+        break;
+    case 3 :
+        gridCols = "grid-cols-3";
+        break;
+    case 4 :
+        gridCols = "grid-cols-4";
+        break;
+    case 5 :
+        gridCols = "grid-cols-5";
+        break;
+    case 6 :
+        gridCols = "grid-cols-6";
+        break;
+    case 7 :
+        gridCols = "grid-cols-7";
+        break;
+    case 8 :
+        gridCols = "grid-cols-8";
+        break;
+    case 9 :
+        gridCols = "grid-cols-9";
+        break;
+    case 10 :
+        gridCols = "grid-cols-10";
+        break;
+    case 11 :
+        gridCols = "grid-cols-11";
+        break;
+    case 12 :
+        gridCols = "grid-cols-12";
+        break;
+    default:
+      gridCols = "grid-cols-12";
+  }
   var container = function (i, content) {
     var tmp;
     switch (kind) {
       case /* Species */0 :
-          tmp = "font-bold ";
+          tmp = " ";
           break;
       case /* Mode */1 :
       case /* NonMode */2 :
@@ -457,29 +506,43 @@ function App$Scale(Props) {
           break;
       
     }
-    return React.createElement("td", {
+    return React.createElement("div", {
                 key: String(i),
                 className: [
-                    "w-5 text-center align-middle",
-                    "border border-collapse border-y-inherit border-x-primary-300 ",
+                    "col-span-1 w-5 text-center align-middle",
+                    "",
                     tmp
                   ].join(" ")
               }, content);
   };
+  var tmp;
+  var exit = 0;
   if (currentKey !== undefined && typeof currentKey === "number") {
-    if (currentKey === 3) {
-      return Belt_Array.mapWithIndex(bitsToSemitoneSteps(bitString), (function (i, step) {
-                    return container(i, String(step));
-                  }));
+    if (currentKey !== 3) {
+      if (currentKey >= 4) {
+        tmp = Belt_Array.mapWithIndex(bitsToHalfnoteSteps(bitString), container);
+      } else {
+        exit = 1;
+      }
+    } else {
+      tmp = Belt_Array.mapWithIndex(bitsToSemitoneSteps(bitString), (function (i, step) {
+              return container(i, String(step));
+            }));
     }
-    if (currentKey >= 4) {
-      return Belt_Array.mapWithIndex(bitsToHalfnoteSteps(bitString), container);
-    }
-    
+  } else {
+    exit = 1;
   }
-  return Belt_Array.mapWithIndex(Array.from(bitString), (function (i, bit) {
-                return container(i, bitToDisplaySymbol(bit, i, currentKey));
-              }));
+  if (exit === 1) {
+    tmp = Belt_Array.mapWithIndex(Array.from(bitString), (function (i, bit) {
+            return container(i, bitToDisplaySymbol(bit, i, currentKey));
+          }));
+  }
+  return React.createElement("div", {
+              className: [
+                  "col-span-6 grid divide-x",
+                  gridCols
+                ].join(" ")
+            }, tmp);
 }
 
 var Scale = {
@@ -527,7 +590,7 @@ function App$Species(Props) {
                       }));
         }));
   var speciesNames = Belt_Array.map(speciesNameData, (function (param) {
-          return React.createElement("div", {
+          return React.createElement("span", {
                       key: param[0]._0
                     }, Belt_Array.map(param[1], (function (param) {
                               return param[1];
@@ -538,7 +601,7 @@ function App$Species(Props) {
         })).length;
   var numPitchClasses = speciesDetails.modes.length;
   var uniqueNumModes = numModes !== genusId;
-  var modesDisplay = React.createElement("div", undefined, "(" + String(numModes) + ":" + String(numPitchClasses) + ")");
+  var modesDisplay = React.createElement("span", undefined, "(" + String(numModes) + ":" + String(numPitchClasses) + ")");
   return React.createElement(App$Collapsed, {
               render: (function (speciesHidden, setSpeciesHidden) {
                   var anySelected = any(speciesDetails.modes, (function (param) {
@@ -550,10 +613,10 @@ function App$Species(Props) {
                   Belt_Option.mapWithDefault(currentBits, false, (function (c) {
                           return intArrayToString(c) === speciesId;
                         }));
-                  return React.createElement("tbody", {
-                              className: [].join(" ")
-                            }, React.createElement("tr", {
-                                  className: ["border-y-2 border-y-primary-900 bg-primary-300"].join(" "),
+                  return React.createElement("div", {
+                              className: [speciesHidden ? "" : "py-8"].join(" ")
+                            }, React.createElement("div", {
+                                  className: ["grid grid-cols-10 "].join(" "),
                                   onClick: (function (param) {
                                       Belt_Option.mapWithDefault(currentBits, (Curry._1(setSpeciesHidden, (function (param) {
                                                     return false;
@@ -576,79 +639,79 @@ function App$Species(Props) {
                                                     }));
                                             }));
                                     })
-                                }, React.createElement("td", {
-                                      className: "w-5 text-xs border-collapse border-r-2 border-r-primary-900 px-1"
+                                }, React.createElement("div", {
+                                      className: "col-span-1 w-5 text-xs px-1"
                                     }, String(stringArrayToInt(Array.from(speciesId)))), React.createElement(App$Scale, {
                                       bitString: speciesId,
                                       currentKey: currentKey,
                                       kind: /* Species */0,
                                       selected: false
-                                    }), React.createElement("td", {
-                                      className: "font-bold border-collapse border-l-2 border-l-primary-900 px-1"
-                                    }, speciesNames, uniqueNumModes ? modesDisplay : null), React.createElement("td", {
-                                      className: "w-6  border-collapse border-l-2 border-l-primary-900 px-1"
-                                    }, speciesDetails.isSymmetric ? React.createElement(Bs.BsSymmetryVertical, {}) : null)), speciesHidden ? null : Belt_Array.mapWithIndex(speciesDetails.modes, (function (i, param) {
-                                      var modeId = param[0];
-                                      var selected = Belt_Option.mapWithDefault(currentBits, false, (function (c) {
-                                              return intArrayToString(c) === modeId;
-                                            }));
-                                      var modeKind = startsWith1(Array.from(modeId)) ? /* Mode */1 : /* NonMode */2;
-                                      var tmp;
-                                      switch (modeKind) {
-                                        case /* Species */0 :
-                                            tmp = "";
-                                            break;
-                                        case /* Mode */1 :
-                                            tmp = selected ? "text-accent-600 " : "text-primary-700";
-                                            break;
-                                        case /* NonMode */2 :
-                                            tmp = selected ? "bg-primary-200 text-accent-600" : "bg-primary-200 text-primary-500";
-                                            break;
-                                        
-                                      }
-                                      return React.createElement("tr", {
-                                                  key: modeId,
-                                                  className: [
-                                                      "border-b border-b-primary-900",
-                                                      selected ? "font-bold" : "",
-                                                      tmp
-                                                    ].join(" "),
-                                                  onClick: (function (param) {
-                                                      Curry._1(setCurrentBits, (function (param) {
-                                                              return stringArrayToIntArray(Array.from(modeId));
-                                                            }));
-                                                    })
-                                                }, React.createElement("td", {
-                                                      className: " text-xs text-center align-middle border-r-2 border-collapse border-r-primary-900"
-                                                    }, String(i)), React.createElement(App$Scale, {
-                                                      bitString: modeId,
-                                                      currentKey: currentKey,
-                                                      kind: modeKind,
-                                                      selected: selected
-                                                    }), React.createElement("td", {
-                                                      className: "border-collapse border-l-2 border-l-primary-900 px-1"
-                                                    }, Belt_Option.mapWithDefault(Belt_Array.get(Belt_Array.keepMap(speciesNameData, (function (param) {
-                                                                      return Belt_Array.getBy(param[2], (function (param) {
-                                                                                    var mId = param[0];
-                                                                                    var match;
-                                                                                    match = mId.TAG === /* Bits */0 ? mId._0 : stepsToBits(stringArrayToIntArray(Array.from(mId._0)));
-                                                                                    return modeId === match;
-                                                                                  }));
-                                                                    })), 0), [], (function (param) {
-                                                              return Belt_Array.map(param[1], (function (param) {
-                                                                            return param[1];
-                                                                          }));
-                                                            })).join(", ")), Belt_Option.mapWithDefault(Belt_Array.get(speciesDetails.autoCorrelations, i), null, (function (x) {
-                                                        return React.createElement("td", {
-                                                                    key: String(i) + "auto-correlation",
-                                                                    className: ["text-center align-middle font-bold text-plain-700 border-collapse border-l-2 border-l-primary-900"].join(" ")
-                                                                  }, x);
-                                                      })));
-                                    })), speciesHidden ? null : React.createElement("tr", {
-                                    className: ""
-                                  }, React.createElement("td", {
-                                        className: "h-3 border-x-transparent bg-inherit"
-                                      })));
+                                    }), React.createElement("div", {
+                                      className: "col-span-2  overflow-x-hidden text-ellipsis whitespace-nowrap px-1"
+                                    }, speciesNames, uniqueNumModes ? modesDisplay : null), React.createElement("div", {
+                                      className: "col-span-1 w-6   px-1"
+                                    }, speciesDetails.isSymmetric ? React.createElement(Bs.BsSymmetryVertical, {}) : null)), speciesHidden ? null : React.createElement("div", {
+                                    className: ["mt-2 border border-slate-500 rounded"].join(" ")
+                                  }, Belt_Array.mapWithIndex(speciesDetails.modes, (function (i, param) {
+                                          var modeId = param[0];
+                                          var selected = Belt_Option.mapWithDefault(currentBits, false, (function (c) {
+                                                  return intArrayToString(c) === modeId;
+                                                }));
+                                          var modeKind = startsWith1(Array.from(modeId)) ? /* Mode */1 : /* NonMode */2;
+                                          var tmp;
+                                          switch (modeKind) {
+                                            case /* Species */0 :
+                                                tmp = "";
+                                                break;
+                                            case /* Mode */1 :
+                                                tmp = selected ? "text-accent-600 " : "text-plain-700";
+                                                break;
+                                            case /* NonMode */2 :
+                                                tmp = selected ? "bg-plain-100 text-accent-600" : "bg-plain-100 text-plain-400";
+                                                break;
+                                            
+                                          }
+                                          return React.createElement("div", {
+                                                      key: modeId,
+                                                      className: [
+                                                          "grid grid-cols-10 py-px divide-x",
+                                                          selected ? "font-bold" : "",
+                                                          tmp
+                                                        ].join(" "),
+                                                      onClick: (function (param) {
+                                                          Curry._1(setCurrentBits, (function (param) {
+                                                                  return stringArrayToIntArray(Array.from(modeId));
+                                                                }));
+                                                        })
+                                                    }, React.createElement("div", {
+                                                          className: "col-span-1 text-xs text-center align-middle"
+                                                        }, String(i)), React.createElement(App$Scale, {
+                                                          bitString: modeId,
+                                                          currentKey: currentKey,
+                                                          kind: modeKind,
+                                                          selected: selected
+                                                        }), React.createElement("div", {
+                                                          className: "col-span-2 overflow-x-hidden text-ellipsis whitespace-nowrap px-1"
+                                                        }, Belt_Option.mapWithDefault(Belt_Array.get(Belt_Array.keepMap(speciesNameData, (function (param) {
+                                                                          return Belt_Array.getBy(param[2], (function (param) {
+                                                                                        var mId = param[0];
+                                                                                        var match;
+                                                                                        match = mId.TAG === /* Bits */0 ? mId._0 : stepsToBits(stringArrayToIntArray(Array.from(mId._0)));
+                                                                                        return modeId === match;
+                                                                                      }));
+                                                                        })), 0), [], (function (param) {
+                                                                  return Belt_Array.map(param[1], (function (param) {
+                                                                                return param[1];
+                                                                              }));
+                                                                })).join(", ")), React.createElement("div", {
+                                                          className: "col-span-1"
+                                                        }, Belt_Option.mapWithDefault(Belt_Array.get(speciesDetails.autoCorrelations, i), null, (function (x) {
+                                                                return React.createElement("div", {
+                                                                            key: String(i) + "auto-correlation",
+                                                                            className: ["text-center align-middle font-bold text-plain-700 "].join(" ")
+                                                                          }, x);
+                                                              }))));
+                                        }))));
                 })
             });
 }
@@ -868,8 +931,8 @@ function App(Props) {
                                             className: "min-w-[50px] text-2xl font-black"
                                           }, String(genusId)), React.createElement("div", {
                                             className: " text-sm font-bold whitespace-nowrap"
-                                          }, String(Belt_MapString.toArray(species).length), " species")), React.createElement("table", {
-                                        className: ["overflow-scroll border-4 border-primary-900 "].join(" ")
+                                          }, String(Belt_MapString.toArray(species).length), " species")), React.createElement("div", {
+                                        className: ["divide-y divide-slate-500"].join(" ")
                                       }, Belt_Array.map(Belt_MapString.toArray(species), (function (param) {
                                               var speciesId = param[0];
                                               return React.createElement(App$Species, {
