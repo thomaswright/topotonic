@@ -90,19 +90,20 @@ module BitOps = {
   let stringToInt = x => x->stringToStringArray->stringArrayToInt
 }
 
-let getPermsForBitLength = numOfBits =>
+let getPermutationsGivenBitLength = numOfBits =>
   Array.range(0, (2. ** numOfBits->Int.toFloat -. 1.)->Float.toInt)->Array.map(x =>
     x->Js.Int.toStringWithRadix(~radix=2)->padLeft(numOfBits, "0")
   )
 
-let count1s = bitArray =>
+// Counts "1"s
+let getBinaryHammingWeight = bitArray =>
   bitArray->Array.reduce(0, (acc, value) => {
     value == "1" ? acc + 1 : acc
   })
 
 let groupByGenus = x =>
   x->Array.reduce(Map.Int.empty, (acc, value) => {
-    let genus = value->count1s
+    let genus = value->getBinaryHammingWeight
     acc->Map.Int.update(genus, a =>
       a->Option.mapWithDefault([value]->Some, b => Array.concat(b, [value])->Some)
     )
@@ -243,7 +244,7 @@ let groupBySpecies = genusGrouping =>
 
 let result =
   Config.bits
-  ->getPermsForBitLength
+  ->getPermutationsGivenBitLength
   ->Array.map(BitOps.stringToStringArray)
   ->groupByGenus
   ->groupBySpecies

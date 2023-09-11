@@ -140,13 +140,13 @@ var BitOps = {
   stringToInt: stringToInt
 };
 
-function getPermsForBitLength(numOfBits) {
+function getPermutationsGivenBitLength(numOfBits) {
   return Belt_Array.map(Belt_Array.range(0, Math.pow(2, numOfBits) - 1 | 0), (function (x) {
                 return padLeft(x.toString(2), numOfBits, "0");
               }));
 }
 
-function count1s(bitArray) {
+function getBinaryHammingWeight(bitArray) {
   return Belt_Array.reduce(bitArray, 0, (function (acc, value) {
                 if (value === "1") {
                   return acc + 1 | 0;
@@ -158,7 +158,7 @@ function count1s(bitArray) {
 
 function groupByGenus(x) {
   return Belt_Array.reduce(x, undefined, (function (acc, value) {
-                var genus = count1s(value);
+                var genus = getBinaryHammingWeight(value);
                 return Belt_MapInt.update(acc, genus, (function (a) {
                               return Belt_Option.mapWithDefault(a, [value], (function (b) {
                                             return Belt_Array.concat(b, [value]);
@@ -294,7 +294,7 @@ function groupBySpecies(genusGrouping) {
               }));
 }
 
-var result = groupBySpecies(groupByGenus(Belt_Array.map(getPermsForBitLength(12), stringToStringArray)));
+var result = groupBySpecies(groupByGenus(Belt_Array.map(getPermutationsGivenBitLength(12), stringToStringArray)));
 
 var pitchKeys = [
   "C",
@@ -879,8 +879,8 @@ export {
   str ,
   padLeft ,
   BitOps ,
-  getPermsForBitLength ,
-  count1s ,
+  getPermutationsGivenBitLength ,
+  getBinaryHammingWeight ,
   groupByGenus ,
   rotate ,
   getRotations ,
