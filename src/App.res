@@ -608,6 +608,8 @@ module About = {
 @react.component
 let make = () => {
   let (currentBits, setCurrentBits) = React.useState(_ => None)
+  let (selectedGenus, setSelectedGenus) = React.useState(_ => None)
+
   let (currentKey: option<key>, setCurrentKey) = React.useState(_ => Some(Pitch(0)))
 
   let graphKeys = {
@@ -700,51 +702,50 @@ let make = () => {
           </div>
         }}
       />
-      {result
-      ->Map.Int.toArray
-      ->reactMap(((genusId, species)) =>
-        <Collapsed
-          key={genusId->Int.toString}
-          render={(genusCollapsedState, setGenusCollapsedState) => {
-            <div className={"mb-1"}>
-              <div
-                onClick={_ => {
-                  setGenusCollapsedState(s => !s)
-                }}
-                className="flex flex-row items-center px-4 ">
-                <div className="min-w-[50px] text-2xl font-black">
-                  {genusId->Int.toString->str}
-                </div>
-                <div className=" text-sm font-bold whitespace-nowrap">
-                  {species->Map.String.toArray->Array.length->Int.toString->str}
-                  {" species"->str}
-                </div>
-              </div>
-              <table
-                className={[
-                  genusCollapsedState ? "hidden" : "",
-                  "overflow-scroll border-4 border-primary-900 ",
-                ]->join}>
-                {genusCollapsedState
-                  ? React.null
-                  : species
-                    ->Map.String.toArray
-                    ->reactMap(((speciesId, speciesDetails)) =>
-                      <Species
-                        key={speciesId}
-                        genusId={genusId}
-                        currentBits={currentBits}
-                        setCurrentBits={setCurrentBits}
-                        currentKey={currentKey}
-                        speciesId={speciesId}
-                        speciesDetails={speciesDetails}
-                      />
-                    )}
-              </table>
+      <div className="flex flex-row overflow-x-scroll gap-2">
+        {Array.range(0, Config.bits)->reactMap(num => {
+          <div
+            className="p-1 px-2 bg-slate-100 border border-slate-400 rounded"
+            onClick={_ =>
+              setSelectedGenus(_ =>
+                result
+                ->Map.Int.keysToArray
+                ->Array.get(num)
+                ->Option.flatMap(
+                  genusId =>
+                    result->Map.Int.get(genusId)->Option.map(species => (genusId, species)),
+                )
+              )}>
+            {num->Int.toString->str}
+          </div>
+        })}
+      </div>
+      {selectedGenus->Option.mapWithDefault(React.null, ((genusId, species)) => {
+        <div className={"mb-1"}>
+          <div className="flex flex-row items-center px-4 ">
+            <div className="min-w-[50px] text-2xl font-black"> {genusId->Int.toString->str} </div>
+            <div className=" text-sm font-bold whitespace-nowrap">
+              {species->Map.String.toArray->Array.length->Int.toString->str}
+              {" species"->str}
             </div>
-          }}
-        />
-      )}
+          </div>
+          <table className={["overflow-scroll border-4 border-primary-900 "]->join}>
+            {species
+            ->Map.String.toArray
+            ->reactMap(((speciesId, speciesDetails)) =>
+              <Species
+                key={speciesId}
+                genusId={genusId}
+                currentBits={currentBits}
+                setCurrentBits={setCurrentBits}
+                currentKey={currentKey}
+                speciesId={speciesId}
+                speciesDetails={speciesDetails}
+              />
+            )}
+          </table>
+        </div>
+      })}
     </div>
   </div>
 }

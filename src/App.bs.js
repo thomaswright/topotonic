@@ -704,12 +704,16 @@ function App(Props) {
   var setCurrentBits = match[1];
   var currentBits = match[0];
   var match$1 = React.useState(function () {
+        
+      });
+  var setSelectedGenus = match$1[1];
+  var match$2 = React.useState(function () {
         return /* Pitch */{
                 _0: 0
               };
       });
-  var setCurrentKey = match$1[1];
-  var currentKey = match$1[0];
+  var setCurrentKey = match$2[1];
+  var currentKey = match$2[0];
   var graphKeys = currentKey !== undefined ? (
       typeof currentKey === "number" ? (
           currentKey !== 1 ? (
@@ -835,44 +839,49 @@ function App(Props) {
                                           className: [collapsedState ? "hidden" : ""].join(" ")
                                         }, React.createElement(make$2, {})));
                         })
-                    }), Belt_Array.map(Belt_MapInt.toArray(result), (function (param) {
+                    }), React.createElement("div", {
+                      className: "flex flex-row overflow-x-scroll gap-2"
+                    }, Belt_Array.map(Belt_Array.range(0, 12), (function (num) {
+                            return React.createElement("div", {
+                                        className: "p-1 px-2 bg-slate-100 border border-slate-400 rounded",
+                                        onClick: (function (param) {
+                                            Curry._1(setSelectedGenus, (function (param) {
+                                                    return Belt_Option.flatMap(Belt_Array.get(Belt_MapInt.keysToArray(result), num), (function (genusId) {
+                                                                  return Belt_Option.map(Belt_MapInt.get(result, genusId), (function (species) {
+                                                                                return [
+                                                                                        genusId,
+                                                                                        species
+                                                                                      ];
+                                                                              }));
+                                                                }));
+                                                  }));
+                                          })
+                                      }, String(num));
+                          }))), Belt_Option.mapWithDefault(match$1[0], null, (function (param) {
                         var species = param[1];
                         var genusId = param[0];
-                        return React.createElement(App$Collapsed, {
-                                    render: (function (genusCollapsedState, setGenusCollapsedState) {
-                                        return React.createElement("div", {
-                                                    className: "mb-1"
-                                                  }, React.createElement("div", {
-                                                        className: "flex flex-row items-center px-4 ",
-                                                        onClick: (function (param) {
-                                                            Curry._1(setGenusCollapsedState, (function (s) {
-                                                                    return !s;
-                                                                  }));
-                                                          })
-                                                      }, React.createElement("div", {
-                                                            className: "min-w-[50px] text-2xl font-black"
-                                                          }, String(genusId)), React.createElement("div", {
-                                                            className: " text-sm font-bold whitespace-nowrap"
-                                                          }, String(Belt_MapString.toArray(species).length), " species")), React.createElement("table", {
-                                                        className: [
-                                                            genusCollapsedState ? "hidden" : "",
-                                                            "overflow-scroll border-4 border-primary-900 "
-                                                          ].join(" ")
-                                                      }, genusCollapsedState ? null : Belt_Array.map(Belt_MapString.toArray(species), (function (param) {
-                                                                var speciesId = param[0];
-                                                                return React.createElement(App$Species, {
-                                                                            genusId: genusId,
-                                                                            currentBits: currentBits,
-                                                                            setCurrentBits: setCurrentBits,
-                                                                            currentKey: currentKey,
-                                                                            speciesId: speciesId,
-                                                                            speciesDetails: param[1],
-                                                                            key: speciesId
-                                                                          });
-                                                              }))));
-                                      }),
-                                    key: String(genusId)
-                                  });
+                        return React.createElement("div", {
+                                    className: "mb-1"
+                                  }, React.createElement("div", {
+                                        className: "flex flex-row items-center px-4 "
+                                      }, React.createElement("div", {
+                                            className: "min-w-[50px] text-2xl font-black"
+                                          }, String(genusId)), React.createElement("div", {
+                                            className: " text-sm font-bold whitespace-nowrap"
+                                          }, String(Belt_MapString.toArray(species).length), " species")), React.createElement("table", {
+                                        className: ["overflow-scroll border-4 border-primary-900 "].join(" ")
+                                      }, Belt_Array.map(Belt_MapString.toArray(species), (function (param) {
+                                              var speciesId = param[0];
+                                              return React.createElement(App$Species, {
+                                                          genusId: genusId,
+                                                          currentBits: currentBits,
+                                                          setCurrentBits: setCurrentBits,
+                                                          currentKey: currentKey,
+                                                          speciesId: speciesId,
+                                                          speciesDetails: param[1],
+                                                          key: speciesId
+                                                        });
+                                            }))));
                       }))));
 }
 
