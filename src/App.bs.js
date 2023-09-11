@@ -492,8 +492,8 @@ function App$Key(Props) {
   var children = Props.children;
   return React.createElement("div", {
               className: [
-                  selected ? "bg-blue-300" : "",
-                  "rounded p-1 pl-2"
+                  selected ? "bg-blue-300 border-blue-500" : "bg-slate-100 border-slate-400",
+                  "col-span-1 rounded p-1 px-2 border"
                 ].join(" "),
               onClick: onClick
             }, children);
@@ -731,80 +731,96 @@ function App(Props) {
                     }, React.createElement(make$1, {
                           data: Belt_Array.zip(graphKeys, graphBits)
                         })), React.createElement("div", {
-                      className: " flex-1 overflow-scroll p-1 border rounded max-h-24 md:max-h-min "
-                    }, Belt_Array.mapWithIndex(pitchKeys, (function (i, v) {
-                            var selected = currentKey !== undefined && typeof currentKey !== "number" ? currentKey._0 === i : false;
-                            return React.createElement(App$Key, {
-                                        selected: selected,
-                                        onClick: (function (param) {
-                                            Curry._1(setCurrentKey, (function (param) {
-                                                    return /* Pitch */{
-                                                            _0: i
-                                                          };
-                                                  }));
-                                          }),
-                                        children: v,
-                                        key: v
-                                      });
-                          })), React.createElement(App$Key, {
-                          selected: Belt_Option.isNone(currentKey),
-                          onClick: (function (param) {
-                              Curry._1(setCurrentKey, (function (param) {
-                                      
-                                    }));
-                            }),
-                          children: "Binary"
-                        }), React.createElement(App$Key, {
-                          selected: Belt_Option.mapWithDefault(currentKey, false, (function (x) {
-                                  return x === /* MinMaj */0;
-                                })),
-                          onClick: (function (param) {
-                              Curry._1(setCurrentKey, (function (param) {
-                                      return /* MinMaj */0;
-                                    }));
-                            }),
-                          children: "Min-Maj Intervals"
-                        }), React.createElement(App$Key, {
-                          selected: Belt_Option.mapWithDefault(currentKey, false, (function (x) {
-                                  return x === /* DimAug */1;
-                                })),
-                          onClick: (function (param) {
-                              Curry._1(setCurrentKey, (function (param) {
-                                      return /* DimAug */1;
-                                    }));
-                            }),
-                          children: "Dim-Aug Intervals"
-                        }), React.createElement(App$Key, {
-                          selected: Belt_Option.mapWithDefault(currentKey, false, (function (x) {
-                                  return x === /* Semitone */2;
-                                })),
-                          onClick: (function (param) {
-                              Curry._1(setCurrentKey, (function (param) {
-                                      return /* Semitone */2;
-                                    }));
-                            }),
-                          children: "Semitone Intervals"
-                        }), React.createElement(App$Key, {
-                          selected: Belt_Option.mapWithDefault(currentKey, false, (function (x) {
-                                  return x === /* SemitoneSteps */3;
-                                })),
-                          onClick: (function (param) {
-                              Curry._1(setCurrentKey, (function (param) {
-                                      return /* SemitoneSteps */3;
-                                    }));
-                            }),
-                          children: "Semitone Steps"
-                        }), React.createElement(App$Key, {
-                          selected: Belt_Option.mapWithDefault(currentKey, false, (function (x) {
-                                  return x === /* HalfnoteSteps */4;
-                                })),
-                          onClick: (function (param) {
-                              Curry._1(setCurrentKey, (function (param) {
-                                      return /* HalfnoteSteps */4;
-                                    }));
-                            }),
-                          children: "Halfnote Steps"
-                        }))), React.createElement("div", {
+                      className: "overflow-scroll max-h-40 md:max-h-min "
+                    }, React.createElement("div", {
+                          className: "w-full text-center pb-2 pt-3 font-medium"
+                        }, "Keys"), React.createElement("div", {
+                          className: "grid grid-cols-4 gap-2 w-full"
+                        }, Belt_Array.mapWithIndex(pitchKeys, (function (i, v) {
+                                var selected = currentKey !== undefined && typeof currentKey !== "number" ? currentKey._0 === i : false;
+                                return React.createElement(App$Key, {
+                                            selected: selected,
+                                            onClick: (function (param) {
+                                                Curry._1(setCurrentKey, (function (param) {
+                                                        return /* Pitch */{
+                                                                _0: i
+                                                              };
+                                                      }));
+                                              }),
+                                            children: v,
+                                            key: v
+                                          });
+                              }))), React.createElement("div", {
+                          className: "w-full text-center pb-2 pt-3 font-medium"
+                        }, "Intervals"), React.createElement("div", {
+                          className: "grid grid-cols-3 gap-2 w-full"
+                        }, React.createElement(App$Key, {
+                              selected: Belt_Option.mapWithDefault(currentKey, false, (function (x) {
+                                      return x === /* MinMaj */0;
+                                    })),
+                              onClick: (function (param) {
+                                  Curry._1(setCurrentKey, (function (param) {
+                                          return /* MinMaj */0;
+                                        }));
+                                }),
+                              children: "Min-Maj"
+                            }), React.createElement(App$Key, {
+                              selected: Belt_Option.mapWithDefault(currentKey, false, (function (x) {
+                                      return x === /* DimAug */1;
+                                    })),
+                              onClick: (function (param) {
+                                  Curry._1(setCurrentKey, (function (param) {
+                                          return /* DimAug */1;
+                                        }));
+                                }),
+                              children: "Dim-Aug"
+                            }), React.createElement(App$Key, {
+                              selected: Belt_Option.mapWithDefault(currentKey, false, (function (x) {
+                                      return x === /* Semitone */2;
+                                    })),
+                              onClick: (function (param) {
+                                  Curry._1(setCurrentKey, (function (param) {
+                                          return /* Semitone */2;
+                                        }));
+                                }),
+                              children: "Semitone"
+                            })), React.createElement("div", {
+                          className: "w-full text-center pb-2 pt-3 font-medium"
+                        }, "Steps"), React.createElement("div", {
+                          className: "grid grid-cols-2 gap-2 w-full"
+                        }, React.createElement(App$Key, {
+                              selected: Belt_Option.mapWithDefault(currentKey, false, (function (x) {
+                                      return x === /* SemitoneSteps */3;
+                                    })),
+                              onClick: (function (param) {
+                                  Curry._1(setCurrentKey, (function (param) {
+                                          return /* SemitoneSteps */3;
+                                        }));
+                                }),
+                              children: "Semitone"
+                            }), React.createElement(App$Key, {
+                              selected: Belt_Option.mapWithDefault(currentKey, false, (function (x) {
+                                      return x === /* HalfnoteSteps */4;
+                                    })),
+                              onClick: (function (param) {
+                                  Curry._1(setCurrentKey, (function (param) {
+                                          return /* HalfnoteSteps */4;
+                                        }));
+                                }),
+                              children: "Halfnote"
+                            })), React.createElement("div", {
+                          className: "w-full text-center pb-2 pt-3 font-medium"
+                        }, "Other"), React.createElement("div", {
+                          className: " "
+                        }, React.createElement(App$Key, {
+                              selected: Belt_Option.isNone(currentKey),
+                              onClick: (function (param) {
+                                  Curry._1(setCurrentKey, (function (param) {
+                                          
+                                        }));
+                                }),
+                              children: "Binary"
+                            })))), React.createElement("div", {
                   className: "md:flex-1 h-full overflow-scroll xs:px-2"
                 }, React.createElement(App$Collapsed, {
                       render: (function (collapsedState, setCollapsedState) {

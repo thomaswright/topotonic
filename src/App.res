@@ -383,7 +383,12 @@ module Scale = {
 module Key = {
   @react.component
   let make = (~selected, ~onClick, ~children) => {
-    <div className={[selected ? "bg-blue-300" : "", "rounded p-1 pl-2"]->join} onClick={onClick}>
+    <div
+      className={[
+        selected ? "bg-blue-300 border-blue-500" : "bg-slate-100 border-slate-400",
+        "col-span-1 rounded p-1 px-2 border",
+      ]->join}
+      onClick={onClick}>
       {children}
     </div>
   }
@@ -626,45 +631,57 @@ let make = () => {
       <div className={"h-80 w-80  self-center "}>
         <SVG data={Array.zip(graphKeys, graphBits)} />
       </div>
-      <div className={" flex-1 overflow-scroll p-1 border rounded max-h-24 md:max-h-min "}>
-        {pitchKeys->reactMapWithIndex((i, v) => {
-          let selected = switch currentKey {
-          | Some(Pitch(c)) => c == i
-          | _ => false
-          }
+      <div className="overflow-scroll max-h-40 md:max-h-min ">
+        <div className="w-full text-center pb-2 pt-3 font-medium"> {"Keys"->str} </div>
+        <div className={"grid grid-cols-4 gap-2 w-full"}>
+          {pitchKeys->reactMapWithIndex((i, v) => {
+            let selected = switch currentKey {
+            | Some(Pitch(c)) => c == i
+            | _ => false
+            }
 
-          <Key key={v} selected={selected} onClick={_ => setCurrentKey(_ => Some(Pitch(i)))}>
-            {v->str}
+            <Key key={v} selected={selected} onClick={_ => setCurrentKey(_ => Some(Pitch(i)))}>
+              {v->str}
+            </Key>
+          })}
+        </div>
+        <div className="w-full text-center pb-2 pt-3 font-medium"> {"Intervals"->str} </div>
+        <div className="grid grid-cols-3 gap-2 w-full">
+          <Key
+            selected={currentKey->Option.mapWithDefault(false, x => x == MinMaj)}
+            onClick={_ => setCurrentKey(_ => Some(MinMaj))}>
+            {"Min-Maj"->str}
           </Key>
-        })}
-        <Key selected={currentKey->Option.isNone} onClick={_ => setCurrentKey(_ => None)}>
-          {"Binary"->str}
-        </Key>
-        <Key
-          selected={currentKey->Option.mapWithDefault(false, x => x == MinMaj)}
-          onClick={_ => setCurrentKey(_ => Some(MinMaj))}>
-          {"Min-Maj Intervals"->str}
-        </Key>
-        <Key
-          selected={currentKey->Option.mapWithDefault(false, x => x == DimAug)}
-          onClick={_ => setCurrentKey(_ => Some(DimAug))}>
-          {"Dim-Aug Intervals"->str}
-        </Key>
-        <Key
-          selected={currentKey->Option.mapWithDefault(false, x => x == Semitone)}
-          onClick={_ => setCurrentKey(_ => Some(Semitone))}>
-          {"Semitone Intervals"->str}
-        </Key>
-        <Key
-          selected={currentKey->Option.mapWithDefault(false, x => x == SemitoneSteps)}
-          onClick={_ => setCurrentKey(_ => Some(SemitoneSteps))}>
-          {"Semitone Steps"->str}
-        </Key>
-        <Key
-          selected={currentKey->Option.mapWithDefault(false, x => x == HalfnoteSteps)}
-          onClick={_ => setCurrentKey(_ => Some(HalfnoteSteps))}>
-          {"Halfnote Steps"->str}
-        </Key>
+          <Key
+            selected={currentKey->Option.mapWithDefault(false, x => x == DimAug)}
+            onClick={_ => setCurrentKey(_ => Some(DimAug))}>
+            {"Dim-Aug"->str}
+          </Key>
+          <Key
+            selected={currentKey->Option.mapWithDefault(false, x => x == Semitone)}
+            onClick={_ => setCurrentKey(_ => Some(Semitone))}>
+            {"Semitone"->str}
+          </Key>
+        </div>
+        <div className="w-full text-center pb-2 pt-3 font-medium"> {"Steps"->str} </div>
+        <div className="grid grid-cols-2 gap-2 w-full">
+          <Key
+            selected={currentKey->Option.mapWithDefault(false, x => x == SemitoneSteps)}
+            onClick={_ => setCurrentKey(_ => Some(SemitoneSteps))}>
+            {"Semitone"->str}
+          </Key>
+          <Key
+            selected={currentKey->Option.mapWithDefault(false, x => x == HalfnoteSteps)}
+            onClick={_ => setCurrentKey(_ => Some(HalfnoteSteps))}>
+            {"Halfnote"->str}
+          </Key>
+        </div>
+        <div className="w-full text-center pb-2 pt-3 font-medium"> {"Other"->str} </div>
+        <div className={" "}>
+          <Key selected={currentKey->Option.isNone} onClick={_ => setCurrentKey(_ => None)}>
+            {"Binary"->str}
+          </Key>
+        </div>
       </div>
     </div>
     <div className="md:flex-1 h-full overflow-scroll xs:px-2">
