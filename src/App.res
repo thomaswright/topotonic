@@ -494,9 +494,10 @@ let make = () => {
 
   <div className={"flex md:flex-row flex-col h-screen w-screen "}>
     <PageTitle />
-    <div className="flex-1 flex flex-col max-w-[500px] p-2  overflow-y-scroll items-center">
+    <div
+      className="flex-1 flex flex-col w-screen md:w-auto md:max-w-[500px] p-2  overflow-y-scroll items-center">
       <div className="md:max-h-min  max-w-[500px] w-full">
-        <div className={"w-full self-center"}>
+        <div className={"pt-2 w-full self-center"}>
           <SVG data={Array.zip(graphKeys, graphBits)} />
         </div>
         {scaleNames == ""
@@ -604,7 +605,7 @@ let make = () => {
           </div>
         })}
       </div>
-      <div className="max-w-[750px]">
+      <div className="max-w-[500px]">
         {selectedGenus->Option.mapWithDefault(React.null, ((genusId, species)) => {
           <div className={"mb-1"}>
             <div className="flex flex-row items-center py-4 font-medium text-lg ">

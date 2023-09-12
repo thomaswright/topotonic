@@ -570,11 +570,11 @@ function App(Props) {
   return React.createElement("div", {
               className: "flex md:flex-row flex-col h-screen w-screen "
             }, React.createElement(App$PageTitle, {}), React.createElement("div", {
-                  className: "flex-1 flex flex-col max-w-[500px] p-2  overflow-y-scroll items-center"
+                  className: "flex-1 flex flex-col w-screen md:w-auto md:max-w-[500px] p-2  overflow-y-scroll items-center"
                 }, React.createElement("div", {
                       className: "md:max-h-min  max-w-[500px] w-full"
                     }, React.createElement("div", {
-                          className: "w-full self-center"
+                          className: "pt-2 w-full self-center"
                         }, React.createElement(make$1, {
                               data: Belt_Array.zip(graphKeys, graphBits)
                             })), scaleNames === "" ? null : React.createElement("div", {
@@ -710,7 +710,7 @@ function App(Props) {
                                           })
                                       }, String(num));
                           }))), React.createElement("div", {
-                      className: "max-w-[750px]"
+                      className: "max-w-[500px]"
                     }, Belt_Option.mapWithDefault(selectedGenus, null, (function (param) {
                             var species = param[1];
                             var genusId = param[0];
