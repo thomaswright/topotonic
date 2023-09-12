@@ -199,7 +199,7 @@ module Key = {
   let make = (~selected, ~onClick, ~children) => {
     <div
       className={[
-        selected ? "bg-blue-300 border-blue-500" : "bg-slate-100 border-slate-400",
+        selected ? "bg-blue-300 border-blue-500" : "bg-plain-100 border-plain-400",
         "col-span-1 rounded p-1 px-2 border text-center",
       ]->join}
       onClick={onClick}>
@@ -240,20 +240,18 @@ module Species = {
       })
     })
 
-    let speciesNames = speciesNameData->reactMap(((sId, sNames, _)) => {
-      <span
-        key={switch sId {
-        | Bits(s) => s
-        | Steps(s) => s
-        }}>
-        {sNames
+    let speciesNames =
+      speciesNameData
+      ->Array.map(((_sId, sNames, _)) => {
+        sNames
         ->Array.map(((_tradition, name)) => {
           name
         })
+        ->Array.keep(x => x != "")
         ->Js.Array2.joinWith(", ")
-        ->str}
-      </span>
-    })
+      })
+      ->Array.keep(x => x != "")
+      ->Js.Array2.joinWith(", ")
 
     let numModes =
       speciesDetails.modes
@@ -262,10 +260,10 @@ module Species = {
 
     let numPitchClasses = speciesDetails.modes->Array.length
 
-    let uniqueNumModes = numModes != genusId
+    let _uniqueNumModes = numModes != genusId
     // let uniqueNumPitchClasses = numPitchClasses != Config.bits
 
-    let modesDisplay =
+    let _modesDisplay =
       <span> {`(${numModes->Int.toString}:${numPitchClasses->Int.toString})`->str} </span>
 
     <Collapsed
@@ -277,101 +275,123 @@ module Species = {
         let _speciesIdModeSelected =
           currentBits->Option.mapWithDefault(false, c => c->BitOps.intArrayToString == speciesId)
 
-        <div className={[speciesHidden ? "" : "my-8 border border-plain-500 rounded-t"]->join}>
-          <div
-            className={["flex flex-row "]->join}
-            onClick={_ => {
-              currentBits->Option.mapWithDefault(
-                {
-                  setSpeciesHidden(_ => false)
-                  setCurrentBits(_ => speciesId->BitOps.stringToIntArray->Some)
-                },
-                _ => {
-                  setSpeciesHidden(_ => !speciesHidden ? anySelected : !speciesHidden)
-                  setCurrentBits(_ => anySelected ? None : speciesId->BitOps.stringToIntArray->Some)
-                },
-              )
-            }}>
-            <div
-              className={"flex-none w-10 text-xs px-1 flex flex-row items-center justify-center"}>
-              {speciesId->BitOps.stringToInt->Int.toString->str}
-            </div>
-            <Scale selected={false} currentKey={currentKey} bitString={speciesId} kind={Species} />
-            <div className="flex-1  overflow-x-hidden text-ellipsis whitespace-nowrap px-1">
-              {speciesNames}
-              {uniqueNumModes ? modesDisplay : React.null}
-            </div>
-            <div className="flex-none w-10 px-1">
-              {speciesDetails.isSymmetric ? <Symmetry /> : React.null}
-            </div>
-          </div>
+        // TODO:
+        // {uniqueNumModes ? modesDisplay : React.null}
+
+        let scaleName = speciesId->BitOps.stringToInt->Int.toString
+
+        <div className={[speciesHidden ? "" : "mb-8 pt-4"]->join}>
           {speciesHidden
-            ? React.null
-            : <div className={["mt-2 border-y border-plain-500"]->join}>
-                {speciesDetails.modes->reactMapWithIndex((i, (modeId, _rotationDegrees)) => {
-                  let selected =
-                    currentBits->Option.mapWithDefault(false, c =>
-                      c->BitOps.intArrayToString == modeId
-                    )
-
-                  let modeKind =
-                    modeId->BitOps.stringToStringArray->DataGeneration.startsWith1 ? Mode : NonMode
-
-                  <div
-                    onClick={_ => setCurrentBits(_ => modeId->BitOps.stringToIntArray->Some)}
-                    key={modeId}
-                    className={[
-                      "flex flex-row py-px divide-x",
-                      selected ? "font-bold" : "",
-                      switch modeKind {
-                      | Mode => selected ? "text-accent-600 " : "text-plain-700"
-                      | NonMode =>
-                        selected ? "bg-plain-100 text-accent-600" : "bg-plain-100 text-plain-400"
-                      | _ => ""
-                      },
-                    ]->join}>
-                    <div className={"flex-none w-10 text-xs text-center align-middle"}>
-                      {i->Int.toString->str}
-                    </div>
-                    <Scale
-                      selected={selected} currentKey={currentKey} bitString={modeId} kind={modeKind}
-                    />
-                    <div
-                      className={"flex-1 overflow-x-hidden text-ellipsis whitespace-nowrap px-1"}>
-                      {speciesNameData
-                      ->Array.keepMap(((_, _, modes)) => {
-                        modes->Array.getBy(
-                          ((mId, _)) => {
-                            let match = switch mId {
-                            | Bits(s) => s
-                            | Steps(stepString) => stepString->BitOps.stringToIntArray->stepsToBits
-                            }
-
-                            modeId == match
-                          },
-                        )
-                      })
-                      ->Array.get(0)
-                      ->Option.mapWithDefault([], ((_, modeNames)) =>
-                        modeNames->Array.map(((_, name)) => name)
+            ? <div
+                className={["flex flex-row font-bold"]->join}
+                onClick={_ => {
+                  currentBits->Option.mapWithDefault(
+                    {
+                      setSpeciesHidden(_ => false)
+                      setCurrentBits(_ => speciesId->BitOps.stringToIntArray->Some)
+                    },
+                    _ => {
+                      setSpeciesHidden(_ => !speciesHidden ? anySelected : !speciesHidden)
+                      setCurrentBits(_ =>
+                        anySelected ? None : speciesId->BitOps.stringToIntArray->Some
                       )
-                      ->Js.Array2.joinWith(", ")
-                      ->str}
-                    </div>
-                    <div className="flex-none w-10">
-                      {speciesDetails.autoCorrelations
-                      ->Array.get(i)
-                      ->Option.mapWithDefault(React.null, x => {
-                        <div
-                          key={i->Int.toString ++ "auto-correlation"}
-                          className={["text-center align-middle font-bold text-plain-700 "]->join}>
-                          {x->str}
-                        </div>
-                      })}
-                    </div>
+                    },
+                  )
+                }}>
+                <Scale
+                  selected={false} currentKey={currentKey} bitString={speciesId} kind={Species}
+                />
+                <div
+                  className="hidden md:block flex-1 overflow-x-hidden text-ellipsis whitespace-nowrap px-1">
+                  {speciesNames->str}
+                </div>
+                <div className="hidden md:block flex-none w-10 px-1">
+                  {speciesDetails.isSymmetric ? <Symmetry /> : React.null}
+                </div>
+              </div>
+            : <>
+                <div
+                  onClick={_ => {
+                    setSpeciesHidden(_ => true)
+                  }}>
+                  <div
+                    className={"flex-none text-lg font-bold p-2 flex flex-row items-center justify-center"}>
+                    {speciesNames->String.length > 0
+                      ? `Scale ${scaleName}, The ${speciesNames}`->str
+                      : `Scale ${scaleName}`->str}
                   </div>
-                })}
-              </div>}
+                </div>
+                <div className={["mt-2 border-y border-plain-500"]->join}>
+                  {speciesDetails.modes->reactMapWithIndex((i, (modeId, _rotationDegrees)) => {
+                    let selected =
+                      currentBits->Option.mapWithDefault(false, c =>
+                        c->BitOps.intArrayToString == modeId
+                      )
+
+                    let modeKind =
+                      modeId->BitOps.stringToStringArray->DataGeneration.startsWith1
+                        ? Mode
+                        : NonMode
+
+                    <div
+                      onClick={_ => setCurrentBits(_ => modeId->BitOps.stringToIntArray->Some)}
+                      key={modeId}
+                      className={[
+                        "flex flex-row py-px divide-x",
+                        selected ? "font-bold" : "",
+                        switch modeKind {
+                        | Mode => selected ? "text-accent-600 " : "text-plain-700"
+                        | NonMode =>
+                          selected ? "bg-plain-100 text-accent-600" : "bg-plain-100 text-plain-400"
+                        | _ => ""
+                        },
+                      ]->join}>
+                      <Scale
+                        selected={selected}
+                        currentKey={currentKey}
+                        bitString={modeId}
+                        kind={modeKind}
+                      />
+                      <div
+                        className={"hidden md:block  flex-1 overflow-x-hidden text-ellipsis whitespace-nowrap px-1"}>
+                        {speciesNameData
+                        ->Array.keepMap(((_, _, modes)) => {
+                          modes->Array.getBy(
+                            ((mId, _)) => {
+                              let match = switch mId {
+                              | Bits(s) => s
+                              | Steps(stepString) =>
+                                stepString->BitOps.stringToIntArray->stepsToBits
+                              }
+
+                              modeId == match
+                            },
+                          )
+                        })
+                        ->Array.get(0)
+                        ->Option.mapWithDefault([], ((_, modeNames)) =>
+                          modeNames->Array.map(((_, name)) => name)
+                        )
+                        ->Js.Array2.joinWith(", ")
+                        ->str}
+                      </div>
+                      <div className="hidden md:block  flex-none w-10">
+                        {speciesDetails.autoCorrelations
+                        ->Array.get(i)
+                        ->Option.mapWithDefault(React.null, x => {
+                          <div
+                            key={i->Int.toString ++ "auto-correlation"}
+                            className={[
+                              "text-center align-middle font-bold text-plain-700 ",
+                            ]->join}>
+                            {x->str}
+                          </div>
+                        })}
+                      </div>
+                    </div>
+                  })}
+                </div>
+              </>}
         </div>
       }}
     />
@@ -431,7 +451,6 @@ let make = () => {
       <div className={"w-full self-center"}>
         <SVG data={Array.zip(graphKeys, graphBits)} />
       </div>
-      // <div className="overflow-scroll max-h-40 md:max-h-min ">
       <div className="w-full text-center pb-2 pt-3 font-medium"> {"Keys"->str} </div>
       <div className={"grid grid-cols-4 gap-2 w-full"}>
         {pitchKeys->reactMapWithIndex((i, v) => {
@@ -482,7 +501,6 @@ let make = () => {
           {"Binary"->str}
         </Key>
       </div>
-      // </div>
     </div>
     <div className="flex-1 md:flex-1 h-full overflow-scroll xs:px-2">
       <Collapsed
@@ -501,10 +519,18 @@ let make = () => {
           </div>
         }}
       />
+      <div className=" py-3 text-lg font-medium flex flex-row items-center ">
+        {"Select the number of notes"->str}
+      </div>
       <div className="flex flex-row overflow-x-scroll gap-2">
-        {Array.range(0, DataGeneration.Config.bits)->reactMap(num => {
+        {Array.range(1, DataGeneration.Config.bits)->reactMap(num => {
           <div
-            className="p-1 px-2 bg-slate-100 border border-slate-400 rounded"
+            className={[
+              "p-1 px-2 border rounded",
+              selectedGenus->Option.mapWithDefault(false, ((i, _)) => num == i)
+                ? "bg-primary-300 border-primary-500"
+                : "bg-plain-00 border-plain-400",
+            ]->join}
             onClick={_ =>
               setSelectedGenus(_ =>
                 result
@@ -521,14 +547,13 @@ let make = () => {
       </div>
       {selectedGenus->Option.mapWithDefault(React.null, ((genusId, species)) => {
         <div className={"mb-1"}>
-          <div className="flex flex-row items-center px-4 ">
-            <div className="min-w-[50px] text-2xl font-black"> {genusId->Int.toString->str} </div>
-            <div className=" text-sm font-bold whitespace-nowrap">
-              {species->Map.String.toArray->Array.length->Int.toString->str}
-              {" species"->str}
-            </div>
+          <div className="flex flex-row items-center py-4 font-medium text-lg ">
+            {`There are ${species
+              ->Map.String.toArray
+              ->Array.length
+              ->Int.toString} possible scales of ${genusId->Int.toString} notes`->str}
           </div>
-          <div className={["divide-y divide-slate-500"]->join}>
+          <div className={[""]->join}>
             {species
             ->Map.String.toArray
             ->reactMap(((speciesId, speciesDetails)) =>

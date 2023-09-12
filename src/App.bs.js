@@ -313,7 +313,7 @@ function App$Key(Props) {
   var children = Props.children;
   return React.createElement("div", {
               className: [
-                  selected ? "bg-blue-300 border-blue-500" : "bg-slate-100 border-slate-400",
+                  selected ? "bg-blue-300 border-blue-500" : "bg-plain-100 border-plain-400",
                   "col-span-1 rounded p-1 px-2 border text-center"
                 ].join(" "),
               onClick: onClick
@@ -325,7 +325,6 @@ var Key = {
 };
 
 function App$Species(Props) {
-  var genusId = Props.genusId;
   var currentBits = Props.currentBits;
   var setCurrentBits = Props.setCurrentBits;
   var currentKey = Props.currentKey;
@@ -347,19 +346,20 @@ function App$Species(Props) {
                         return DataGeneration.BitOps.stringArrayToString(x) === speciesId;
                       }));
         }));
-  var speciesNames = Belt_Array.map(speciesNameData, (function (param) {
-          return React.createElement("span", {
-                      key: param[0]._0
-                    }, Belt_Array.map(param[1], (function (param) {
-                              return param[1];
-                            })).join(", "));
-        }));
+  var speciesNames = Belt_Array.keep(Belt_Array.map(speciesNameData, (function (param) {
+                return Belt_Array.keep(Belt_Array.map(param[1], (function (param) {
+                                    return param[1];
+                                  })), (function (x) {
+                                return x !== "";
+                              })).join(", ");
+              })), (function (x) {
+            return x !== "";
+          })).join(", ");
   var numModes = Belt_Array.keep(speciesDetails.modes, (function (param) {
           return DataGeneration.startsWith1(DataGeneration.BitOps.stringToStringArray(param[0]));
         })).length;
   var numPitchClasses = speciesDetails.modes.length;
-  var uniqueNumModes = numModes !== genusId;
-  var modesDisplay = React.createElement("span", undefined, "(" + String(numModes) + ":" + String(numPitchClasses) + ")");
+  React.createElement("span", undefined, "(" + String(numModes) + ":" + String(numPitchClasses) + ")");
   return React.createElement(App$Collapsed, {
               render: (function (speciesHidden, setSpeciesHidden) {
                   var anySelected = DataGeneration.any(speciesDetails.modes, (function (param) {
@@ -371,105 +371,110 @@ function App$Species(Props) {
                   Belt_Option.mapWithDefault(currentBits, false, (function (c) {
                           return DataGeneration.BitOps.intArrayToString(c) === speciesId;
                         }));
+                  var scaleName = String(DataGeneration.BitOps.stringToInt(speciesId));
                   return React.createElement("div", {
-                              className: [speciesHidden ? "" : "my-8 border border-plain-500 rounded-t"].join(" ")
-                            }, React.createElement("div", {
-                                  className: ["flex flex-row "].join(" "),
-                                  onClick: (function (param) {
-                                      Belt_Option.mapWithDefault(currentBits, (Curry._1(setSpeciesHidden, (function (param) {
-                                                    return false;
-                                                  })), Curry._1(setCurrentBits, (function (param) {
-                                                    return DataGeneration.BitOps.stringToIntArray(speciesId);
-                                                  }))), (function (param) {
-                                              Curry._1(setSpeciesHidden, (function (param) {
-                                                      if (speciesHidden) {
-                                                        return !speciesHidden;
-                                                      } else {
-                                                        return anySelected;
-                                                      }
+                              className: [speciesHidden ? "" : "mb-8 pt-4"].join(" ")
+                            }, speciesHidden ? React.createElement("div", {
+                                    className: ["flex flex-row font-bold"].join(" "),
+                                    onClick: (function (param) {
+                                        Belt_Option.mapWithDefault(currentBits, (Curry._1(setSpeciesHidden, (function (param) {
+                                                      return false;
+                                                    })), Curry._1(setCurrentBits, (function (param) {
+                                                      return DataGeneration.BitOps.stringToIntArray(speciesId);
+                                                    }))), (function (param) {
+                                                Curry._1(setSpeciesHidden, (function (param) {
+                                                        if (speciesHidden) {
+                                                          return !speciesHidden;
+                                                        } else {
+                                                          return anySelected;
+                                                        }
+                                                      }));
+                                                Curry._1(setCurrentBits, (function (param) {
+                                                        if (anySelected) {
+                                                          return ;
+                                                        } else {
+                                                          return DataGeneration.BitOps.stringToIntArray(speciesId);
+                                                        }
+                                                      }));
+                                              }));
+                                      })
+                                  }, React.createElement(App$Scale, {
+                                        bitString: speciesId,
+                                        currentKey: currentKey,
+                                        kind: /* Species */0,
+                                        selected: false
+                                      }), React.createElement("div", {
+                                        className: "hidden md:block flex-1 overflow-x-hidden text-ellipsis whitespace-nowrap px-1"
+                                      }, speciesNames), React.createElement("div", {
+                                        className: "hidden md:block flex-none w-10 px-1"
+                                      }, speciesDetails.isSymmetric ? React.createElement(Bs.BsSymmetryVertical, {}) : null)) : React.createElement(React.Fragment, undefined, React.createElement("div", {
+                                        onClick: (function (param) {
+                                            Curry._1(setSpeciesHidden, (function (param) {
+                                                    return true;
+                                                  }));
+                                          })
+                                      }, React.createElement("div", {
+                                            className: "flex-none text-lg font-bold p-2 flex flex-row items-center justify-center"
+                                          }, speciesNames.length !== 0 ? "Scale " + scaleName + ", The " + speciesNames + "" : "Scale " + scaleName + "")), React.createElement("div", {
+                                        className: ["mt-2 border-y border-plain-500"].join(" ")
+                                      }, Belt_Array.mapWithIndex(speciesDetails.modes, (function (i, param) {
+                                              var modeId = param[0];
+                                              var selected = Belt_Option.mapWithDefault(currentBits, false, (function (c) {
+                                                      return DataGeneration.BitOps.intArrayToString(c) === modeId;
                                                     }));
-                                              Curry._1(setCurrentBits, (function (param) {
-                                                      if (anySelected) {
-                                                        return ;
-                                                      } else {
-                                                        return DataGeneration.BitOps.stringToIntArray(speciesId);
-                                                      }
-                                                    }));
-                                            }));
-                                    })
-                                }, React.createElement("div", {
-                                      className: "flex-none w-10 text-xs px-1 flex flex-row items-center justify-center"
-                                    }, String(DataGeneration.BitOps.stringToInt(speciesId))), React.createElement(App$Scale, {
-                                      bitString: speciesId,
-                                      currentKey: currentKey,
-                                      kind: /* Species */0,
-                                      selected: false
-                                    }), React.createElement("div", {
-                                      className: "flex-1  overflow-x-hidden text-ellipsis whitespace-nowrap px-1"
-                                    }, speciesNames, uniqueNumModes ? modesDisplay : null), React.createElement("div", {
-                                      className: "flex-none w-10 px-1"
-                                    }, speciesDetails.isSymmetric ? React.createElement(Bs.BsSymmetryVertical, {}) : null)), speciesHidden ? null : React.createElement("div", {
-                                    className: ["mt-2 border-y border-plain-500"].join(" ")
-                                  }, Belt_Array.mapWithIndex(speciesDetails.modes, (function (i, param) {
-                                          var modeId = param[0];
-                                          var selected = Belt_Option.mapWithDefault(currentBits, false, (function (c) {
-                                                  return DataGeneration.BitOps.intArrayToString(c) === modeId;
-                                                }));
-                                          var modeKind = DataGeneration.startsWith1(DataGeneration.BitOps.stringToStringArray(modeId)) ? /* Mode */1 : /* NonMode */2;
-                                          var tmp;
-                                          switch (modeKind) {
-                                            case /* Species */0 :
-                                                tmp = "";
-                                                break;
-                                            case /* Mode */1 :
-                                                tmp = selected ? "text-accent-600 " : "text-plain-700";
-                                                break;
-                                            case /* NonMode */2 :
-                                                tmp = selected ? "bg-plain-100 text-accent-600" : "bg-plain-100 text-plain-400";
-                                                break;
-                                            
-                                          }
-                                          return React.createElement("div", {
-                                                      key: modeId,
-                                                      className: [
-                                                          "flex flex-row py-px divide-x",
-                                                          selected ? "font-bold" : "",
-                                                          tmp
-                                                        ].join(" "),
-                                                      onClick: (function (param) {
-                                                          Curry._1(setCurrentBits, (function (param) {
-                                                                  return DataGeneration.BitOps.stringToIntArray(modeId);
-                                                                }));
-                                                        })
-                                                    }, React.createElement("div", {
-                                                          className: "flex-none w-10 text-xs text-center align-middle"
-                                                        }, String(i)), React.createElement(App$Scale, {
-                                                          bitString: modeId,
-                                                          currentKey: currentKey,
-                                                          kind: modeKind,
-                                                          selected: selected
-                                                        }), React.createElement("div", {
-                                                          className: "flex-1 overflow-x-hidden text-ellipsis whitespace-nowrap px-1"
-                                                        }, Belt_Option.mapWithDefault(Belt_Array.get(Belt_Array.keepMap(speciesNameData, (function (param) {
-                                                                          return Belt_Array.getBy(param[2], (function (param) {
-                                                                                        var mId = param[0];
-                                                                                        var match;
-                                                                                        match = mId.TAG === /* Bits */0 ? mId._0 : stepsToBits(DataGeneration.BitOps.stringToIntArray(mId._0));
-                                                                                        return modeId === match;
-                                                                                      }));
-                                                                        })), 0), [], (function (param) {
-                                                                  return Belt_Array.map(param[1], (function (param) {
-                                                                                return param[1];
-                                                                              }));
-                                                                })).join(", ")), React.createElement("div", {
-                                                          className: "flex-none w-10"
-                                                        }, Belt_Option.mapWithDefault(Belt_Array.get(speciesDetails.autoCorrelations, i), null, (function (x) {
-                                                                return React.createElement("div", {
-                                                                            key: String(i) + "auto-correlation",
-                                                                            className: ["text-center align-middle font-bold text-plain-700 "].join(" ")
-                                                                          }, x);
-                                                              }))));
-                                        }))));
+                                              var modeKind = DataGeneration.startsWith1(DataGeneration.BitOps.stringToStringArray(modeId)) ? /* Mode */1 : /* NonMode */2;
+                                              var tmp;
+                                              switch (modeKind) {
+                                                case /* Species */0 :
+                                                    tmp = "";
+                                                    break;
+                                                case /* Mode */1 :
+                                                    tmp = selected ? "text-accent-600 " : "text-plain-700";
+                                                    break;
+                                                case /* NonMode */2 :
+                                                    tmp = selected ? "bg-plain-100 text-accent-600" : "bg-plain-100 text-plain-400";
+                                                    break;
+                                                
+                                              }
+                                              return React.createElement("div", {
+                                                          key: modeId,
+                                                          className: [
+                                                              "flex flex-row py-px divide-x",
+                                                              selected ? "font-bold" : "",
+                                                              tmp
+                                                            ].join(" "),
+                                                          onClick: (function (param) {
+                                                              Curry._1(setCurrentBits, (function (param) {
+                                                                      return DataGeneration.BitOps.stringToIntArray(modeId);
+                                                                    }));
+                                                            })
+                                                        }, React.createElement(App$Scale, {
+                                                              bitString: modeId,
+                                                              currentKey: currentKey,
+                                                              kind: modeKind,
+                                                              selected: selected
+                                                            }), React.createElement("div", {
+                                                              className: "hidden md:block  flex-1 overflow-x-hidden text-ellipsis whitespace-nowrap px-1"
+                                                            }, Belt_Option.mapWithDefault(Belt_Array.get(Belt_Array.keepMap(speciesNameData, (function (param) {
+                                                                              return Belt_Array.getBy(param[2], (function (param) {
+                                                                                            var mId = param[0];
+                                                                                            var match;
+                                                                                            match = mId.TAG === /* Bits */0 ? mId._0 : stepsToBits(DataGeneration.BitOps.stringToIntArray(mId._0));
+                                                                                            return modeId === match;
+                                                                                          }));
+                                                                            })), 0), [], (function (param) {
+                                                                      return Belt_Array.map(param[1], (function (param) {
+                                                                                    return param[1];
+                                                                                  }));
+                                                                    })).join(", ")), React.createElement("div", {
+                                                              className: "hidden md:block  flex-none w-10"
+                                                            }, Belt_Option.mapWithDefault(Belt_Array.get(speciesDetails.autoCorrelations, i), null, (function (x) {
+                                                                    return React.createElement("div", {
+                                                                                key: String(i) + "auto-correlation",
+                                                                                className: ["text-center align-middle font-bold text-plain-700 "].join(" ")
+                                                                              }, x);
+                                                                  }))));
+                                            })))));
                 })
             });
 }
@@ -510,6 +515,7 @@ function App(Props) {
         
       });
   var setSelectedGenus = match$1[1];
+  var selectedGenus = match$1[0];
   var match$2 = React.useState(function () {
         return /* Pitch */{
                 _0: 0
@@ -641,10 +647,17 @@ function App(Props) {
                                         }, React.createElement(make$2, {})));
                         })
                     }), React.createElement("div", {
+                      className: " py-3 text-lg font-medium flex flex-row items-center "
+                    }, "Select the number of notes"), React.createElement("div", {
                       className: "flex flex-row overflow-x-scroll gap-2"
-                    }, Belt_Array.map(Belt_Array.range(0, DataGeneration.Config.bits), (function (num) {
+                    }, Belt_Array.map(Belt_Array.range(1, DataGeneration.Config.bits), (function (num) {
                             return React.createElement("div", {
-                                        className: "p-1 px-2 bg-slate-100 border border-slate-400 rounded",
+                                        className: [
+                                            "p-1 px-2 border rounded",
+                                            Belt_Option.mapWithDefault(selectedGenus, false, (function (param) {
+                                                    return num === param[0];
+                                                  })) ? "bg-primary-300 border-primary-500" : "bg-plain-00 border-plain-400"
+                                          ].join(" "),
                                         onClick: (function (param) {
                                             Curry._1(setSelectedGenus, (function (param) {
                                                     return Belt_Option.flatMap(Belt_Array.get(Belt_MapInt.keysToArray(DataGeneration.result), num), (function (genusId) {
@@ -658,19 +671,15 @@ function App(Props) {
                                                   }));
                                           })
                                       }, String(num));
-                          }))), Belt_Option.mapWithDefault(match$1[0], null, (function (param) {
+                          }))), Belt_Option.mapWithDefault(selectedGenus, null, (function (param) {
                         var species = param[1];
                         var genusId = param[0];
                         return React.createElement("div", {
                                     className: "mb-1"
                                   }, React.createElement("div", {
-                                        className: "flex flex-row items-center px-4 "
-                                      }, React.createElement("div", {
-                                            className: "min-w-[50px] text-2xl font-black"
-                                          }, String(genusId)), React.createElement("div", {
-                                            className: " text-sm font-bold whitespace-nowrap"
-                                          }, String(Belt_MapString.toArray(species).length), " species")), React.createElement("div", {
-                                        className: ["divide-y divide-slate-500"].join(" ")
+                                        className: "flex flex-row items-center py-4 font-medium text-lg "
+                                      }, "There are " + String(Belt_MapString.toArray(species).length) + " possible scales of " + String(genusId) + " notes"), React.createElement("div", {
+                                        className: [""].join(" ")
                                       }, Belt_Array.map(Belt_MapString.toArray(species), (function (param) {
                                               var speciesId = param[0];
                                               return React.createElement(App$Species, {

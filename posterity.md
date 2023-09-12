@@ -26,3 +26,22 @@ let makeKey = ((k, s)) =>
     {s->str}
   </Key>
 ```
+
+```res
+
+let speciesNames = speciesNameData->reactMap(((sId, sNames, _)) => {
+  <span
+    key={switch sId {
+    | Bits(s) => s
+    | Steps(s) => s
+    }}>
+    {sNames
+    ->Array.map(((_tradition, name)) => {
+      name
+    })
+    ->Js.Array2.joinWith(", ")
+    ->str}
+  </span>
+})
+
+```
