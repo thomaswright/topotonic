@@ -124,16 +124,17 @@ export const SVG = ({ data }) => {
   let order = data.length;
   let boxSize = 100;
   let orderDegree = 360 / order;
+  let translate = 10;
 
   let center = {
     x: boxSize / 2,
-    y: boxSize / 2,
+    y: boxSize / 2 - translate,
   };
 
   let radius = boxSize / 3.5;
 
   return (
-    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <svg viewBox="0 0 100 80" xmlns="http://www.w3.org/2000/svg">
       <circle
         cx={center.x}
         cy={center.y}

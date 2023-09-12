@@ -123,6 +123,20 @@ let bitToDisplaySymbol = (bit, index, currentKey) => {
 }
 // `•`
 
+module Key = {
+  @react.component
+  let make = (~selected, ~onClick, ~children) => {
+    <div
+      className={[
+        selected ? "bg-blue-300 border-blue-500" : "bg-plain-100 border-plain-400",
+        "col-span-1 rounded p-1 px-2 border text-center",
+      ]->join}
+      onClick={onClick}>
+      {children}
+    </div>
+  }
+}
+
 module Scale = {
   @react.component
   let make = (~bitString, ~currentKey: option<key>, ~kind: kind, ~selected as _: bool) => {
@@ -153,7 +167,7 @@ module Scale = {
       <div
         key={i->Int.toString}
         className={[
-          "col-span-1 w-7 flex flex-row items-center justify-center",
+          "col-span-1 flex flex-row items-center justify-center min-w-[1.5rem]",
           "",
           switch kind {
           | Species => " "
@@ -164,7 +178,7 @@ module Scale = {
         {content}
       </div>
 
-    <div className={["flex-none grid divide-x", gridCols]->join}>
+    <div className={["flex-1 grid", gridCols]->join}>
       {switch currentKey {
       | Some(SemitoneSteps) =>
         bitString
@@ -194,19 +208,19 @@ module Scale = {
   }
 }
 
-module Key = {
-  @react.component
-  let make = (~selected, ~onClick, ~children) => {
-    <div
-      className={[
-        selected ? "bg-blue-300 border-blue-500" : "bg-plain-100 border-plain-400",
-        "col-span-1 rounded p-1 px-2 border text-center",
-      ]->join}
-      onClick={onClick}>
-      {children}
-    </div>
-  }
-}
+// <div className="hidden md:block  flex-none w-10">
+//   {speciesDetails.autoCorrelations
+//   ->Array.get(i)
+//   ->Option.mapWithDefault(React.null, x => {
+//     <div
+//       key={i->Int.toString ++ "auto-correlation"}
+//       className={[
+//         "text-center align-middle font-bold text-plain-700 ",
+//       ]->join}>
+//       {x->str}
+//     </div>
+//   })}
+// </div>
 
 module Species = {
   @react.component
@@ -280,10 +294,10 @@ module Species = {
 
         let scaleName = speciesId->BitOps.stringToInt->Int.toString
 
-        <div className={[speciesHidden ? "" : "mb-8 pt-4"]->join}>
+        <div className={[" py-2 border-b"]->join}>
           {speciesHidden
             ? <div
-                className={["flex flex-row font-bold md:justify-start justify-center"]->join}
+                className={[""]->join}
                 onClick={_ => {
                   currentBits->Option.mapWithDefault(
                     {
@@ -298,30 +312,42 @@ module Species = {
                     },
                   )
                 }}>
-                <Scale
-                  selected={false} currentKey={currentKey} bitString={speciesId} kind={Species}
-                />
-                <div
-                  className="hidden md:block flex-1 overflow-x-hidden text-ellipsis whitespace-nowrap px-1">
-                  {speciesNames->str}
-                </div>
-                <div className="hidden md:block flex-none w-10 px-1">
-                  {speciesDetails.isSymmetric ? <Symmetry /> : React.null}
+                {speciesNames == ""
+                  ? React.null
+                  : <div className="flex flex-row justify-center items-center pb-1">
+                      <div
+                        className="flex-none overflow-x-hidden text-ellipsis whitespace-nowrap px-1">
+                        {speciesNames->str}
+                      </div>
+                    </div>}
+                <div className="flex flex-row">
+                  <Scale
+                    selected={false} currentKey={currentKey} bitString={speciesId} kind={Species}
+                  />
+                  <div className=" flex-none flex flex-row items-center justify-center w-10 px-1">
+                    {speciesDetails.isSymmetric ? <Symmetry /> : React.null}
+                  </div>
                 </div>
               </div>
-            : <>
+            : <div>
                 <div
+                  className=""
                   onClick={_ => {
                     setSpeciesHidden(_ => true)
                   }}>
-                  <div
-                    className={"flex-none text-lg font-bold p-2 flex flex-row items-center justify-center"}>
-                    {speciesNames->String.length > 0
-                      ? `Scale ${scaleName}, The ${speciesNames}`->str
-                      : `Scale ${scaleName}`->str}
+                  <div className={"flex-none font-bold flex flex-row items-center justify-center"}>
+                    {speciesNames->str}
+                  </div>
+                  <div className={"flex flex-row items-center justify-center gap-2"}>
+                    <div className="flex-none">
+                      {speciesDetails.isSymmetric ? <Symmetry /> : React.null}
+                    </div>
+                    <div className="flex-none text-sm font-medium tracking-wide ">
+                      {`SCALE ${scaleName}`->str}
+                    </div>
                   </div>
                 </div>
-                <div className={["mt-2 border-y border-plain-500"]->join}>
+                <div className={["mt-1 mb-4 border-y border-plain-500"]->join}>
                   {speciesDetails.modes->reactMapWithIndex((i, (modeId, _rotationDegrees)) => {
                     let selected =
                       currentBits->Option.mapWithDefault(false, c =>
@@ -375,23 +401,10 @@ module Species = {
                         ->Js.Array2.joinWith(", ")
                         ->str}
                       </div>
-                      <div className="hidden md:block  flex-none w-10">
-                        {speciesDetails.autoCorrelations
-                        ->Array.get(i)
-                        ->Option.mapWithDefault(React.null, x => {
-                          <div
-                            key={i->Int.toString ++ "auto-correlation"}
-                            className={[
-                              "text-center align-middle font-bold text-plain-700 ",
-                            ]->join}>
-                            {x->str}
-                          </div>
-                        })}
-                      </div>
                     </div>
                   })}
                 </div>
-              </>}
+              </div>}
         </div>
       }}
     />
@@ -451,6 +464,9 @@ let make = () => {
       <div className="md:max-h-min  max-w-[500px] w-full">
         <div className={"w-full self-center"}>
           <SVG data={Array.zip(graphKeys, graphBits)} />
+        </div>
+        <div className="w-full text-lg text-center p-2 font-bold text-accent-600">
+          {"Scale Name"->str}
         </div>
         <div className="w-full text-center pb-2 pt-3 font-medium"> {"Keys"->str} </div>
         <div className={"grid grid-cols-4 gap-2 w-full"}>

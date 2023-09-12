@@ -199,6 +199,23 @@ function bitToDisplaySymbol(bit, index, currentKey) {
   }
 }
 
+function App$Key(Props) {
+  var selected = Props.selected;
+  var onClick = Props.onClick;
+  var children = Props.children;
+  return React.createElement("div", {
+              className: [
+                  selected ? "bg-blue-300 border-blue-500" : "bg-plain-100 border-plain-400",
+                  "col-span-1 rounded p-1 px-2 border text-center"
+                ].join(" "),
+              onClick: onClick
+            }, children);
+}
+
+var Key = {
+  make: App$Key
+};
+
 function App$Scale(Props) {
   var bitString = Props.bitString;
   var currentKey = Props.currentKey;
@@ -267,7 +284,7 @@ function App$Scale(Props) {
     return React.createElement("div", {
                 key: String(i),
                 className: [
-                    "col-span-1 w-7 flex flex-row items-center justify-center",
+                    "col-span-1 flex flex-row items-center justify-center min-w-[1.5rem]",
                     "",
                     tmp
                   ].join(" ")
@@ -297,7 +314,7 @@ function App$Scale(Props) {
   }
   return React.createElement("div", {
               className: [
-                  "flex-none grid divide-x",
+                  "flex-1 grid",
                   gridCols
                 ].join(" ")
             }, tmp);
@@ -305,23 +322,6 @@ function App$Scale(Props) {
 
 var Scale = {
   make: App$Scale
-};
-
-function App$Key(Props) {
-  var selected = Props.selected;
-  var onClick = Props.onClick;
-  var children = Props.children;
-  return React.createElement("div", {
-              className: [
-                  selected ? "bg-blue-300 border-blue-500" : "bg-plain-100 border-plain-400",
-                  "col-span-1 rounded p-1 px-2 border text-center"
-                ].join(" "),
-              onClick: onClick
-            }, children);
-}
-
-var Key = {
-  make: App$Key
 };
 
 function App$Species(Props) {
@@ -373,9 +373,9 @@ function App$Species(Props) {
                         }));
                   var scaleName = String(DataGeneration.BitOps.stringToInt(speciesId));
                   return React.createElement("div", {
-                              className: [speciesHidden ? "" : "mb-8 pt-4"].join(" ")
+                              className: [" py-2 border-b"].join(" ")
                             }, speciesHidden ? React.createElement("div", {
-                                    className: ["flex flex-row font-bold md:justify-start justify-center"].join(" "),
+                                    className: [""].join(" "),
                                     onClick: (function (param) {
                                         Belt_Option.mapWithDefault(currentBits, (Curry._1(setSpeciesHidden, (function (param) {
                                                       return false;
@@ -398,25 +398,36 @@ function App$Species(Props) {
                                                       }));
                                               }));
                                       })
-                                  }, React.createElement(App$Scale, {
-                                        bitString: speciesId,
-                                        currentKey: currentKey,
-                                        kind: /* Species */0,
-                                        selected: false
-                                      }), React.createElement("div", {
-                                        className: "hidden md:block flex-1 overflow-x-hidden text-ellipsis whitespace-nowrap px-1"
-                                      }, speciesNames), React.createElement("div", {
-                                        className: "hidden md:block flex-none w-10 px-1"
-                                      }, speciesDetails.isSymmetric ? React.createElement(Bs.BsSymmetryVertical, {}) : null)) : React.createElement(React.Fragment, undefined, React.createElement("div", {
+                                  }, speciesNames === "" ? null : React.createElement("div", {
+                                          className: "flex flex-row justify-center items-center pb-1"
+                                        }, React.createElement("div", {
+                                              className: "flex-none overflow-x-hidden text-ellipsis whitespace-nowrap px-1"
+                                            }, speciesNames)), React.createElement("div", {
+                                        className: "flex flex-row"
+                                      }, React.createElement(App$Scale, {
+                                            bitString: speciesId,
+                                            currentKey: currentKey,
+                                            kind: /* Species */0,
+                                            selected: false
+                                          }), React.createElement("div", {
+                                            className: " flex-none flex flex-row items-center justify-center w-10 px-1"
+                                          }, speciesDetails.isSymmetric ? React.createElement(Bs.BsSymmetryVertical, {}) : null))) : React.createElement("div", undefined, React.createElement("div", {
+                                        className: "",
                                         onClick: (function (param) {
                                             Curry._1(setSpeciesHidden, (function (param) {
                                                     return true;
                                                   }));
                                           })
                                       }, React.createElement("div", {
-                                            className: "flex-none text-lg font-bold p-2 flex flex-row items-center justify-center"
-                                          }, speciesNames.length !== 0 ? "Scale " + scaleName + ", The " + speciesNames + "" : "Scale " + scaleName + "")), React.createElement("div", {
-                                        className: ["mt-2 border-y border-plain-500"].join(" ")
+                                            className: "flex-none font-bold flex flex-row items-center justify-center"
+                                          }, speciesNames), React.createElement("div", {
+                                            className: "flex flex-row items-center justify-center gap-2"
+                                          }, React.createElement("div", {
+                                                className: "flex-none"
+                                              }, speciesDetails.isSymmetric ? React.createElement(Bs.BsSymmetryVertical, {}) : null), React.createElement("div", {
+                                                className: "flex-none text-sm font-medium tracking-wide "
+                                              }, "SCALE " + scaleName + ""))), React.createElement("div", {
+                                        className: ["mt-1 mb-4 border-y border-plain-500"].join(" ")
                                       }, Belt_Array.mapWithIndex(speciesDetails.modes, (function (i, param) {
                                               var modeId = param[0];
                                               var selected = Belt_Option.mapWithDefault(currentBits, false, (function (c) {
@@ -466,14 +477,7 @@ function App$Species(Props) {
                                                                       return Belt_Array.map(param[1], (function (param) {
                                                                                     return param[1];
                                                                                   }));
-                                                                    })).join(", ")), React.createElement("div", {
-                                                              className: "hidden md:block  flex-none w-10"
-                                                            }, Belt_Option.mapWithDefault(Belt_Array.get(speciesDetails.autoCorrelations, i), null, (function (x) {
-                                                                    return React.createElement("div", {
-                                                                                key: String(i) + "auto-correlation",
-                                                                                className: ["text-center align-middle font-bold text-plain-700 "].join(" ")
-                                                                              }, x);
-                                                                  }))));
+                                                                    })).join(", ")));
                                             })))));
                 })
             });
@@ -546,6 +550,8 @@ function App(Props) {
                         }, React.createElement(make$1, {
                               data: Belt_Array.zip(graphKeys, graphBits)
                             })), React.createElement("div", {
+                          className: "w-full text-lg text-center p-2 font-bold text-accent-600"
+                        }, "Scale Name"), React.createElement("div", {
                           className: "w-full text-center pb-2 pt-3 font-medium"
                         }, "Keys"), React.createElement("div", {
                           className: "grid grid-cols-4 gap-2 w-full"
@@ -728,8 +734,8 @@ export {
   bitsToSemitoneSteps ,
   bitsToHalfnoteSteps ,
   bitToDisplaySymbol ,
-  Scale ,
   Key ,
+  Scale ,
   Species ,
   PageTitle ,
   About ,
