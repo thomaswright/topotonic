@@ -447,59 +447,61 @@ let make = () => {
 
   <div className={"flex md:flex-row flex-col h-screen w-screen "}>
     <PageTitle />
-    <div className="flex-1 flex flex-col p-2 md:max-h-min md:max-w-[320px] overflow-y-scroll">
-      <div className={"w-full self-center"}>
-        <SVG data={Array.zip(graphKeys, graphBits)} />
-      </div>
-      <div className="w-full text-center pb-2 pt-3 font-medium"> {"Keys"->str} </div>
-      <div className={"grid grid-cols-4 gap-2 w-full"}>
-        {pitchKeys->reactMapWithIndex((i, v) => {
-          let selected = switch currentKey {
-          | Some(Pitch(c)) => c == i
-          | _ => false
-          }
+    <div className="flex-1 flex flex-col p-2  overflow-y-scroll items-center">
+      <div className="md:max-h-min  max-w-[500px] w-full">
+        <div className={"w-full self-center"}>
+          <SVG data={Array.zip(graphKeys, graphBits)} />
+        </div>
+        <div className="w-full text-center pb-2 pt-3 font-medium"> {"Keys"->str} </div>
+        <div className={"grid grid-cols-4 gap-2 w-full"}>
+          {pitchKeys->reactMapWithIndex((i, v) => {
+            let selected = switch currentKey {
+            | Some(Pitch(c)) => c == i
+            | _ => false
+            }
 
-          <Key key={v} selected={selected} onClick={_ => setCurrentKey(_ => Some(Pitch(i)))}>
-            {v->str}
+            <Key key={v} selected={selected} onClick={_ => setCurrentKey(_ => Some(Pitch(i)))}>
+              {v->str}
+            </Key>
+          })}
+        </div>
+        <div className="w-full text-center pb-2 pt-3 font-medium"> {"Intervals"->str} </div>
+        <div className="grid grid-cols-3 gap-2 w-full">
+          <Key
+            selected={currentKey->Option.mapWithDefault(false, x => x == MinMaj)}
+            onClick={_ => setCurrentKey(_ => Some(MinMaj))}>
+            {"Min-Maj"->str}
           </Key>
-        })}
-      </div>
-      <div className="w-full text-center pb-2 pt-3 font-medium"> {"Intervals"->str} </div>
-      <div className="grid grid-cols-3 gap-2 w-full">
-        <Key
-          selected={currentKey->Option.mapWithDefault(false, x => x == MinMaj)}
-          onClick={_ => setCurrentKey(_ => Some(MinMaj))}>
-          {"Min-Maj"->str}
-        </Key>
-        <Key
-          selected={currentKey->Option.mapWithDefault(false, x => x == DimAug)}
-          onClick={_ => setCurrentKey(_ => Some(DimAug))}>
-          {"Dim-Aug"->str}
-        </Key>
-        <Key
-          selected={currentKey->Option.mapWithDefault(false, x => x == Semitone)}
-          onClick={_ => setCurrentKey(_ => Some(Semitone))}>
-          {"Semitone"->str}
-        </Key>
-      </div>
-      <div className="w-full text-center pb-2 pt-3 font-medium"> {"Steps"->str} </div>
-      <div className="grid grid-cols-2 gap-2 w-full">
-        <Key
-          selected={currentKey->Option.mapWithDefault(false, x => x == SemitoneSteps)}
-          onClick={_ => setCurrentKey(_ => Some(SemitoneSteps))}>
-          {"Semitone"->str}
-        </Key>
-        <Key
-          selected={currentKey->Option.mapWithDefault(false, x => x == HalfnoteSteps)}
-          onClick={_ => setCurrentKey(_ => Some(HalfnoteSteps))}>
-          {"Halfnote"->str}
-        </Key>
-      </div>
-      <div className="w-full text-center pb-2 pt-3 font-medium"> {"Other"->str} </div>
-      <div className={" "}>
-        <Key selected={currentKey->Option.isNone} onClick={_ => setCurrentKey(_ => None)}>
-          {"Binary"->str}
-        </Key>
+          <Key
+            selected={currentKey->Option.mapWithDefault(false, x => x == DimAug)}
+            onClick={_ => setCurrentKey(_ => Some(DimAug))}>
+            {"Dim-Aug"->str}
+          </Key>
+          <Key
+            selected={currentKey->Option.mapWithDefault(false, x => x == Semitone)}
+            onClick={_ => setCurrentKey(_ => Some(Semitone))}>
+            {"Semitone"->str}
+          </Key>
+        </div>
+        <div className="w-full text-center pb-2 pt-3 font-medium"> {"Steps"->str} </div>
+        <div className="grid grid-cols-2 gap-2 w-full">
+          <Key
+            selected={currentKey->Option.mapWithDefault(false, x => x == SemitoneSteps)}
+            onClick={_ => setCurrentKey(_ => Some(SemitoneSteps))}>
+            {"Semitone"->str}
+          </Key>
+          <Key
+            selected={currentKey->Option.mapWithDefault(false, x => x == HalfnoteSteps)}
+            onClick={_ => setCurrentKey(_ => Some(HalfnoteSteps))}>
+            {"Halfnote"->str}
+          </Key>
+        </div>
+        <div className="w-full text-center pb-2 pt-3 font-medium"> {"Other"->str} </div>
+        <div className={" "}>
+          <Key selected={currentKey->Option.isNone} onClick={_ => setCurrentKey(_ => None)}>
+            {"Binary"->str}
+          </Key>
+        </div>
       </div>
     </div>
     <div className="flex-1 md:flex-1 h-full overflow-scroll xs:px-2">
@@ -545,31 +547,33 @@ let make = () => {
           </div>
         })}
       </div>
-      {selectedGenus->Option.mapWithDefault(React.null, ((genusId, species)) => {
-        <div className={"mb-1"}>
-          <div className="flex flex-row items-center py-4 font-medium text-lg ">
-            {`There are ${species
+      <div className="max-w-[750px]">
+        {selectedGenus->Option.mapWithDefault(React.null, ((genusId, species)) => {
+          <div className={"mb-1"}>
+            <div className="flex flex-row items-center py-4 font-medium text-lg ">
+              {`There are ${species
+                ->Map.String.toArray
+                ->Array.length
+                ->Int.toString} possible scales of ${genusId->Int.toString} notes`->str}
+            </div>
+            <div className={[""]->join}>
+              {species
               ->Map.String.toArray
-              ->Array.length
-              ->Int.toString} possible scales of ${genusId->Int.toString} notes`->str}
+              ->reactMap(((speciesId, speciesDetails)) =>
+                <Species
+                  key={speciesId}
+                  genusId={genusId}
+                  currentBits={currentBits}
+                  setCurrentBits={setCurrentBits}
+                  currentKey={currentKey}
+                  speciesId={speciesId}
+                  speciesDetails={speciesDetails}
+                />
+              )}
+            </div>
           </div>
-          <div className={[""]->join}>
-            {species
-            ->Map.String.toArray
-            ->reactMap(((speciesId, speciesDetails)) =>
-              <Species
-                key={speciesId}
-                genusId={genusId}
-                currentBits={currentBits}
-                setCurrentBits={setCurrentBits}
-                currentKey={currentKey}
-                speciesId={speciesId}
-                speciesDetails={speciesDetails}
-              />
-            )}
-          </div>
-        </div>
-      })}
+        })}
+      </div>
     </div>
   </div>
 }
