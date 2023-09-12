@@ -3,7 +3,6 @@
 import * as Data from "./Data.bs.js";
 import * as Curry from "rescript/lib/es6/curry.js";
 import * as React from "react";
-import * as Belt_Int from "rescript/lib/es6/belt_Int.js";
 import * as SVGJsx from "./SVG.jsx";
 import * as Belt_Array from "rescript/lib/es6/belt_Array.js";
 import * as IconsJsx from "./Icons.jsx";
@@ -11,7 +10,7 @@ import AboutJsx from "./about.jsx";
 import * as Belt_MapInt from "rescript/lib/es6/belt_MapInt.js";
 import * as Belt_Option from "rescript/lib/es6/belt_Option.js";
 import * as Belt_MapString from "rescript/lib/es6/belt_MapString.js";
-import * as Belt_SortArray from "rescript/lib/es6/belt_SortArray.js";
+import * as DataGeneration from "./DataGeneration.bs.js";
 import * as Bs from "react-icons/bs";
 import * as Fa from "react-icons/fa";
 
@@ -19,39 +18,13 @@ function join(__x) {
   return __x.join(" ");
 }
 
-function any(a, test) {
-  return Belt_Array.reduce(a, false, (function (acc, element) {
-                if (acc) {
-                  return true;
-                } else {
-                  return Curry._1(test, element);
-                }
-              }));
+function str(prim) {
+  return prim;
 }
 
-function App$Collapsed(Props) {
-  var render = Props.render;
-  var match = React.useState(function () {
-        return true;
-      });
-  return Curry._2(render, match[0], match[1]);
-}
+var reactMap = Belt_Array.map;
 
-var Collapsed = {
-  make: App$Collapsed
-};
-
-function App$CollapsedTri(Props) {
-  var render = Props.render;
-  var match = React.useState(function () {
-        return /* One */0;
-      });
-  return Curry._2(render, match[0], match[1]);
-}
-
-var CollapsedTri = {
-  make: App$CollapsedTri
-};
+var reactMapWithIndex = Belt_Array.mapWithIndex;
 
 var make = IconsJsx.Logo;
 
@@ -69,232 +42,17 @@ var Symmetry = {};
 
 var ChevronDown = {};
 
-var Config = {
-  bits: 12
+function App$Collapsed(Props) {
+  var render = Props.render;
+  var match = React.useState(function () {
+        return true;
+      });
+  return Curry._2(render, match[0], match[1]);
+}
+
+var Collapsed = {
+  make: App$Collapsed
 };
-
-var reactMap = Belt_Array.map;
-
-var reactMapWithIndex = Belt_Array.mapWithIndex;
-
-function str(prim) {
-  return prim;
-}
-
-function padLeft(_s, l, pad) {
-  while(true) {
-    var s = _s;
-    if (s.length >= l) {
-      return s;
-    }
-    _s = pad + s;
-    continue ;
-  };
-}
-
-function stringToStringArray(x) {
-  return Array.from(x);
-}
-
-function stringArrayToString(x) {
-  return Belt_Array.reduce(x, "", (function (acc, value) {
-                return acc + value;
-              }));
-}
-
-function stringArrayToIntArray(x) {
-  return Belt_Array.map(x, (function (x) {
-                return Belt_Option.getWithDefault(Belt_Int.fromString(x), 0);
-              }));
-}
-
-function stringToIntArray(x) {
-  return stringArrayToIntArray(Array.from(x));
-}
-
-function intArrayToString(x) {
-  return Belt_Array.reduce(x, "", (function (acc, value) {
-                return acc + String(value);
-              }));
-}
-
-function stringArrayToInt(x) {
-  return Belt_Array.reduceWithIndex(Belt_Array.reverse(x), 0, (function (acc, value, i) {
-                return Belt_Option.mapWithDefault(Belt_Int.fromString(value), acc, (function (valueInt) {
-                              return (valueInt * Math.pow(2, i) | 0) + acc | 0;
-                            }));
-              }));
-}
-
-function stringToInt(x) {
-  return stringArrayToInt(Array.from(x));
-}
-
-var BitOps = {
-  stringToStringArray: stringToStringArray,
-  stringArrayToString: stringArrayToString,
-  stringArrayToIntArray: stringArrayToIntArray,
-  stringToIntArray: stringToIntArray,
-  intArrayToString: intArrayToString,
-  stringArrayToInt: stringArrayToInt,
-  stringToInt: stringToInt
-};
-
-function getPermutationsGivenBitLength(numOfBits) {
-  return Belt_Array.map(Belt_Array.range(0, Math.pow(2, numOfBits) - 1 | 0), (function (x) {
-                return padLeft(x.toString(2), numOfBits, "0");
-              }));
-}
-
-function getBinaryHammingWeight(bitArray) {
-  return Belt_Array.reduce(bitArray, 0, (function (acc, value) {
-                if (value === "1") {
-                  return acc + 1 | 0;
-                } else {
-                  return acc;
-                }
-              }));
-}
-
-function groupByGenus(x) {
-  return Belt_Array.reduce(x, undefined, (function (acc, value) {
-                var genus = getBinaryHammingWeight(value);
-                return Belt_MapInt.update(acc, genus, (function (a) {
-                              return Belt_Option.mapWithDefault(a, [value], (function (b) {
-                                            return Belt_Array.concat(b, [value]);
-                                          }));
-                            }));
-              }));
-}
-
-function rotate(_x, _shift) {
-  while(true) {
-    var shift = _shift;
-    var x = _x;
-    if (shift <= 0) {
-      return x;
-    }
-    _shift = shift - 1 | 0;
-    _x = Belt_Array.concat(x.slice(1), [Belt_Array.getExn(x, 0)]);
-    continue ;
-  };
-}
-
-function getRotations(x) {
-  var unordered = Belt_Array.map(Belt_Array.range(0, x.length - 1 | 0), (function (i) {
-          return rotate(x, i);
-        }));
-  Belt_Array.concat([Belt_Array.getExn(unordered, 0)], Belt_Array.reverse(unordered.slice(1)));
-  return Belt_Array.concat([Belt_Array.getExn(unordered, 0)], unordered.slice(1));
-}
-
-function getGreatestRotation(x) {
-  var rotations = getRotations(x);
-  return Belt_Array.reduce(rotations, Belt_Array.getExn(rotations, 0), (function (acc, value) {
-                var valueDecRep = stringArrayToInt(value);
-                var accDecRep = stringArrayToInt(acc);
-                if (valueDecRep > accDecRep) {
-                  return value;
-                } else {
-                  return acc;
-                }
-              }));
-}
-
-function startsWith1(a) {
-  return Belt_Array.getExn(a, 0) === "1";
-}
-
-function removeZeroStarts(x) {
-  return Belt_Array.keep(x, startsWith1);
-}
-
-function removeDuplicates(x) {
-  return Belt_Array.map(Belt_MapString.keysToArray(Belt_MapString.fromArray(Belt_Array.map(x, (function (a) {
-                            return [
-                                    stringArrayToString(a),
-                                    ""
-                                  ];
-                          })))), (function (a) {
-                return Array.from(a);
-              }));
-}
-
-function isSameArray(a, b) {
-  return Belt_Array.every(Belt_Array.zip(a, b), (function (param) {
-                return param[0] === param[1];
-              }));
-}
-
-function hasBilateralSymmetry(x) {
-  var l = x.length;
-  if (l % 2 === 0) {
-    var a = x.slice(1, l / 2 | 0);
-    var b = Belt_Array.reverse(x.slice((l / 2 | 0) + 1 | 0));
-    var c = x.slice(0, l / 2 | 0);
-    var d = Belt_Array.reverse(x.slice(l / 2 | 0));
-    if (isSameArray(a, b)) {
-      return true;
-    } else {
-      return isSameArray(c, d);
-    }
-  }
-  var a$1 = x.slice(1, (l + 1 | 0) / 2 | 0);
-  var b$1 = x.slice((l + 1 | 0) / 2 | 0);
-  return isSameArray(a$1, Belt_Array.reverse(b$1));
-}
-
-function mapAppend(m, k, v) {
-  return Belt_MapString.update(m, k, (function (a) {
-                return Belt_Option.mapWithDefault(a, [v], (function (b) {
-                              return Belt_Array.concat(b, [v]);
-                            }));
-              }));
-}
-
-function groupBySpecies(genusGrouping) {
-  return Belt_MapInt.map(genusGrouping, (function (genusPerms) {
-                return Belt_MapString.mapWithKey(Belt_MapString.fromArray(Belt_Array.map(Belt_MapString.keysToArray(Belt_Array.reduce(genusPerms, undefined, (function (acc, value) {
-                                              var greatestRotation = stringArrayToString(getGreatestRotation(value));
-                                              return mapAppend(acc, greatestRotation, value);
-                                            }))), (function (speciesId) {
-                                      var rotations = getRotations(Array.from(speciesId));
-                                      var modes = Belt_SortArray.stableSortBy(Belt_MapString.toArray(Belt_Array.reduceWithIndex(rotations, undefined, (function (acc, value, index) {
-                                                      return mapAppend(acc, stringArrayToString(value), index);
-                                                    }))), (function (param, param$1) {
-                                              return Belt_Array.getExn(param[1], 0) - Belt_Array.getExn(param$1[1], 0) | 0;
-                                            }));
-                                      return [
-                                              speciesId,
-                                              modes
-                                            ];
-                                    }))), (function (speciesId, modes) {
-                              var rotations = getRotations(Array.from(speciesId));
-                              return {
-                                      modes: modes,
-                                      autoCorrelations: Belt_Option.mapWithDefault(Belt_Array.get(modes, 0), [], (function (param) {
-                                              var modeId = param[0];
-                                              return Belt_Array.map(rotations, (function (p) {
-                                                            if (stringArrayToString(p) === modeId) {
-                                                              return "_";
-                                                            } else {
-                                                              return String(Belt_Array.keep(Belt_Array.zip(p, Array.from(modeId)), (function (param) {
-                                                                                if (param[0] === "1") {
-                                                                                  return param[1] === "1";
-                                                                                } else {
-                                                                                  return false;
-                                                                                }
-                                                                              })).length);
-                                                            }
-                                                          }));
-                                            })),
-                                      isSymmetric: any(rotations, hasBilateralSymmetry)
-                                    };
-                            }));
-              }));
-}
-
-var result = groupBySpecies(groupByGenus(Belt_Array.map(getPermutationsGivenBitLength(12), stringToStringArray)));
 
 var pitchKeys = [
   "C",
@@ -433,7 +191,7 @@ function bitToDisplaySymbol(bit, index, currentKey) {
       currentKey !== 1 ? (
           currentKey !== 0 ? semitones : mMPs
         ) : dimAugs
-    ) : rotate(pitchKeysShort, currentKey._0);
+    ) : DataGeneration.rotate(pitchKeysShort, currentKey._0);
   if (bit === "0") {
     return "•";
   } else {
@@ -509,7 +267,7 @@ function App$Scale(Props) {
     return React.createElement("div", {
                 key: String(i),
                 className: [
-                    "col-span-1 w-5 text-center align-middle",
+                    "col-span-1 w-7 flex flex-row items-center justify-center",
                     "",
                     tmp
                   ].join(" ")
@@ -533,13 +291,13 @@ function App$Scale(Props) {
     exit = 1;
   }
   if (exit === 1) {
-    tmp = Belt_Array.mapWithIndex(Array.from(bitString), (function (i, bit) {
+    tmp = Belt_Array.mapWithIndex(DataGeneration.BitOps.stringToStringArray(bitString), (function (i, bit) {
             return container(i, bitToDisplaySymbol(bit, i, currentKey));
           }));
   }
   return React.createElement("div", {
               className: [
-                  "col-span-6 grid divide-x",
+                  "flex-none grid divide-x",
                   gridCols
                 ].join(" ")
             }, tmp);
@@ -556,7 +314,7 @@ function App$Key(Props) {
   return React.createElement("div", {
               className: [
                   selected ? "bg-blue-300 border-blue-500" : "bg-slate-100 border-slate-400",
-                  "col-span-1 rounded p-1 px-2 border"
+                  "col-span-1 rounded p-1 px-2 border text-center"
                 ].join(" "),
               onClick: onClick
             }, children);
@@ -576,17 +334,17 @@ function App$Species(Props) {
   var scaleLength = currentKey !== undefined ? (
       typeof currentKey === "number" ? (
           currentKey !== 3 ? (
-              currentKey >= 4 ? bitsToHalfnoteSteps(speciesId).length : Array.from(speciesId).length
+              currentKey >= 4 ? bitsToHalfnoteSteps(speciesId).length : DataGeneration.BitOps.stringToStringArray(speciesId).length
             ) : bitsToSemitoneSteps(speciesId).length
-        ) : Array.from(speciesId).length
-    ) : Array.from(speciesId).length;
+        ) : DataGeneration.BitOps.stringToStringArray(speciesId).length
+    ) : DataGeneration.BitOps.stringToStringArray(speciesId).length;
   Belt_Array.range(1, scaleLength);
   var speciesNameData = Belt_Array.keep(Data.namedSpecies, (function (param) {
           var sId = param[0];
           var tmp;
-          tmp = sId.TAG === /* Bits */0 ? sId._0 : stepsToBits(stringArrayToIntArray(Array.from(sId._0)));
-          return any(getRotations(Array.from(tmp)), (function (x) {
-                        return stringArrayToString(x) === speciesId;
+          tmp = sId.TAG === /* Bits */0 ? sId._0 : stepsToBits(DataGeneration.BitOps.stringToIntArray(sId._0));
+          return DataGeneration.any(DataGeneration.getRotations(DataGeneration.BitOps.stringToStringArray(tmp)), (function (x) {
+                        return DataGeneration.BitOps.stringArrayToString(x) === speciesId;
                       }));
         }));
   var speciesNames = Belt_Array.map(speciesNameData, (function (param) {
@@ -597,31 +355,31 @@ function App$Species(Props) {
                             })).join(", "));
         }));
   var numModes = Belt_Array.keep(speciesDetails.modes, (function (param) {
-          return startsWith1(Array.from(param[0]));
+          return DataGeneration.startsWith1(DataGeneration.BitOps.stringToStringArray(param[0]));
         })).length;
   var numPitchClasses = speciesDetails.modes.length;
   var uniqueNumModes = numModes !== genusId;
   var modesDisplay = React.createElement("span", undefined, "(" + String(numModes) + ":" + String(numPitchClasses) + ")");
   return React.createElement(App$Collapsed, {
               render: (function (speciesHidden, setSpeciesHidden) {
-                  var anySelected = any(speciesDetails.modes, (function (param) {
+                  var anySelected = DataGeneration.any(speciesDetails.modes, (function (param) {
                           var rotation = param[0];
                           return Belt_Option.mapWithDefault(currentBits, false, (function (c) {
-                                        return intArrayToString(c) === rotation;
+                                        return DataGeneration.BitOps.intArrayToString(c) === rotation;
                                       }));
                         }));
                   Belt_Option.mapWithDefault(currentBits, false, (function (c) {
-                          return intArrayToString(c) === speciesId;
+                          return DataGeneration.BitOps.intArrayToString(c) === speciesId;
                         }));
                   return React.createElement("div", {
-                              className: [speciesHidden ? "" : "py-8"].join(" ")
+                              className: [speciesHidden ? "" : "my-8 border border-plain-500 rounded-t"].join(" ")
                             }, React.createElement("div", {
-                                  className: ["grid grid-cols-10 "].join(" "),
+                                  className: ["flex flex-row "].join(" "),
                                   onClick: (function (param) {
                                       Belt_Option.mapWithDefault(currentBits, (Curry._1(setSpeciesHidden, (function (param) {
                                                     return false;
                                                   })), Curry._1(setCurrentBits, (function (param) {
-                                                    return stringArrayToIntArray(Array.from(speciesId));
+                                                    return DataGeneration.BitOps.stringToIntArray(speciesId);
                                                   }))), (function (param) {
                                               Curry._1(setSpeciesHidden, (function (param) {
                                                       if (speciesHidden) {
@@ -634,30 +392,30 @@ function App$Species(Props) {
                                                       if (anySelected) {
                                                         return ;
                                                       } else {
-                                                        return stringArrayToIntArray(Array.from(speciesId));
+                                                        return DataGeneration.BitOps.stringToIntArray(speciesId);
                                                       }
                                                     }));
                                             }));
                                     })
                                 }, React.createElement("div", {
-                                      className: "col-span-1 w-5 text-xs px-1"
-                                    }, String(stringArrayToInt(Array.from(speciesId)))), React.createElement(App$Scale, {
+                                      className: "flex-none w-10 text-xs px-1 flex flex-row items-center justify-center"
+                                    }, String(DataGeneration.BitOps.stringToInt(speciesId))), React.createElement(App$Scale, {
                                       bitString: speciesId,
                                       currentKey: currentKey,
                                       kind: /* Species */0,
                                       selected: false
                                     }), React.createElement("div", {
-                                      className: "col-span-2  overflow-x-hidden text-ellipsis whitespace-nowrap px-1"
+                                      className: "flex-1  overflow-x-hidden text-ellipsis whitespace-nowrap px-1"
                                     }, speciesNames, uniqueNumModes ? modesDisplay : null), React.createElement("div", {
-                                      className: "col-span-1 w-6   px-1"
+                                      className: "flex-none w-10 px-1"
                                     }, speciesDetails.isSymmetric ? React.createElement(Bs.BsSymmetryVertical, {}) : null)), speciesHidden ? null : React.createElement("div", {
-                                    className: ["mt-2 border border-slate-500 rounded"].join(" ")
+                                    className: ["mt-2 border-y border-plain-500"].join(" ")
                                   }, Belt_Array.mapWithIndex(speciesDetails.modes, (function (i, param) {
                                           var modeId = param[0];
                                           var selected = Belt_Option.mapWithDefault(currentBits, false, (function (c) {
-                                                  return intArrayToString(c) === modeId;
+                                                  return DataGeneration.BitOps.intArrayToString(c) === modeId;
                                                 }));
-                                          var modeKind = startsWith1(Array.from(modeId)) ? /* Mode */1 : /* NonMode */2;
+                                          var modeKind = DataGeneration.startsWith1(DataGeneration.BitOps.stringToStringArray(modeId)) ? /* Mode */1 : /* NonMode */2;
                                           var tmp;
                                           switch (modeKind) {
                                             case /* Species */0 :
@@ -674,29 +432,29 @@ function App$Species(Props) {
                                           return React.createElement("div", {
                                                       key: modeId,
                                                       className: [
-                                                          "grid grid-cols-10 py-px divide-x",
+                                                          "flex flex-row py-px divide-x",
                                                           selected ? "font-bold" : "",
                                                           tmp
                                                         ].join(" "),
                                                       onClick: (function (param) {
                                                           Curry._1(setCurrentBits, (function (param) {
-                                                                  return stringArrayToIntArray(Array.from(modeId));
+                                                                  return DataGeneration.BitOps.stringToIntArray(modeId);
                                                                 }));
                                                         })
                                                     }, React.createElement("div", {
-                                                          className: "col-span-1 text-xs text-center align-middle"
+                                                          className: "flex-none w-10 text-xs text-center align-middle"
                                                         }, String(i)), React.createElement(App$Scale, {
                                                           bitString: modeId,
                                                           currentKey: currentKey,
                                                           kind: modeKind,
                                                           selected: selected
                                                         }), React.createElement("div", {
-                                                          className: "col-span-2 overflow-x-hidden text-ellipsis whitespace-nowrap px-1"
+                                                          className: "flex-1 overflow-x-hidden text-ellipsis whitespace-nowrap px-1"
                                                         }, Belt_Option.mapWithDefault(Belt_Array.get(Belt_Array.keepMap(speciesNameData, (function (param) {
                                                                           return Belt_Array.getBy(param[2], (function (param) {
                                                                                         var mId = param[0];
                                                                                         var match;
-                                                                                        match = mId.TAG === /* Bits */0 ? mId._0 : stepsToBits(stringArrayToIntArray(Array.from(mId._0)));
+                                                                                        match = mId.TAG === /* Bits */0 ? mId._0 : stepsToBits(DataGeneration.BitOps.stringToIntArray(mId._0));
                                                                                         return modeId === match;
                                                                                       }));
                                                                         })), 0), [], (function (param) {
@@ -704,7 +462,7 @@ function App$Species(Props) {
                                                                                 return param[1];
                                                                               }));
                                                                 })).join(", ")), React.createElement("div", {
-                                                          className: "col-span-1"
+                                                          className: "flex-none w-10"
                                                         }, Belt_Option.mapWithDefault(Belt_Array.get(speciesDetails.autoCorrelations, i), null, (function (x) {
                                                                 return React.createElement("div", {
                                                                             key: String(i) + "auto-correlation",
@@ -722,24 +480,6 @@ var Species = {
 
 function App$PageTitle(Props) {
   return React.createElement("div", {
-              className: "font-sans absolute flex flex-row top-0 left-0 pl-3 pt-3"
-            }, React.createElement("div", {
-                  className: " text-[rgb(25,0,175)]  italic text-4xl font-bold"
-                }, "T"), React.createElement("div", {
-                  className: "mt-1.5 -ml-0.5"
-                }, React.createElement("div", {
-                      className: " text-[rgb(25,0,175)] font-bold text-xl"
-                    }, "opotonic"), React.createElement("div", {
-                      className: "text-cyan-600 text-[10px] font-bold italic -mt-1"
-                    }, "by T. Wright")));
-}
-
-var PageTitle = {
-  make: App$PageTitle
-};
-
-function App$PageTitle2(Props) {
-  return React.createElement("div", {
               className: "font-sans absolute flex flex-row top-5 left-5 "
             }, React.createElement(make, {
                   size: 32
@@ -750,8 +490,8 @@ function App$PageTitle2(Props) {
                     }, "opotonic")));
 }
 
-var PageTitle2 = {
-  make: App$PageTitle2
+var PageTitle = {
+  make: App$PageTitle
 };
 
 var make$2 = AboutJsx;
@@ -782,117 +522,115 @@ function App(Props) {
           currentKey !== 1 ? (
               currentKey !== 0 ? semitones : mMPs
             ) : dimAugs
-        ) : rotate(pitchKeys, currentKey._0)
+        ) : DataGeneration.rotate(pitchKeys, currentKey._0)
     ) : semitones;
-  var graphBits = Belt_Option.mapWithDefault(currentBits, Belt_Array.map(Belt_Array.range(0, 11), (function (param) {
+  var graphBits = Belt_Option.mapWithDefault(currentBits, Belt_Array.map(Belt_Array.range(0, DataGeneration.Config.bits - 1 | 0), (function (param) {
               return 0;
             })), (function (b) {
           return b;
         }));
   return React.createElement("div", {
               className: "flex md:flex-row flex-col h-screen w-screen "
-            }, React.createElement(App$PageTitle2, {}), React.createElement("div", {
-                  className: "flex-1 h-full flex flex-col p-2 md:max-w-[320px]"
+            }, React.createElement(App$PageTitle, {}), React.createElement("div", {
+                  className: "flex-1 flex flex-col p-2 md:max-h-min md:max-w-[320px] overflow-y-scroll"
                 }, React.createElement("div", {
-                      className: "h-80 w-80  self-center "
+                      className: "w-full self-center"
                     }, React.createElement(make$1, {
                           data: Belt_Array.zip(graphKeys, graphBits)
                         })), React.createElement("div", {
-                      className: "overflow-scroll max-h-40 md:max-h-min "
-                    }, React.createElement("div", {
-                          className: "w-full text-center pb-2 pt-3 font-medium"
-                        }, "Keys"), React.createElement("div", {
-                          className: "grid grid-cols-4 gap-2 w-full"
-                        }, Belt_Array.mapWithIndex(pitchKeys, (function (i, v) {
-                                var selected = currentKey !== undefined && typeof currentKey !== "number" ? currentKey._0 === i : false;
-                                return React.createElement(App$Key, {
-                                            selected: selected,
-                                            onClick: (function (param) {
-                                                Curry._1(setCurrentKey, (function (param) {
-                                                        return /* Pitch */{
-                                                                _0: i
-                                                              };
-                                                      }));
-                                              }),
-                                            children: v,
-                                            key: v
-                                          });
-                              }))), React.createElement("div", {
-                          className: "w-full text-center pb-2 pt-3 font-medium"
-                        }, "Intervals"), React.createElement("div", {
-                          className: "grid grid-cols-3 gap-2 w-full"
-                        }, React.createElement(App$Key, {
-                              selected: Belt_Option.mapWithDefault(currentKey, false, (function (x) {
-                                      return x === /* MinMaj */0;
-                                    })),
-                              onClick: (function (param) {
-                                  Curry._1(setCurrentKey, (function (param) {
-                                          return /* MinMaj */0;
-                                        }));
-                                }),
-                              children: "Min-Maj"
-                            }), React.createElement(App$Key, {
-                              selected: Belt_Option.mapWithDefault(currentKey, false, (function (x) {
-                                      return x === /* DimAug */1;
-                                    })),
-                              onClick: (function (param) {
-                                  Curry._1(setCurrentKey, (function (param) {
-                                          return /* DimAug */1;
-                                        }));
-                                }),
-                              children: "Dim-Aug"
-                            }), React.createElement(App$Key, {
-                              selected: Belt_Option.mapWithDefault(currentKey, false, (function (x) {
-                                      return x === /* Semitone */2;
-                                    })),
-                              onClick: (function (param) {
-                                  Curry._1(setCurrentKey, (function (param) {
-                                          return /* Semitone */2;
-                                        }));
-                                }),
-                              children: "Semitone"
-                            })), React.createElement("div", {
-                          className: "w-full text-center pb-2 pt-3 font-medium"
-                        }, "Steps"), React.createElement("div", {
-                          className: "grid grid-cols-2 gap-2 w-full"
-                        }, React.createElement(App$Key, {
-                              selected: Belt_Option.mapWithDefault(currentKey, false, (function (x) {
-                                      return x === /* SemitoneSteps */3;
-                                    })),
-                              onClick: (function (param) {
-                                  Curry._1(setCurrentKey, (function (param) {
-                                          return /* SemitoneSteps */3;
-                                        }));
-                                }),
-                              children: "Semitone"
-                            }), React.createElement(App$Key, {
-                              selected: Belt_Option.mapWithDefault(currentKey, false, (function (x) {
-                                      return x === /* HalfnoteSteps */4;
-                                    })),
-                              onClick: (function (param) {
-                                  Curry._1(setCurrentKey, (function (param) {
-                                          return /* HalfnoteSteps */4;
-                                        }));
-                                }),
-                              children: "Halfnote"
-                            })), React.createElement("div", {
-                          className: "w-full text-center pb-2 pt-3 font-medium"
-                        }, "Other"), React.createElement("div", {
-                          className: " "
-                        }, React.createElement(App$Key, {
-                              selected: Belt_Option.isNone(currentKey),
-                              onClick: (function (param) {
-                                  Curry._1(setCurrentKey, (function (param) {
-                                          
-                                        }));
-                                }),
-                              children: "Binary"
-                            })))), React.createElement("div", {
-                  className: "md:flex-1 h-full overflow-scroll xs:px-2"
+                      className: "w-full text-center pb-2 pt-3 font-medium"
+                    }, "Keys"), React.createElement("div", {
+                      className: "grid grid-cols-4 gap-2 w-full"
+                    }, Belt_Array.mapWithIndex(pitchKeys, (function (i, v) {
+                            var selected = currentKey !== undefined && typeof currentKey !== "number" ? currentKey._0 === i : false;
+                            return React.createElement(App$Key, {
+                                        selected: selected,
+                                        onClick: (function (param) {
+                                            Curry._1(setCurrentKey, (function (param) {
+                                                    return /* Pitch */{
+                                                            _0: i
+                                                          };
+                                                  }));
+                                          }),
+                                        children: v,
+                                        key: v
+                                      });
+                          }))), React.createElement("div", {
+                      className: "w-full text-center pb-2 pt-3 font-medium"
+                    }, "Intervals"), React.createElement("div", {
+                      className: "grid grid-cols-3 gap-2 w-full"
+                    }, React.createElement(App$Key, {
+                          selected: Belt_Option.mapWithDefault(currentKey, false, (function (x) {
+                                  return x === /* MinMaj */0;
+                                })),
+                          onClick: (function (param) {
+                              Curry._1(setCurrentKey, (function (param) {
+                                      return /* MinMaj */0;
+                                    }));
+                            }),
+                          children: "Min-Maj"
+                        }), React.createElement(App$Key, {
+                          selected: Belt_Option.mapWithDefault(currentKey, false, (function (x) {
+                                  return x === /* DimAug */1;
+                                })),
+                          onClick: (function (param) {
+                              Curry._1(setCurrentKey, (function (param) {
+                                      return /* DimAug */1;
+                                    }));
+                            }),
+                          children: "Dim-Aug"
+                        }), React.createElement(App$Key, {
+                          selected: Belt_Option.mapWithDefault(currentKey, false, (function (x) {
+                                  return x === /* Semitone */2;
+                                })),
+                          onClick: (function (param) {
+                              Curry._1(setCurrentKey, (function (param) {
+                                      return /* Semitone */2;
+                                    }));
+                            }),
+                          children: "Semitone"
+                        })), React.createElement("div", {
+                      className: "w-full text-center pb-2 pt-3 font-medium"
+                    }, "Steps"), React.createElement("div", {
+                      className: "grid grid-cols-2 gap-2 w-full"
+                    }, React.createElement(App$Key, {
+                          selected: Belt_Option.mapWithDefault(currentKey, false, (function (x) {
+                                  return x === /* SemitoneSteps */3;
+                                })),
+                          onClick: (function (param) {
+                              Curry._1(setCurrentKey, (function (param) {
+                                      return /* SemitoneSteps */3;
+                                    }));
+                            }),
+                          children: "Semitone"
+                        }), React.createElement(App$Key, {
+                          selected: Belt_Option.mapWithDefault(currentKey, false, (function (x) {
+                                  return x === /* HalfnoteSteps */4;
+                                })),
+                          onClick: (function (param) {
+                              Curry._1(setCurrentKey, (function (param) {
+                                      return /* HalfnoteSteps */4;
+                                    }));
+                            }),
+                          children: "Halfnote"
+                        })), React.createElement("div", {
+                      className: "w-full text-center pb-2 pt-3 font-medium"
+                    }, "Other"), React.createElement("div", {
+                      className: " "
+                    }, React.createElement(App$Key, {
+                          selected: Belt_Option.isNone(currentKey),
+                          onClick: (function (param) {
+                              Curry._1(setCurrentKey, (function (param) {
+                                      
+                                    }));
+                            }),
+                          children: "Binary"
+                        }))), React.createElement("div", {
+                  className: "flex-1 md:flex-1 h-full overflow-scroll xs:px-2"
                 }, React.createElement(App$Collapsed, {
                       render: (function (collapsedState, setCollapsedState) {
                           return React.createElement("div", undefined, React.createElement("button", {
-                                          className: "px-3 py-1 m-2 ml-3 font-bold bg-plain-200 rounded flex flex-row justify-center items-center gap-1",
+                                          className: "px-3 py-1 m-2 ml-3 font-bold bg-plain-200 rounded \n              flex flex-row justify-center items-center gap-1",
                                           onClick: (function (param) {
                                               Curry._1(setCollapsedState, (function (s) {
                                                       return !s;
@@ -904,13 +642,13 @@ function App(Props) {
                         })
                     }), React.createElement("div", {
                       className: "flex flex-row overflow-x-scroll gap-2"
-                    }, Belt_Array.map(Belt_Array.range(0, 12), (function (num) {
+                    }, Belt_Array.map(Belt_Array.range(0, DataGeneration.Config.bits), (function (num) {
                             return React.createElement("div", {
                                         className: "p-1 px-2 bg-slate-100 border border-slate-400 rounded",
                                         onClick: (function (param) {
                                             Curry._1(setSelectedGenus, (function (param) {
-                                                    return Belt_Option.flatMap(Belt_Array.get(Belt_MapInt.keysToArray(result), num), (function (genusId) {
-                                                                  return Belt_Option.map(Belt_MapInt.get(result, genusId), (function (species) {
+                                                    return Belt_Option.flatMap(Belt_Array.get(Belt_MapInt.keysToArray(DataGeneration.result), num), (function (genusId) {
+                                                                  return Belt_Option.map(Belt_MapInt.get(DataGeneration.result, genusId), (function (species) {
                                                                                 return [
                                                                                         genusId,
                                                                                         species
@@ -948,39 +686,26 @@ function App(Props) {
                       }))));
 }
 
+var result = DataGeneration.result;
+
+var BitOps;
+
 var make$3 = App;
 
 var $$default = App;
 
 export {
+  result ,
   join ,
-  any ,
-  Collapsed ,
-  CollapsedTri ,
+  str ,
+  reactMap ,
+  reactMapWithIndex ,
+  BitOps ,
   Logo ,
   SVG ,
   Symmetry ,
   ChevronDown ,
-  Config ,
-  reactMap ,
-  reactMapWithIndex ,
-  str ,
-  padLeft ,
-  BitOps ,
-  getPermutationsGivenBitLength ,
-  getBinaryHammingWeight ,
-  groupByGenus ,
-  rotate ,
-  getRotations ,
-  getGreatestRotation ,
-  startsWith1 ,
-  removeZeroStarts ,
-  removeDuplicates ,
-  isSameArray ,
-  hasBilateralSymmetry ,
-  mapAppend ,
-  groupBySpecies ,
-  result ,
+  Collapsed ,
   pitchKeys ,
   pitchKeysShort ,
   semitones ,
@@ -994,7 +719,6 @@ export {
   Key ,
   Species ,
   PageTitle ,
-  PageTitle2 ,
   About ,
   make$3 as make,
   $$default ,

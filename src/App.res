@@ -1,31 +1,12 @@
 open Belt
 
+let result = DataGeneration.result
 let join = Js.Array2.joinWith(_, " ")
+let str = React.string
+let reactMap = (a, f) => a->Array.map(f)->React.array
+let reactMapWithIndex = (a, f) => a->Array.mapWithIndex(f)->React.array
 
-let any = (a, test) =>
-  a->Array.reduce(false, (acc, element) => {
-    acc ? true : test(element)
-  })
-
-module Collapsed = {
-  @react.component
-  let make = (~render) => {
-    let (state, set) = React.useState(() => true)
-
-    render(state, set)
-  }
-}
-
-type triSwitch = One | Two | Three
-
-module CollapsedTri = {
-  @react.component
-  let make = (~render) => {
-    let (state, set) = React.useState(() => One)
-
-    render(state, set)
-  }
-}
+module BitOps = DataGeneration.BitOps
 
 module Logo = {
   @module("./Icons.jsx") @react.component
@@ -49,205 +30,14 @@ module ChevronDown = {
     "FaChevronDown"
 }
 
-module Config = {
-  let bits = 12
+module Collapsed = {
+  @react.component
+  let make = (~render) => {
+    let (state, set) = React.useState(() => true)
+
+    render(state, set)
+  }
 }
-
-let reactMap = (a, f) => a->Array.map(f)->React.array
-
-let reactMapWithIndex = (a, f) => a->Array.mapWithIndex(f)->React.array
-
-let str = React.string
-
-let rec padLeft = (s, l, pad) => {
-  s->Js.String2.length < l ? padLeft(pad ++ s, l, pad) : s
-}
-
-type bitArray = array<string>
-
-module BitOps = {
-  let stringToStringArray = x => x->Js.String2.castToArrayLike->Js.Array2.from
-
-  let stringArrayToString = x => x->Array.reduce("", (acc, value) => acc ++ value)
-
-  let stringArrayToIntArray = x => x->Array.map(x => x->Int.fromString->Option.getWithDefault(0))
-
-  let stringToIntArray = x => x->stringToStringArray->stringArrayToIntArray
-
-  let intArrayToString = x => x->Array.reduce("", (acc, value) => acc ++ value->Int.toString)
-
-  let stringArrayToInt = x =>
-    x
-    ->Array.reverse
-    ->Array.reduceWithIndex(0, (acc, value, i) => {
-      value
-      ->Int.fromString
-      ->Option.mapWithDefault(acc, valueInt => {
-        (valueInt->Int.toFloat *. 2. ** i->Int.toFloat)->Int.fromFloat + acc
-      })
-    })
-
-  let stringToInt = x => x->stringToStringArray->stringArrayToInt
-}
-
-let getPermutationsGivenBitLength = numOfBits =>
-  Array.range(0, (2. ** numOfBits->Int.toFloat -. 1.)->Float.toInt)->Array.map(x =>
-    x->Js.Int.toStringWithRadix(~radix=2)->padLeft(numOfBits, "0")
-  )
-
-// Counts "1"s
-let getBinaryHammingWeight = bitArray =>
-  bitArray->Array.reduce(0, (acc, value) => {
-    value == "1" ? acc + 1 : acc
-  })
-
-let groupByGenus = x =>
-  x->Array.reduce(Map.Int.empty, (acc, value) => {
-    let genus = value->getBinaryHammingWeight
-    acc->Map.Int.update(genus, a =>
-      a->Option.mapWithDefault([value]->Some, b => Array.concat(b, [value])->Some)
-    )
-  })
-
-let rec rotate = (x, shift) => {
-  shift > 0 ? Array.concat(x->Js.Array2.sliceFrom(1), [x->Array.getExn(0)])->rotate(shift - 1) : x
-}
-
-let getRotations = x => {
-  let unordered = Array.range(0, x->Array.length - 1)->Array.map(i => {
-    x->rotate(i)
-  })
-
-  let _orderedShiftingRight = Array.concat(
-    [unordered->Array.getExn(0)],
-    unordered->Js.Array2.sliceFrom(1)->Array.reverse,
-  )
-
-  let orderedShiftingLeft = Array.concat(
-    [unordered->Array.getExn(0)],
-    unordered->Js.Array2.sliceFrom(1),
-  )
-
-  orderedShiftingLeft
-}
-
-let getGreatestRotation = x => {
-  let rotations = getRotations(x)
-
-  rotations->Array.reduce(rotations->Array.getExn(0), (acc, value) => {
-    let valueDecRep = value->BitOps.stringArrayToInt
-    let accDecRep = acc->BitOps.stringArrayToInt
-    valueDecRep > accDecRep ? value : acc
-  })
-}
-
-let startsWith1 = a => a->Array.getExn(0) == "1"
-
-let removeZeroStarts = x => {
-  x->Array.keep(startsWith1)
-}
-
-let removeDuplicates = x => {
-  x
-  ->Array.map(a => (a->BitOps.stringArrayToString, ""))
-  ->Map.String.fromArray
-  ->Map.String.keysToArray
-  ->Array.map(a => a->BitOps.stringToStringArray)
-}
-
-type speciesDetails = {
-  modes: array<(string, array<int>)>,
-  autoCorrelations: array<string>,
-  isSymmetric: bool,
-}
-
-let isSameArray = (a: array<string>, b: array<string>) =>
-  Array.zip(a, b)->Array.every(((a1, b1)) => a1 == b1)
-
-let hasBilateralSymmetry = (x: array<string>) => {
-  let l = x->Array.length
-
-  mod(l, 2) == 0
-    ? {
-        let (a, b) = (
-          x->Js.Array2.slice(~start=1, ~end_=l / 2),
-          x->Js.Array2.sliceFrom(l / 2 + 1)->Array.reverse,
-        )
-        let (c, d) = (
-          x->Js.Array2.slice(~start=0, ~end_=l / 2),
-          x->Js.Array2.sliceFrom(l / 2)->Array.reverse,
-        )
-        isSameArray(a, b) || isSameArray(c, d)
-      }
-    : {
-        let (a, b) = (
-          x->Js.Array2.slice(~start=1, ~end_=(l + 1) / 2),
-          x->Js.Array2.sliceFrom((l + 1) / 2),
-        )
-        isSameArray(a, b->Array.reverse)
-      }
-}
-
-let mapAppend = (m, k, v) => {
-  m->Map.String.update(k, a => a->Option.mapWithDefault([v]->Some, b => Array.concat(b, [v])->Some))
-}
-
-let groupBySpecies = genusGrouping =>
-  genusGrouping->Map.Int.map(genusPerms => {
-    genusPerms
-    ->Array.reduce(Map.String.empty, (acc, value) => {
-      let greatestRotation = value->getGreatestRotation->BitOps.stringArrayToString
-      acc->mapAppend(greatestRotation, value)
-    })
-    ->Map.String.keysToArray
-    ->Array.map(speciesId => {
-      let rotations = speciesId->BitOps.stringToStringArray->getRotations
-
-      let modes =
-        rotations
-        ->Array.reduceWithIndex(
-          Map.String.empty,
-          (acc, value, index) => {
-            acc->mapAppend(value->BitOps.stringArrayToString, index)
-          },
-        )
-        ->Map.String.toArray
-        ->Belt.SortArray.stableSortBy(((_, a), (_, b)) => a->Array.getExn(0) - b->Array.getExn(0))
-
-      (speciesId, modes)
-    })
-    ->Map.String.fromArray
-    ->Map.String.mapWithKey((speciesId, modes) => {
-      let rotations = speciesId->BitOps.stringToStringArray->getRotations
-      {
-        modes,
-        autoCorrelations: modes
-        ->Array.get(0)
-        ->Option.mapWithDefault(
-          [],
-          ((modeId, _)) =>
-            rotations->Array.map(
-              p => {
-                p->BitOps.stringArrayToString == modeId
-                  ? "_"
-                  : Array.zip(p, modeId->BitOps.stringToStringArray)
-                    ->Array.keep(((a1, a2)) => a1 == "1" && a2 == "1")
-                    ->Array.length
-                    ->Int.toString
-              },
-            ),
-        ),
-        isSymmetric: rotations->any(p => p->hasBilateralSymmetry),
-      }
-    })
-  })
-
-let result =
-  Config.bits
-  ->getPermutationsGivenBitLength
-  ->Array.map(BitOps.stringToStringArray)
-  ->groupByGenus
-  ->groupBySpecies
 
 // let namedData = Data.namedSpecies-> Array.
 
@@ -320,7 +110,7 @@ let bitToDisplaySymbol = (bit, index, currentKey) => {
   | None => bit
   | Some(x) => {
       let a = switch x {
-      | Pitch(shift) => pitchKeysShort->rotate(shift)
+      | Pitch(shift) => pitchKeysShort->DataGeneration.rotate(shift)
       | DimAug => dimAugs
       | Semitone => semitones
       | MinMaj => mMPs
@@ -363,7 +153,7 @@ module Scale = {
       <div
         key={i->Int.toString}
         className={[
-          "col-span-1 w-5 text-center align-middle",
+          "col-span-1 w-7 flex flex-row items-center justify-center",
           "",
           switch kind {
           | Species => " "
@@ -374,7 +164,7 @@ module Scale = {
         {content}
       </div>
 
-    <div className={["col-span-6 grid divide-x", gridCols]->join}>
+    <div className={["flex-none grid divide-x", gridCols]->join}>
       {switch currentKey {
       | Some(SemitoneSteps) =>
         bitString
@@ -410,7 +200,7 @@ module Key = {
     <div
       className={[
         selected ? "bg-blue-300 border-blue-500" : "bg-slate-100 border-slate-400",
-        "col-span-1 rounded p-1 px-2 border",
+        "col-span-1 rounded p-1 px-2 border text-center",
       ]->join}
       onClick={onClick}>
       {children}
@@ -426,7 +216,7 @@ module Species = {
     ~setCurrentBits,
     ~currentKey: option<key>,
     ~speciesId: string,
-    ~speciesDetails: speciesDetails,
+    ~speciesDetails: DataGeneration.speciesDetails,
   ) => {
     // let (base, setBase) = React.useState(_ => None)
 
@@ -444,8 +234,8 @@ module Species = {
       | Steps(s) => s->BitOps.stringToIntArray->stepsToBits
       }
       ->BitOps.stringToStringArray
-      ->getRotations
-      ->any(x => {
+      ->DataGeneration.getRotations
+      ->DataGeneration.any(x => {
         x->BitOps.stringArrayToString == speciesId
       })
     })
@@ -467,7 +257,7 @@ module Species = {
 
     let numModes =
       speciesDetails.modes
-      ->Array.keep(((modeId, _)) => modeId->BitOps.stringToStringArray->startsWith1)
+      ->Array.keep(((modeId, _)) => modeId->BitOps.stringToStringArray->DataGeneration.startsWith1)
       ->Array.length
 
     let numPitchClasses = speciesDetails.modes->Array.length
@@ -480,16 +270,16 @@ module Species = {
 
     <Collapsed
       render={(speciesHidden, setSpeciesHidden) => {
-        let anySelected = speciesDetails.modes->any(((rotation, _)) => {
+        let anySelected = speciesDetails.modes->DataGeneration.any(((rotation, _)) => {
           currentBits->Option.mapWithDefault(false, c => c->BitOps.intArrayToString == rotation)
         })
 
         let _speciesIdModeSelected =
           currentBits->Option.mapWithDefault(false, c => c->BitOps.intArrayToString == speciesId)
 
-        <div className={[speciesHidden ? "" : "py-8"]->join}>
+        <div className={[speciesHidden ? "" : "my-8 border border-plain-500 rounded-t"]->join}>
           <div
-            className={["grid grid-cols-10 "]->join}
+            className={["flex flex-row "]->join}
             onClick={_ => {
               currentBits->Option.mapWithDefault(
                 {
@@ -502,34 +292,36 @@ module Species = {
                 },
               )
             }}>
-            <div className={"col-span-1 w-5 text-xs px-1"}>
+            <div
+              className={"flex-none w-10 text-xs px-1 flex flex-row items-center justify-center"}>
               {speciesId->BitOps.stringToInt->Int.toString->str}
             </div>
             <Scale selected={false} currentKey={currentKey} bitString={speciesId} kind={Species} />
-            <div className="col-span-2  overflow-x-hidden text-ellipsis whitespace-nowrap px-1">
+            <div className="flex-1  overflow-x-hidden text-ellipsis whitespace-nowrap px-1">
               {speciesNames}
               {uniqueNumModes ? modesDisplay : React.null}
             </div>
-            <div className="col-span-1 w-6   px-1">
+            <div className="flex-none w-10 px-1">
               {speciesDetails.isSymmetric ? <Symmetry /> : React.null}
             </div>
           </div>
           {speciesHidden
             ? React.null
-            : <div className={["mt-2 border border-slate-500 rounded"]->join}>
+            : <div className={["mt-2 border-y border-plain-500"]->join}>
                 {speciesDetails.modes->reactMapWithIndex((i, (modeId, _rotationDegrees)) => {
                   let selected =
                     currentBits->Option.mapWithDefault(false, c =>
                       c->BitOps.intArrayToString == modeId
                     )
 
-                  let modeKind = modeId->BitOps.stringToStringArray->startsWith1 ? Mode : NonMode
+                  let modeKind =
+                    modeId->BitOps.stringToStringArray->DataGeneration.startsWith1 ? Mode : NonMode
 
                   <div
                     onClick={_ => setCurrentBits(_ => modeId->BitOps.stringToIntArray->Some)}
                     key={modeId}
                     className={[
-                      "grid grid-cols-10 py-px divide-x",
+                      "flex flex-row py-px divide-x",
                       selected ? "font-bold" : "",
                       switch modeKind {
                       | Mode => selected ? "text-accent-600 " : "text-plain-700"
@@ -538,14 +330,14 @@ module Species = {
                       | _ => ""
                       },
                     ]->join}>
-                    <div className={"col-span-1 text-xs text-center align-middle"}>
+                    <div className={"flex-none w-10 text-xs text-center align-middle"}>
                       {i->Int.toString->str}
                     </div>
                     <Scale
                       selected={selected} currentKey={currentKey} bitString={modeId} kind={modeKind}
                     />
                     <div
-                      className={"col-span-2 overflow-x-hidden text-ellipsis whitespace-nowrap px-1"}>
+                      className={"flex-1 overflow-x-hidden text-ellipsis whitespace-nowrap px-1"}>
                       {speciesNameData
                       ->Array.keepMap(((_, _, modes)) => {
                         modes->Array.getBy(
@@ -566,7 +358,7 @@ module Species = {
                       ->Js.Array2.joinWith(", ")
                       ->str}
                     </div>
-                    <div className="col-span-1">
+                    <div className="flex-none w-10">
                       {speciesDetails.autoCorrelations
                       ->Array.get(i)
                       ->Option.mapWithDefault(React.null, x => {
@@ -587,22 +379,6 @@ module Species = {
 }
 
 module PageTitle = {
-  @react.component
-  let make = () => {
-    <div className={"font-sans absolute flex flex-row top-0 left-0 pl-3 pt-3"}>
-      // <Logo />
-      <div className={" text-[rgb(25,0,175)]  italic text-4xl font-bold"}> {"T"->str} </div>
-      <div className={"mt-1.5 -ml-0.5"}>
-        <div className={" text-[rgb(25,0,175)] font-bold text-xl"}> {"opotonic"->str} </div>
-        <div className={"text-cyan-600 text-[10px] font-bold italic -mt-1"}>
-          {"by T. Wright"->str}
-        </div>
-      </div>
-    </div>
-  }
-}
-
-module PageTitle2 = {
   @react.component
   let make = () => {
     <div className={"font-sans absolute flex flex-row top-5 left-5 "}>
@@ -637,79 +413,85 @@ let make = () => {
     | Some(HalfnoteSteps) => semitones
     | Some(DimAug) => dimAugs
     | Some(MinMaj) => mMPs
-    | Some(Pitch(shift)) => pitchKeys->rotate(shift)
+    | Some(Pitch(shift)) => pitchKeys->DataGeneration.rotate(shift)
     }
   }
 
+  // Js.log(resultExport)
+
   let graphBits =
-    currentBits->Option.mapWithDefault(Array.range(0, Config.bits - 1)->Array.map(_ => 0), b => b)
+    currentBits->Option.mapWithDefault(
+      Array.range(0, DataGeneration.Config.bits - 1)->Array.map(_ => 0),
+      b => b,
+    )
 
   <div className={"flex md:flex-row flex-col h-screen w-screen "}>
-    <PageTitle2 />
-    <div className="flex-1 h-full flex flex-col p-2 md:max-w-[320px]">
-      <div className={"h-80 w-80  self-center "}>
+    <PageTitle />
+    <div className="flex-1 flex flex-col p-2 md:max-h-min md:max-w-[320px] overflow-y-scroll">
+      <div className={"w-full self-center"}>
         <SVG data={Array.zip(graphKeys, graphBits)} />
       </div>
-      <div className="overflow-scroll max-h-40 md:max-h-min ">
-        <div className="w-full text-center pb-2 pt-3 font-medium"> {"Keys"->str} </div>
-        <div className={"grid grid-cols-4 gap-2 w-full"}>
-          {pitchKeys->reactMapWithIndex((i, v) => {
-            let selected = switch currentKey {
-            | Some(Pitch(c)) => c == i
-            | _ => false
-            }
+      // <div className="overflow-scroll max-h-40 md:max-h-min ">
+      <div className="w-full text-center pb-2 pt-3 font-medium"> {"Keys"->str} </div>
+      <div className={"grid grid-cols-4 gap-2 w-full"}>
+        {pitchKeys->reactMapWithIndex((i, v) => {
+          let selected = switch currentKey {
+          | Some(Pitch(c)) => c == i
+          | _ => false
+          }
 
-            <Key key={v} selected={selected} onClick={_ => setCurrentKey(_ => Some(Pitch(i)))}>
-              {v->str}
-            </Key>
-          })}
-        </div>
-        <div className="w-full text-center pb-2 pt-3 font-medium"> {"Intervals"->str} </div>
-        <div className="grid grid-cols-3 gap-2 w-full">
-          <Key
-            selected={currentKey->Option.mapWithDefault(false, x => x == MinMaj)}
-            onClick={_ => setCurrentKey(_ => Some(MinMaj))}>
-            {"Min-Maj"->str}
+          <Key key={v} selected={selected} onClick={_ => setCurrentKey(_ => Some(Pitch(i)))}>
+            {v->str}
           </Key>
-          <Key
-            selected={currentKey->Option.mapWithDefault(false, x => x == DimAug)}
-            onClick={_ => setCurrentKey(_ => Some(DimAug))}>
-            {"Dim-Aug"->str}
-          </Key>
-          <Key
-            selected={currentKey->Option.mapWithDefault(false, x => x == Semitone)}
-            onClick={_ => setCurrentKey(_ => Some(Semitone))}>
-            {"Semitone"->str}
-          </Key>
-        </div>
-        <div className="w-full text-center pb-2 pt-3 font-medium"> {"Steps"->str} </div>
-        <div className="grid grid-cols-2 gap-2 w-full">
-          <Key
-            selected={currentKey->Option.mapWithDefault(false, x => x == SemitoneSteps)}
-            onClick={_ => setCurrentKey(_ => Some(SemitoneSteps))}>
-            {"Semitone"->str}
-          </Key>
-          <Key
-            selected={currentKey->Option.mapWithDefault(false, x => x == HalfnoteSteps)}
-            onClick={_ => setCurrentKey(_ => Some(HalfnoteSteps))}>
-            {"Halfnote"->str}
-          </Key>
-        </div>
-        <div className="w-full text-center pb-2 pt-3 font-medium"> {"Other"->str} </div>
-        <div className={" "}>
-          <Key selected={currentKey->Option.isNone} onClick={_ => setCurrentKey(_ => None)}>
-            {"Binary"->str}
-          </Key>
-        </div>
+        })}
       </div>
+      <div className="w-full text-center pb-2 pt-3 font-medium"> {"Intervals"->str} </div>
+      <div className="grid grid-cols-3 gap-2 w-full">
+        <Key
+          selected={currentKey->Option.mapWithDefault(false, x => x == MinMaj)}
+          onClick={_ => setCurrentKey(_ => Some(MinMaj))}>
+          {"Min-Maj"->str}
+        </Key>
+        <Key
+          selected={currentKey->Option.mapWithDefault(false, x => x == DimAug)}
+          onClick={_ => setCurrentKey(_ => Some(DimAug))}>
+          {"Dim-Aug"->str}
+        </Key>
+        <Key
+          selected={currentKey->Option.mapWithDefault(false, x => x == Semitone)}
+          onClick={_ => setCurrentKey(_ => Some(Semitone))}>
+          {"Semitone"->str}
+        </Key>
+      </div>
+      <div className="w-full text-center pb-2 pt-3 font-medium"> {"Steps"->str} </div>
+      <div className="grid grid-cols-2 gap-2 w-full">
+        <Key
+          selected={currentKey->Option.mapWithDefault(false, x => x == SemitoneSteps)}
+          onClick={_ => setCurrentKey(_ => Some(SemitoneSteps))}>
+          {"Semitone"->str}
+        </Key>
+        <Key
+          selected={currentKey->Option.mapWithDefault(false, x => x == HalfnoteSteps)}
+          onClick={_ => setCurrentKey(_ => Some(HalfnoteSteps))}>
+          {"Halfnote"->str}
+        </Key>
+      </div>
+      <div className="w-full text-center pb-2 pt-3 font-medium"> {"Other"->str} </div>
+      <div className={" "}>
+        <Key selected={currentKey->Option.isNone} onClick={_ => setCurrentKey(_ => None)}>
+          {"Binary"->str}
+        </Key>
+      </div>
+      // </div>
     </div>
-    <div className="md:flex-1 h-full overflow-scroll xs:px-2">
+    <div className="flex-1 md:flex-1 h-full overflow-scroll xs:px-2">
       <Collapsed
         render={(collapsedState, setCollapsedState) => {
           <div>
             <button
               onClick={_ => setCollapsedState(s => !s)}
-              className={"px-3 py-1 m-2 ml-3 font-bold bg-plain-200 rounded flex flex-row justify-center items-center gap-1"}>
+              className={`px-3 py-1 m-2 ml-3 font-bold bg-plain-200 rounded 
+              flex flex-row justify-center items-center gap-1`}>
               {"About Topotonic"->str}
               <ChevronDown />
             </button>
@@ -720,7 +502,7 @@ let make = () => {
         }}
       />
       <div className="flex flex-row overflow-x-scroll gap-2">
-        {Array.range(0, Config.bits)->reactMap(num => {
+        {Array.range(0, DataGeneration.Config.bits)->reactMap(num => {
           <div
             className="p-1 px-2 bg-slate-100 border border-slate-400 rounded"
             onClick={_ =>
