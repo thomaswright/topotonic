@@ -395,14 +395,14 @@ function App$Species(Props) {
                           }));
                   };
                   return React.createElement("div", {
-                              className: [" py-2 border-b"].join(" ")
+                              className: [" py-2 "].join(" ")
                             }, speciesHidden ? React.createElement("div", {
-                                    className: [""].join(" "),
+                                    className: ["font-bold"].join(" "),
                                     onClick: onClickHeader
                                   }, speciesNames === "" ? null : React.createElement("div", {
                                           className: "flex flex-row justify-center items-center pb-1"
                                         }, React.createElement("div", {
-                                              className: "flex-none overflow-x-hidden text-ellipsis whitespace-nowrap px-1"
+                                              className: "text-lg flex-none overflow-x-hidden text-ellipsis whitespace-nowrap px-1"
                                             }, speciesNames)), React.createElement("div", {
                                         className: "flex flex-row"
                                       }, React.createElement(App$Scale, {
@@ -420,7 +420,7 @@ function App$Species(Props) {
                                                   }));
                                           })
                                       }, React.createElement("div", {
-                                            className: "flex-none font-bold flex flex-row items-center justify-center"
+                                            className: "text-lg flex-none font-bold flex flex-row items-center justify-center"
                                           }, speciesNames), React.createElement("div", {
                                             className: "flex flex-row items-center justify-center gap-2"
                                           }, React.createElement("div", {
@@ -456,14 +456,14 @@ function App$Species(Props) {
                                                     tmp = selected ? "text-accent-600 " : "text-plain-700";
                                                     break;
                                                 case /* NonMode */2 :
-                                                    tmp = selected ? "bg-plain-100 text-accent-600" : "bg-plain-100 text-plain-400";
+                                                    tmp = selected ? "bg-plain-50 text-accent-600" : "bg-plain-50 text-plain-300";
                                                     break;
                                                 
                                               }
                                               return React.createElement("div", {
                                                           key: modeId,
                                                           className: [
-                                                              "flex flex-row py-px divide-x md:justify-start justify-center",
+                                                              "flex flex-col py-px md:justify-start justify-center",
                                                               selected ? "font-bold" : "",
                                                               tmp
                                                             ].join(" "),
@@ -472,14 +472,14 @@ function App$Species(Props) {
                                                                       return DataGeneration.BitOps.stringToIntArray(modeId);
                                                                     }));
                                                             })
-                                                        }, React.createElement(App$Scale, {
+                                                        }, modeNames === "" ? null : React.createElement("div", {
+                                                                className: "flex flex-row items-center text-xs pt-0.5 pl-0.5 justify-start flex-1 overflow-x-hidden text-ellipsis whitespace-nowrap px-1"
+                                                              }, modeNames), React.createElement(App$Scale, {
                                                               bitString: modeId,
                                                               currentKey: currentKey,
                                                               kind: modeKind,
                                                               selected: selected
-                                                            }), React.createElement("div", {
-                                                              className: "hidden md:block  flex-1 overflow-x-hidden text-ellipsis whitespace-nowrap px-1"
-                                                            }, modeNames));
+                                                            }));
                                             })))));
                 })
             });
@@ -579,7 +579,7 @@ function App(Props) {
                               data: Belt_Array.zip(graphKeys, graphBits)
                             })), scaleNames === "" ? null : React.createElement("div", {
                             className: "w-full text-lg text-center pt-2 font-bold text-accent-600"
-                          }, "Scale: " + scaleNames + ""), scaleNames === "" ? null : React.createElement("div", {
+                          }, "Scale: " + scaleNames + ""), modeNames === "" ? null : React.createElement("div", {
                             className: "w-full text-lg text-center pb-2 font-bold text-accent-600"
                           }, "Mode: " + modeNames + ""), React.createElement("div", {
                           className: "w-full text-center pb-2 pt-3 font-medium"
@@ -710,7 +710,7 @@ function App(Props) {
                                           })
                                       }, String(num));
                           }))), React.createElement("div", {
-                      className: "max-w-[500px]"
+                      className: "md:max-w-[500px]"
                     }, Belt_Option.mapWithDefault(selectedGenus, null, (function (param) {
                             var species = param[1];
                             var genusId = param[0];

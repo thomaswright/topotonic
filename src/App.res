@@ -307,14 +307,14 @@ module Species = {
           )
         }
 
-        <div className={[" py-2 border-b"]->join}>
+        <div className={[" py-2 "]->join}>
           {speciesHidden
-            ? <div className={[""]->join} onClick={onClickHeader}>
+            ? <div className={["font-bold"]->join} onClick={onClickHeader}>
                 {speciesNames == ""
                   ? React.null
                   : <div className="flex flex-row justify-center items-center pb-1">
                       <div
-                        className="flex-none overflow-x-hidden text-ellipsis whitespace-nowrap px-1">
+                        className="text-lg flex-none overflow-x-hidden text-ellipsis whitespace-nowrap px-1">
                         {speciesNames->str}
                       </div>
                     </div>}
@@ -333,7 +333,8 @@ module Species = {
                   onClick={_ => {
                     setSpeciesHidden(_ => true)
                   }}>
-                  <div className={"flex-none font-bold flex flex-row items-center justify-center"}>
+                  <div
+                    className={"text-lg flex-none font-bold flex flex-row items-center justify-center"}>
                     {speciesNames->str}
                   </div>
                   <div className={"flex flex-row items-center justify-center gap-2"}>
@@ -381,25 +382,27 @@ module Species = {
                       onClick={_ => setCurrentBits(_ => modeId->BitOps.stringToIntArray->Some)}
                       key={modeId}
                       className={[
-                        "flex flex-row py-px divide-x md:justify-start justify-center",
+                        "flex flex-col py-px md:justify-start justify-center",
                         selected ? "font-bold" : "",
                         switch modeKind {
                         | Mode => selected ? "text-accent-600 " : "text-plain-700"
                         | NonMode =>
-                          selected ? "bg-plain-100 text-accent-600" : "bg-plain-100 text-plain-400"
+                          selected ? "bg-plain-50 text-accent-600" : "bg-plain-50 text-plain-300"
                         | _ => ""
                         },
                       ]->join}>
+                      {modeNames == ""
+                        ? React.null
+                        : <div
+                            className={"flex flex-row items-center text-xs pt-0.5 pl-0.5 justify-start flex-1 overflow-x-hidden text-ellipsis whitespace-nowrap px-1"}>
+                            {modeNames->str}
+                          </div>}
                       <Scale
                         selected={selected}
                         currentKey={currentKey}
                         bitString={modeId}
                         kind={modeKind}
                       />
-                      <div
-                        className={"hidden md:block  flex-1 overflow-x-hidden text-ellipsis whitespace-nowrap px-1"}>
-                        {modeNames->str}
-                      </div>
                     </div>
                   })}
                 </div>
@@ -505,7 +508,7 @@ let make = () => {
           : <div className="w-full text-lg text-center pt-2 font-bold text-accent-600">
               {`Scale: ${scaleNames}`->str}
             </div>}
-        {scaleNames == ""
+        {modeNames == ""
           ? React.null
           : <div className="w-full text-lg text-center pb-2 font-bold text-accent-600">
               {`Mode: ${modeNames}`->str}
@@ -605,7 +608,7 @@ let make = () => {
           </div>
         })}
       </div>
-      <div className="max-w-[500px]">
+      <div className="md:max-w-[500px]">
         {selectedGenus->Option.mapWithDefault(React.null, ((genusId, species)) => {
           <div className={"mb-1"}>
             <div className="flex flex-row items-center py-4 font-medium text-lg ">
