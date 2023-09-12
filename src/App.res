@@ -283,7 +283,7 @@ module Species = {
         <div className={[speciesHidden ? "" : "mb-8 pt-4"]->join}>
           {speciesHidden
             ? <div
-                className={["flex flex-row font-bold"]->join}
+                className={["flex flex-row font-bold md:justify-start justify-center"]->join}
                 onClick={_ => {
                   currentBits->Option.mapWithDefault(
                     {
@@ -337,7 +337,7 @@ module Species = {
                       onClick={_ => setCurrentBits(_ => modeId->BitOps.stringToIntArray->Some)}
                       key={modeId}
                       className={[
-                        "flex flex-row py-px divide-x",
+                        "flex flex-row py-px divide-x md:justify-start justify-center",
                         selected ? "font-bold" : "",
                         switch modeKind {
                         | Mode => selected ? "text-accent-600 " : "text-plain-700"

@@ -375,7 +375,7 @@ function App$Species(Props) {
                   return React.createElement("div", {
                               className: [speciesHidden ? "" : "mb-8 pt-4"].join(" ")
                             }, speciesHidden ? React.createElement("div", {
-                                    className: ["flex flex-row font-bold"].join(" "),
+                                    className: ["flex flex-row font-bold md:justify-start justify-center"].join(" "),
                                     onClick: (function (param) {
                                         Belt_Option.mapWithDefault(currentBits, (Curry._1(setSpeciesHidden, (function (param) {
                                                       return false;
@@ -439,7 +439,7 @@ function App$Species(Props) {
                                               return React.createElement("div", {
                                                           key: modeId,
                                                           className: [
-                                                              "flex flex-row py-px divide-x",
+                                                              "flex flex-row py-px divide-x md:justify-start justify-center",
                                                               selected ? "font-bold" : "",
                                                               tmp
                                                             ].join(" "),
