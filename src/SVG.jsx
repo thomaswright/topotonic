@@ -2,6 +2,7 @@ import React from "react";
 import tailwindColors from "tailwindcss/colors";
 
 const accentColor = "red";
+const plainColor = "slate";
 
 function getTextAnchors8(deg) {
   // returns [dominantBaseline, textAnchor]
@@ -73,8 +74,12 @@ const RadialText = ({ x, y, radius, deg, text, selected }) => {
             dominantBaseline={dominantBaseline}
             textAnchor={textAnchor}
             fontSize={5}
-            fill={selected ? tailwindColors[accentColor][600] : ""}
-            className={selected ? "font-bold" : ""}
+            fill={
+              selected
+                ? tailwindColors[accentColor][600]
+                : tailwindColors[plainColor][800]
+            }
+            className={"font-bold"}
           >
             {text}
           </text>
@@ -132,9 +137,10 @@ export const SVG = ({ data }) => {
       <circle
         cx={center.x}
         cy={center.y}
+        strokeWidth={1}
         r={radius}
         fill="none"
-        stroke="black"
+        stroke={tailwindColors[plainColor][800]}
       />
       {data.map(([label, bit], i) => {
         const selected = bit === 1;
@@ -146,6 +152,8 @@ export const SVG = ({ data }) => {
               start={radius * 0.9}
               end={radius * 1.1}
               deg={i * orderDegree}
+              strokeWidth={1}
+              color={tailwindColors[plainColor][800]}
             />
             <RadialText
               selected={selected}
