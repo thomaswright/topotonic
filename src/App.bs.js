@@ -284,7 +284,7 @@ function App$Scale(Props) {
     return React.createElement("div", {
                 key: String(i),
                 className: [
-                    "col-span-1 flex flex-row items-center justify-center min-w-[1.5rem]",
+                    "col-span-1 flex flex-row items-center justify-center min-w-[2rem]",
                     "",
                     tmp
                   ].join(" ")
@@ -372,32 +372,33 @@ function App$Species(Props) {
                           return DataGeneration.BitOps.intArrayToString(c) === speciesId;
                         }));
                   var scaleName = String(DataGeneration.BitOps.stringToInt(speciesId));
+                  var onClickHeader = function (param) {
+                    Belt_Option.mapWithDefault(currentBits, (Curry._1(setSpeciesHidden, (function (param) {
+                                  return false;
+                                })), Curry._1(setCurrentBits, (function (param) {
+                                  return DataGeneration.BitOps.stringToIntArray(speciesId);
+                                }))), (function (param) {
+                            Curry._1(setSpeciesHidden, (function (param) {
+                                    if (speciesHidden) {
+                                      return !speciesHidden;
+                                    } else {
+                                      return anySelected;
+                                    }
+                                  }));
+                            Curry._1(setCurrentBits, (function (param) {
+                                    if (anySelected) {
+                                      return ;
+                                    } else {
+                                      return DataGeneration.BitOps.stringToIntArray(speciesId);
+                                    }
+                                  }));
+                          }));
+                  };
                   return React.createElement("div", {
                               className: [" py-2 border-b"].join(" ")
                             }, speciesHidden ? React.createElement("div", {
                                     className: [""].join(" "),
-                                    onClick: (function (param) {
-                                        Belt_Option.mapWithDefault(currentBits, (Curry._1(setSpeciesHidden, (function (param) {
-                                                      return false;
-                                                    })), Curry._1(setCurrentBits, (function (param) {
-                                                      return DataGeneration.BitOps.stringToIntArray(speciesId);
-                                                    }))), (function (param) {
-                                                Curry._1(setSpeciesHidden, (function (param) {
-                                                        if (speciesHidden) {
-                                                          return !speciesHidden;
-                                                        } else {
-                                                          return anySelected;
-                                                        }
-                                                      }));
-                                                Curry._1(setCurrentBits, (function (param) {
-                                                        if (anySelected) {
-                                                          return ;
-                                                        } else {
-                                                          return DataGeneration.BitOps.stringToIntArray(speciesId);
-                                                        }
-                                                      }));
-                                              }));
-                                      })
+                                    onClick: onClickHeader
                                   }, speciesNames === "" ? null : React.createElement("div", {
                                           className: "flex flex-row justify-center items-center pb-1"
                                         }, React.createElement("div", {
@@ -428,12 +429,24 @@ function App$Species(Props) {
                                                 className: "flex-none text-sm font-medium tracking-wide "
                                               }, "SCALE " + scaleName + ""))), React.createElement("div", {
                                         className: ["mt-1 mb-4 border-y border-plain-500"].join(" ")
-                                      }, Belt_Array.mapWithIndex(speciesDetails.modes, (function (i, param) {
+                                      }, Belt_Array.mapWithIndex(speciesDetails.modes, (function (_i, param) {
                                               var modeId = param[0];
                                               var selected = Belt_Option.mapWithDefault(currentBits, false, (function (c) {
                                                       return DataGeneration.BitOps.intArrayToString(c) === modeId;
                                                     }));
                                               var modeKind = DataGeneration.startsWith1(DataGeneration.BitOps.stringToStringArray(modeId)) ? /* Mode */1 : /* NonMode */2;
+                                              var modeNames = Belt_Option.mapWithDefault(Belt_Array.get(Belt_Array.keepMap(speciesNameData, (function (param) {
+                                                                return Belt_Array.getBy(param[2], (function (param) {
+                                                                              var mId = param[0];
+                                                                              var match;
+                                                                              match = mId.TAG === /* Bits */0 ? mId._0 : stepsToBits(DataGeneration.BitOps.stringToIntArray(mId._0));
+                                                                              return modeId === match;
+                                                                            }));
+                                                              })), 0), [], (function (param) {
+                                                        return Belt_Array.map(param[1], (function (param) {
+                                                                      return param[1];
+                                                                    }));
+                                                      })).join(", ");
                                               var tmp;
                                               switch (modeKind) {
                                                 case /* Species */0 :
@@ -466,18 +479,7 @@ function App$Species(Props) {
                                                               selected: selected
                                                             }), React.createElement("div", {
                                                               className: "hidden md:block  flex-1 overflow-x-hidden text-ellipsis whitespace-nowrap px-1"
-                                                            }, Belt_Option.mapWithDefault(Belt_Array.get(Belt_Array.keepMap(speciesNameData, (function (param) {
-                                                                              return Belt_Array.getBy(param[2], (function (param) {
-                                                                                            var mId = param[0];
-                                                                                            var match;
-                                                                                            match = mId.TAG === /* Bits */0 ? mId._0 : stepsToBits(DataGeneration.BitOps.stringToIntArray(mId._0));
-                                                                                            return modeId === match;
-                                                                                          }));
-                                                                            })), 0), [], (function (param) {
-                                                                      return Belt_Array.map(param[1], (function (param) {
-                                                                                    return param[1];
-                                                                                  }));
-                                                                    })).join(", ")));
+                                                            }, modeNames));
                                             })))));
                 })
             });
@@ -539,19 +541,47 @@ function App(Props) {
             })), (function (b) {
           return b;
         }));
+  var modeNames = Belt_Option.mapWithDefault(Belt_Array.get(Belt_Array.keepMap(Data.namedSpecies, (function (param) {
+                    return Belt_Array.getBy(param[2], (function (param) {
+                                  var mId = param[0];
+                                  var match;
+                                  match = mId.TAG === /* Bits */0 ? mId._0 : stepsToBits(DataGeneration.BitOps.stringToIntArray(mId._0));
+                                  return DataGeneration.BitOps.intArrayToString(graphBits) === match;
+                                }));
+                  })), 0), [], (function (param) {
+            return Belt_Array.map(param[1], (function (param) {
+                          return param[1];
+                        }));
+          })).join(", ");
+  var scaleNames = Belt_Array.concatMany(Belt_Array.keepMap(Data.namedSpecies, (function (param) {
+                var sId = param[0];
+                var match;
+                match = sId.TAG === /* Bits */0 ? sId._0 : stepsToBits(DataGeneration.BitOps.stringToIntArray(sId._0));
+                var isMatch = DataGeneration.any(DataGeneration.getRotations(graphBits), (function (x) {
+                        return DataGeneration.BitOps.intArrayToString(x) === match;
+                      }));
+                if (isMatch) {
+                  return Belt_Array.map(param[1], (function (param) {
+                                return param[1];
+                              }));
+                }
+                
+              }))).join(", ");
   return React.createElement("div", {
               className: "flex md:flex-row flex-col h-screen w-screen "
             }, React.createElement(App$PageTitle, {}), React.createElement("div", {
-                  className: "flex-1 flex flex-col p-2  overflow-y-scroll items-center"
+                  className: "flex-1 flex flex-col max-w-[500px] p-2  overflow-y-scroll items-center"
                 }, React.createElement("div", {
                       className: "md:max-h-min  max-w-[500px] w-full"
                     }, React.createElement("div", {
                           className: "w-full self-center"
                         }, React.createElement(make$1, {
                               data: Belt_Array.zip(graphKeys, graphBits)
-                            })), React.createElement("div", {
-                          className: "w-full text-lg text-center p-2 font-bold text-accent-600"
-                        }, "Scale Name"), React.createElement("div", {
+                            })), scaleNames === "" ? null : React.createElement("div", {
+                            className: "w-full text-lg text-center pt-2 font-bold text-accent-600"
+                          }, "Scale: " + scaleNames + ""), scaleNames === "" ? null : React.createElement("div", {
+                            className: "w-full text-lg text-center pb-2 font-bold text-accent-600"
+                          }, "Mode: " + modeNames + ""), React.createElement("div", {
                           className: "w-full text-center pb-2 pt-3 font-medium"
                         }, "Keys"), React.createElement("div", {
                           className: "grid grid-cols-4 gap-2 w-full"

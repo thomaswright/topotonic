@@ -167,7 +167,7 @@ module Scale = {
       <div
         key={i->Int.toString}
         className={[
-          "col-span-1 flex flex-row items-center justify-center min-w-[1.5rem]",
+          "col-span-1 flex flex-row items-center justify-center min-w-[2rem]",
           "",
           switch kind {
           | Species => " "
@@ -294,24 +294,22 @@ module Species = {
 
         let scaleName = speciesId->BitOps.stringToInt->Int.toString
 
+        let onClickHeader = _ => {
+          currentBits->Option.mapWithDefault(
+            {
+              setSpeciesHidden(_ => false)
+              setCurrentBits(_ => speciesId->BitOps.stringToIntArray->Some)
+            },
+            _ => {
+              setSpeciesHidden(_ => !speciesHidden ? anySelected : !speciesHidden)
+              setCurrentBits(_ => anySelected ? None : speciesId->BitOps.stringToIntArray->Some)
+            },
+          )
+        }
+
         <div className={[" py-2 border-b"]->join}>
           {speciesHidden
-            ? <div
-                className={[""]->join}
-                onClick={_ => {
-                  currentBits->Option.mapWithDefault(
-                    {
-                      setSpeciesHidden(_ => false)
-                      setCurrentBits(_ => speciesId->BitOps.stringToIntArray->Some)
-                    },
-                    _ => {
-                      setSpeciesHidden(_ => !speciesHidden ? anySelected : !speciesHidden)
-                      setCurrentBits(_ =>
-                        anySelected ? None : speciesId->BitOps.stringToIntArray->Some
-                      )
-                    },
-                  )
-                }}>
+            ? <div className={[""]->join} onClick={onClickHeader}>
                 {speciesNames == ""
                   ? React.null
                   : <div className="flex flex-row justify-center items-center pb-1">
@@ -348,7 +346,7 @@ module Species = {
                   </div>
                 </div>
                 <div className={["mt-1 mb-4 border-y border-plain-500"]->join}>
-                  {speciesDetails.modes->reactMapWithIndex((i, (modeId, _rotationDegrees)) => {
+                  {speciesDetails.modes->reactMapWithIndex((_i, (modeId, _rotationDegrees)) => {
                     let selected =
                       currentBits->Option.mapWithDefault(false, c =>
                         c->BitOps.intArrayToString == modeId
@@ -358,6 +356,26 @@ module Species = {
                       modeId->BitOps.stringToStringArray->DataGeneration.startsWith1
                         ? Mode
                         : NonMode
+
+                    let modeNames =
+                      speciesNameData
+                      ->Array.keepMap(((_, _, modes)) => {
+                        modes->Array.getBy(
+                          ((mId, _)) => {
+                            let match = switch mId {
+                            | Bits(s) => s
+                            | Steps(stepString) => stepString->BitOps.stringToIntArray->stepsToBits
+                            }
+
+                            modeId == match
+                          },
+                        )
+                      })
+                      ->Array.get(0)
+                      ->Option.mapWithDefault([], ((_, modeNames)) =>
+                        modeNames->Array.map(((_, name)) => name)
+                      )
+                      ->Js.Array2.joinWith(", ")
 
                     <div
                       onClick={_ => setCurrentBits(_ => modeId->BitOps.stringToIntArray->Some)}
@@ -380,26 +398,7 @@ module Species = {
                       />
                       <div
                         className={"hidden md:block  flex-1 overflow-x-hidden text-ellipsis whitespace-nowrap px-1"}>
-                        {speciesNameData
-                        ->Array.keepMap(((_, _, modes)) => {
-                          modes->Array.getBy(
-                            ((mId, _)) => {
-                              let match = switch mId {
-                              | Bits(s) => s
-                              | Steps(stepString) =>
-                                stepString->BitOps.stringToIntArray->stepsToBits
-                              }
-
-                              modeId == match
-                            },
-                          )
-                        })
-                        ->Array.get(0)
-                        ->Option.mapWithDefault([], ((_, modeNames)) =>
-                          modeNames->Array.map(((_, name)) => name)
-                        )
-                        ->Js.Array2.joinWith(", ")
-                        ->str}
+                        {modeNames->str}
                       </div>
                     </div>
                   })}
@@ -458,16 +457,58 @@ let make = () => {
       b => b,
     )
 
+  let modeNames =
+    Data.namedSpecies
+    ->Array.keepMap(((_, _, modes)) => {
+      modes->Array.getBy(((mId, _)) => {
+        let match = switch mId {
+        | Bits(s) => s
+        | Steps(stepString) => stepString->BitOps.stringToIntArray->stepsToBits
+        }
+
+        graphBits->BitOps.intArrayToString == match
+      })
+    })
+    ->Array.get(0)
+    ->Option.mapWithDefault([], ((_, modeNames)) => modeNames->Array.map(((_, name)) => name))
+    ->Js.Array2.joinWith(", ")
+
+  let scaleNames =
+    Data.namedSpecies
+    ->Array.keepMap(((sId, sNames, _modes)) => {
+      let match = switch sId {
+      | Bits(s) => s
+      | Steps(stepString) => stepString->BitOps.stringToIntArray->stepsToBits
+      }
+      let isMatch =
+        graphBits
+        ->DataGeneration.getRotations
+        ->DataGeneration.any(x => {
+          x->BitOps.intArrayToString == match
+        })
+
+      isMatch ? sNames->Array.map(((_tradition, name)) => name)->Some : None
+    })
+    ->Array.concatMany
+    ->Js.Array2.joinWith(", ")
+
   <div className={"flex md:flex-row flex-col h-screen w-screen "}>
     <PageTitle />
-    <div className="flex-1 flex flex-col p-2  overflow-y-scroll items-center">
+    <div className="flex-1 flex flex-col max-w-[500px] p-2  overflow-y-scroll items-center">
       <div className="md:max-h-min  max-w-[500px] w-full">
         <div className={"w-full self-center"}>
           <SVG data={Array.zip(graphKeys, graphBits)} />
         </div>
-        <div className="w-full text-lg text-center p-2 font-bold text-accent-600">
-          {"Scale Name"->str}
-        </div>
+        {scaleNames == ""
+          ? React.null
+          : <div className="w-full text-lg text-center pt-2 font-bold text-accent-600">
+              {`Scale: ${scaleNames}`->str}
+            </div>}
+        {scaleNames == ""
+          ? React.null
+          : <div className="w-full text-lg text-center pb-2 font-bold text-accent-600">
+              {`Mode: ${modeNames}`->str}
+            </div>}
         <div className="w-full text-center pb-2 pt-3 font-medium"> {"Keys"->str} </div>
         <div className={"grid grid-cols-4 gap-2 w-full"}>
           {pitchKeys->reactMapWithIndex((i, v) => {
