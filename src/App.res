@@ -433,6 +433,28 @@ module About = {
   external make: unit => React.element = "default"
 }
 
+let generateChromaticScale = (startFrequency, numNotes) => {
+  let semitoneRatio = 2. ** (1. /. 12.)
+
+  Array.range(0, numNotes)->Array.map(v => {
+    (startFrequency->Float.fromInt *. semitoneRatio ** v->Float.fromInt)->Int.fromFloat
+  })
+}
+
+// Important that these be uncurried.
+// Will throw a "this is undefined" error otherwise.
+type notePlayer = {
+  playNote: (. int, int) => unit,
+  setVolume: (. float) => unit,
+  playNotesSequentially: (. array<(int, int)>, int) => unit,
+}
+
+@module("./NotePlayer.js") @new external makeNotePlayer: unit => notePlayer = "default"
+
+let notePlayer = makeNotePlayer()
+
+notePlayer.setVolume(. 0.3)
+
 @react.component
 let make = () => {
   let (currentBits, setCurrentBits) = React.useState(_ => None)
@@ -451,8 +473,6 @@ let make = () => {
     | Some(Pitch(shift)) => pitchKeys->DataGeneration.rotate(shift)
     }
   }
-
-  // Js.log(resultExport)
 
   let graphBits =
     currentBits->Option.mapWithDefault(
@@ -513,6 +533,29 @@ let make = () => {
           : <div className="w-full text-lg text-center pb-2 font-bold text-accent-600">
               {`Mode: ${modeNames}`->str}
             </div>}
+        <button
+          onClick={_ => {
+            let cBaseFreq = 220
+            let cChromScale = generateChromaticScale(cBaseFreq, 12)
+            let newBase = switch currentKey {
+            | Some(Pitch(i)) => cChromScale->Array.get(i)->Option.getWithDefault(cBaseFreq)
+            | _ => cBaseFreq
+            }
+            let newChromScale = generateChromaticScale(cBaseFreq + newBase, 12)
+
+            let seq =
+              newChromScale
+              ->Array.keepWithIndex((_v, i) => {
+                graphBits->Array.get(i)->Option.mapWithDefault(false, bit => bit == 1)
+              })
+              ->(x =>
+                x->Array.get(0)->Option.mapWithDefault(x, head => Array.concat(x, [head * 2])))
+              ->Array.map(v => (v, 400))
+
+            notePlayer.playNotesSequentially(. seq, 0)
+          }}>
+          {"Play"->str}
+        </button>
         <div className="w-full text-center pb-2 pt-3 font-medium"> {"Keys"->str} </div>
         <div className={"grid grid-cols-4 gap-2 w-full"}>
           {pitchKeys->reactMapWithIndex((i, v) => {

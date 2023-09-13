@@ -13,6 +13,7 @@ import * as Belt_MapString from "rescript/lib/es6/belt_MapString.js";
 import * as DataGeneration from "./DataGeneration.bs.js";
 import * as Bs from "react-icons/bs";
 import * as Fa from "react-icons/fa";
+import NotePlayerJs from "./NotePlayer.js";
 
 function join(__x) {
   return __x.join(" ");
@@ -511,6 +512,21 @@ var About = {
   make: make$2
 };
 
+function generateChromaticScale(startFrequency, numNotes) {
+  var semitoneRatio = Math.pow(2, 1 / 12);
+  return Belt_Array.map(Belt_Array.range(0, numNotes), (function (v) {
+                return startFrequency * Math.pow(semitoneRatio, v) | 0;
+              }));
+}
+
+function makeNotePlayer(prim) {
+  return new NotePlayerJs();
+}
+
+var notePlayer = new NotePlayerJs();
+
+notePlayer.setVolume(0.3);
+
 function App(Props) {
   var match = React.useState(function () {
         
@@ -581,7 +597,27 @@ function App(Props) {
                             className: "w-full text-lg text-center pt-2 font-bold text-accent-600"
                           }, "Scale: " + scaleNames + ""), modeNames === "" ? null : React.createElement("div", {
                             className: "w-full text-lg text-center pb-2 font-bold text-accent-600"
-                          }, "Mode: " + modeNames + ""), React.createElement("div", {
+                          }, "Mode: " + modeNames + ""), React.createElement("button", {
+                          onClick: (function (param) {
+                              var cChromScale = generateChromaticScale(220, 12);
+                              var newBase = currentKey !== undefined && typeof currentKey !== "number" ? Belt_Option.getWithDefault(Belt_Array.get(cChromScale, currentKey._0), 220) : 220;
+                              var newChromScale = generateChromaticScale(220 + newBase | 0, 12);
+                              var x = Belt_Array.keepWithIndex(newChromScale, (function (_v, i) {
+                                      return Belt_Option.mapWithDefault(Belt_Array.get(graphBits, i), false, (function (bit) {
+                                                    return bit === 1;
+                                                  }));
+                                    }));
+                              var seq = Belt_Array.map(Belt_Option.mapWithDefault(Belt_Array.get(x, 0), x, (function (head) {
+                                          return Belt_Array.concat(x, [(head << 1)]);
+                                        })), (function (v) {
+                                      return [
+                                              v,
+                                              400
+                                            ];
+                                    }));
+                              notePlayer.playNotesSequentially(seq, 0);
+                            })
+                        }, "Play"), React.createElement("div", {
                           className: "w-full text-center pb-2 pt-3 font-medium"
                         }, "Keys"), React.createElement("div", {
                           className: "grid grid-cols-4 gap-2 w-full"
@@ -769,6 +805,9 @@ export {
   Species ,
   PageTitle ,
   About ,
+  generateChromaticScale ,
+  makeNotePlayer ,
+  notePlayer ,
   make$3 as make,
   $$default ,
   $$default as default,
