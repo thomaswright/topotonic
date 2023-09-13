@@ -30,6 +30,11 @@ module ChevronDown = {
     "FaChevronDown"
 }
 
+module PlayIcon = {
+  @module("react-icons/fa") @react.component
+  external make: (~size: int=?, ~color: string=?, ~className: string=?) => React.element = "FaPlay"
+}
+
 module Collapsed = {
   @react.component
   let make = (~render) => {
@@ -451,9 +456,11 @@ type notePlayer = {
 
 @module("./NotePlayer.js") @new external makeNotePlayer: unit => notePlayer = "default"
 
-let notePlayer = makeNotePlayer()
+// let notePlayer = makeNotePlayer()
 
-notePlayer.setVolume(. 0.3)
+// notePlayer.setVolume(. 0.3)
+
+@module("./Tone.js") external triggerAttackRelease: (. int, string, float) => unit = "default"
 
 @react.component
 let make = () => {
@@ -519,10 +526,44 @@ let make = () => {
     <PageTitle />
     <div
       className="flex-1 flex flex-col w-screen md:w-auto md:max-w-[500px] p-2  overflow-y-scroll items-center">
-      <div className="md:max-h-min  max-w-[500px] w-full">
+      <div className=" md:max-h-min  max-w-[500px] w-full">
         <div className={"pt-2 w-full self-center"}>
           <SVG data={Array.zip(graphKeys, graphBits)} />
         </div>
+        {currentBits->Option.isNone
+          ? React.null
+          : <div className="relative">
+              <button
+                className={"absolute -top-4 right-4 flex flex-row gap-2 py-1 px-4 border border-plain-400 bg-plain-200 rounded-full items-center justify-center font-bold text-xl"}
+                onClick={_ => {
+                  let cBaseFreq = 110
+                  let cChromScale = generateChromaticScale(cBaseFreq, 12)
+                  let newBase = switch currentKey {
+                  | Some(Pitch(i)) => cChromScale->Array.get(i)->Option.getWithDefault(cBaseFreq)
+                  | _ => cBaseFreq
+                  }
+                  let newChromScale = generateChromaticScale(cBaseFreq + newBase, 12)
+
+                  let seq =
+                    newChromScale
+                    ->Array.keepWithIndex((_v, i) => {
+                      graphBits->Array.get(i)->Option.mapWithDefault(false, bit => bit == 1)
+                    })
+                    ->(
+                      x =>
+                        x
+                        ->Array.get(0)
+                        ->Option.mapWithDefault(x, head => Array.concat(x, [head * 2]))
+                    )
+
+                  seq->Array.forEachWithIndex((i, v) => {
+                    triggerAttackRelease(. v, "8n", i->Int.toFloat *. 0.5)
+                  })
+                }}>
+                <PlayIcon size={16} />
+                {"Play"->str}
+              </button>
+            </div>}
         {scaleNames == ""
           ? React.null
           : <div className="w-full text-lg text-center pt-2 font-bold text-accent-600">
@@ -533,29 +574,6 @@ let make = () => {
           : <div className="w-full text-lg text-center pb-2 font-bold text-accent-600">
               {`Mode: ${modeNames}`->str}
             </div>}
-        <button
-          onClick={_ => {
-            let cBaseFreq = 220
-            let cChromScale = generateChromaticScale(cBaseFreq, 12)
-            let newBase = switch currentKey {
-            | Some(Pitch(i)) => cChromScale->Array.get(i)->Option.getWithDefault(cBaseFreq)
-            | _ => cBaseFreq
-            }
-            let newChromScale = generateChromaticScale(cBaseFreq + newBase, 12)
-
-            let seq =
-              newChromScale
-              ->Array.keepWithIndex((_v, i) => {
-                graphBits->Array.get(i)->Option.mapWithDefault(false, bit => bit == 1)
-              })
-              ->(x =>
-                x->Array.get(0)->Option.mapWithDefault(x, head => Array.concat(x, [head * 2])))
-              ->Array.map(v => (v, 400))
-
-            notePlayer.playNotesSequentially(. seq, 0)
-          }}>
-          {"Play"->str}
-        </button>
         <div className="w-full text-center pb-2 pt-3 font-medium"> {"Keys"->str} </div>
         <div className={"grid grid-cols-4 gap-2 w-full"}>
           {pitchKeys->reactMapWithIndex((i, v) => {

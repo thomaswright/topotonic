@@ -4,6 +4,7 @@ import * as Data from "./Data.bs.js";
 import * as Curry from "rescript/lib/es6/curry.js";
 import * as React from "react";
 import * as SVGJsx from "./SVG.jsx";
+import ToneJs from "./Tone.js";
 import * as Belt_Array from "rescript/lib/es6/belt_Array.js";
 import * as IconsJsx from "./Icons.jsx";
 import AboutJsx from "./about.jsx";
@@ -42,6 +43,8 @@ var SVG = {
 var Symmetry = {};
 
 var ChevronDown = {};
+
+var PlayIcon = {};
 
 function App$Collapsed(Props) {
   var render = Props.render;
@@ -523,9 +526,7 @@ function makeNotePlayer(prim) {
   return new NotePlayerJs();
 }
 
-var notePlayer = new NotePlayerJs();
-
-notePlayer.setVolume(0.3);
+var triggerAttackRelease = ToneJs;
 
 function App(Props) {
   var match = React.useState(function () {
@@ -588,36 +589,38 @@ function App(Props) {
             }, React.createElement(App$PageTitle, {}), React.createElement("div", {
                   className: "flex-1 flex flex-col w-screen md:w-auto md:max-w-[500px] p-2  overflow-y-scroll items-center"
                 }, React.createElement("div", {
-                      className: "md:max-h-min  max-w-[500px] w-full"
+                      className: " md:max-h-min  max-w-[500px] w-full"
                     }, React.createElement("div", {
                           className: "pt-2 w-full self-center"
                         }, React.createElement(make$1, {
                               data: Belt_Array.zip(graphKeys, graphBits)
-                            })), scaleNames === "" ? null : React.createElement("div", {
+                            })), Belt_Option.isNone(currentBits) ? null : React.createElement("div", {
+                            className: "relative"
+                          }, React.createElement("button", {
+                                className: "absolute -top-4 right-4 flex flex-row gap-2 py-1 px-4 border border-plain-400 bg-plain-200 rounded-full items-center justify-center font-bold text-xl",
+                                onClick: (function (param) {
+                                    var cChromScale = generateChromaticScale(110, 12);
+                                    var newBase = currentKey !== undefined && typeof currentKey !== "number" ? Belt_Option.getWithDefault(Belt_Array.get(cChromScale, currentKey._0), 110) : 110;
+                                    var newChromScale = generateChromaticScale(110 + newBase | 0, 12);
+                                    var x = Belt_Array.keepWithIndex(newChromScale, (function (_v, i) {
+                                            return Belt_Option.mapWithDefault(Belt_Array.get(graphBits, i), false, (function (bit) {
+                                                          return bit === 1;
+                                                        }));
+                                          }));
+                                    var seq = Belt_Option.mapWithDefault(Belt_Array.get(x, 0), x, (function (head) {
+                                            return Belt_Array.concat(x, [(head << 1)]);
+                                          }));
+                                    Belt_Array.forEachWithIndex(seq, (function (i, v) {
+                                            triggerAttackRelease(v, "8n", i * 0.5);
+                                          }));
+                                  })
+                              }, React.createElement(Fa.FaPlay, {
+                                    size: 16
+                                  }), "Play")), scaleNames === "" ? null : React.createElement("div", {
                             className: "w-full text-lg text-center pt-2 font-bold text-accent-600"
                           }, "Scale: " + scaleNames + ""), modeNames === "" ? null : React.createElement("div", {
                             className: "w-full text-lg text-center pb-2 font-bold text-accent-600"
-                          }, "Mode: " + modeNames + ""), React.createElement("button", {
-                          onClick: (function (param) {
-                              var cChromScale = generateChromaticScale(220, 12);
-                              var newBase = currentKey !== undefined && typeof currentKey !== "number" ? Belt_Option.getWithDefault(Belt_Array.get(cChromScale, currentKey._0), 220) : 220;
-                              var newChromScale = generateChromaticScale(220 + newBase | 0, 12);
-                              var x = Belt_Array.keepWithIndex(newChromScale, (function (_v, i) {
-                                      return Belt_Option.mapWithDefault(Belt_Array.get(graphBits, i), false, (function (bit) {
-                                                    return bit === 1;
-                                                  }));
-                                    }));
-                              var seq = Belt_Array.map(Belt_Option.mapWithDefault(Belt_Array.get(x, 0), x, (function (head) {
-                                          return Belt_Array.concat(x, [(head << 1)]);
-                                        })), (function (v) {
-                                      return [
-                                              v,
-                                              400
-                                            ];
-                                    }));
-                              notePlayer.playNotesSequentially(seq, 0);
-                            })
-                        }, "Play"), React.createElement("div", {
+                          }, "Mode: " + modeNames + ""), React.createElement("div", {
                           className: "w-full text-center pb-2 pt-3 font-medium"
                         }, "Keys"), React.createElement("div", {
                           className: "grid grid-cols-4 gap-2 w-full"
@@ -790,6 +793,7 @@ export {
   SVG ,
   Symmetry ,
   ChevronDown ,
+  PlayIcon ,
   Collapsed ,
   pitchKeys ,
   pitchKeysShort ,
@@ -807,7 +811,7 @@ export {
   About ,
   generateChromaticScale ,
   makeNotePlayer ,
-  notePlayer ,
+  triggerAttackRelease ,
   make$3 as make,
   $$default ,
   $$default as default,
