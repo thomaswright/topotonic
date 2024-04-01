@@ -3,20 +3,14 @@
 
 var namedSpecies = [
   [
-    {
-      TAG: /* Bits */0,
-      _0: "101010010100"
-    },
+    "22323",
     [[
         /* Misc */0,
         "Pentatonic"
       ]],
     [
       [
-        {
-          TAG: /* Bits */0,
-          _0: "101010010100"
-        },
+        "22323",
         [
           [
             /* Misc */0,
@@ -33,10 +27,7 @@ var namedSpecies = [
         ]
       ],
       [
-        {
-          TAG: /* Bits */0,
-          _0: "101001010010"
-        },
+        "23232",
         [
           [
             /* Misc */0,
@@ -53,10 +44,7 @@ var namedSpecies = [
         ]
       ],
       [
-        {
-          TAG: /* Bits */0,
-          _0: "100101001010"
-        },
+        "32322",
         [
           [
             /* Misc */0,
@@ -69,10 +57,7 @@ var namedSpecies = [
         ]
       ],
       [
-        {
-          TAG: /* Bits */0,
-          _0: "101001010100"
-        },
+        "23223",
         [
           [
             /* Misc */0,
@@ -93,10 +78,7 @@ var namedSpecies = [
         ]
       ],
       [
-        {
-          TAG: /* Bits */0,
-          _0: "100101010010"
-        },
+        "23223",
         [
           [
             /* Misc */0,
@@ -111,20 +93,14 @@ var namedSpecies = [
     ]
   ],
   [
-    {
-      TAG: /* Steps */1,
-      _0: "1221222"
-    },
+    "1221222",
     [[
         /* Misc */0,
         "Diatonic"
       ]],
     [
       [
-        {
-          TAG: /* Steps */1,
-          _0: "1221222"
-        },
+        "1221222",
         [
           [
             /* Numbers */2,
@@ -137,10 +113,7 @@ var namedSpecies = [
         ]
       ],
       [
-        {
-          TAG: /* Steps */1,
-          _0: "2212221"
-        },
+        "2212221",
         [
           [
             /* Numbers */2,
@@ -157,10 +130,7 @@ var namedSpecies = [
         ]
       ],
       [
-        {
-          TAG: /* Steps */1,
-          _0: "2122212"
-        },
+        "2122212",
         [
           [
             /* Numbers */2,
@@ -173,10 +143,7 @@ var namedSpecies = [
         ]
       ],
       [
-        {
-          TAG: /* Steps */1,
-          _0: "1222122"
-        },
+        "1222122",
         [
           [
             /* Numbers */2,
@@ -189,10 +156,7 @@ var namedSpecies = [
         ]
       ],
       [
-        {
-          TAG: /* Steps */1,
-          _0: "2221221"
-        },
+        "2221221",
         [
           [
             /* Numbers */2,
@@ -205,10 +169,7 @@ var namedSpecies = [
         ]
       ],
       [
-        {
-          TAG: /* Steps */1,
-          _0: "2212212"
-        },
+        "2212212",
         [
           [
             /* Numbers */2,
@@ -225,10 +186,7 @@ var namedSpecies = [
         ]
       ],
       [
-        {
-          TAG: /* Steps */1,
-          _0: "2122122"
-        },
+        "2122122",
         [
           [
             /* Numbers */2,
@@ -251,16 +209,10 @@ var namedSpecies = [
     ]
   ],
   [
-    {
-      TAG: /* Steps */1,
-      _0: "1212222"
-    },
+    "1212222",
     [],
     [[
-        {
-          TAG: /* Steps */1,
-          _0: "1212222"
-        },
+        "1212222",
         [
           [
             /* Misc */0,
@@ -278,10 +230,7 @@ var namedSpecies = [
       ]]
   ],
   [
-    {
-      TAG: /* Steps */1,
-      _0: "21414"
-    },
+    "21414",
     [[
         /* Misc */0,
         "Hirajoshi"
@@ -289,10 +238,7 @@ var namedSpecies = [
     []
   ],
   [
-    {
-      TAG: /* Steps */1,
-      _0: "14232"
-    },
+    "14232",
     [[
         /* Misc */0,
         "Insen"
@@ -300,10 +246,7 @@ var namedSpecies = [
     []
   ],
   [
-    {
-      TAG: /* Steps */1,
-      _0: "14142"
-    },
+    "14142",
     [[
         /* Misc */0,
         "Iwato"
@@ -311,10 +254,7 @@ var namedSpecies = [
     []
   ],
   [
-    {
-      TAG: /* Steps */1,
-      _0: "321132"
-    },
+    "321132",
     [[
         /* Misc */0,
         "Blues 6"
@@ -322,10 +262,7 @@ var namedSpecies = [
     []
   ],
   [
-    {
-      TAG: /* Steps */1,
-      _0: "222222"
-    },
+    "222222",
     [[
         /* Misc */0,
         "Whole Tone"
@@ -333,10 +270,7 @@ var namedSpecies = [
     []
   ],
   [
-    {
-      TAG: /* Steps */1,
-      _0: "222123"
-    },
+    "222123",
     [[
         /* Misc */0,
         "Acoustic"
@@ -344,10 +278,7 @@ var namedSpecies = [
     []
   ],
   [
-    {
-      TAG: /* Steps */1,
-      _0: "313131"
-    },
+    "313131",
     [[
         /* Misc */0,
         "Augmented"
@@ -355,10 +286,7 @@ var namedSpecies = [
     []
   ],
   [
-    {
-      TAG: /* Steps */1,
-      _0: "121215"
-    },
+    "121215",
     [[
         /* Misc */0,
         "Istrian"
@@ -366,10 +294,7 @@ var namedSpecies = [
     []
   ],
   [
-    {
-      TAG: /* Steps */1,
-      _0: "222312"
-    },
+    "222312",
     [[
         /* Misc */0,
         "Prometheus"
@@ -377,10 +302,7 @@ var namedSpecies = [
     []
   ],
   [
-    {
-      TAG: /* Steps */1,
-      _0: "132132"
-    },
+    "132132",
     [[
         /* Misc */0,
         "Tritone"
@@ -388,10 +310,7 @@ var namedSpecies = [
     []
   ],
   [
-    {
-      TAG: /* Steps */1,
-      _0: "2121132"
-    },
+    "2121132",
     [[
         /* Misc */0,
         "Blues 7"
@@ -399,16 +318,10 @@ var namedSpecies = [
     []
   ],
   [
-    {
-      TAG: /* Steps */1,
-      _0: "1321212"
-    },
+    "1321212",
     [],
     [[
-        {
-          TAG: /* Steps */1,
-          _0: "1321212"
-        },
+        "1321212",
         [[
             /* Misc */0,
             "Romanian Major"
@@ -416,10 +329,7 @@ var namedSpecies = [
       ]]
   ],
   [
-    {
-      TAG: /* Steps */1,
-      _0: "2122221"
-    },
+    "2122221",
     [
       [
         /* Misc */0,
@@ -433,10 +343,7 @@ var namedSpecies = [
     []
   ],
   [
-    {
-      TAG: /* Steps */1,
-      _0: "2212131"
-    },
+    "2212131",
     [[
         /* Misc */0,
         "Harmonic Major"
@@ -444,16 +351,10 @@ var namedSpecies = [
     []
   ],
   [
-    {
-      TAG: /* Steps */1,
-      _0: "2121222"
-    },
+    "2121222",
     [],
     [[
-        {
-          TAG: /* Steps */1,
-          _0: "2121222"
-        },
+        "2121222",
         [[
             /* Jewish */4,
             "Yistabach"
@@ -461,30 +362,21 @@ var namedSpecies = [
       ]]
   ],
   [
-    {
-      TAG: /* Steps */1,
-      _0: "2122131"
-    },
+    "2122131",
     [[
         /* Misc */0,
         "Harmonic Minor"
       ]],
     [
       [
-        {
-          TAG: /* Steps */1,
-          _0: "2122131"
-        },
+        "2122131",
         [[
             /* Misc */0,
             "Harmonic Minor"
           ]]
       ],
       [
-        {
-          TAG: /* Steps */1,
-          _0: "2131212"
-        },
+        "2131212",
         [
           [
             /* Misc */0,
@@ -497,10 +389,7 @@ var namedSpecies = [
         ]
       ],
       [
-        {
-          TAG: /* Steps */1,
-          _0: "1312122"
-        },
+        "1312122",
         [
           [
             /* Misc */0,
@@ -519,20 +408,14 @@ var namedSpecies = [
     ]
   ],
   [
-    {
-      TAG: /* Steps */1,
-      _0: "1312131"
-    },
+    "1312131",
     [[
         /* Misc */0,
         "Double Harmonic"
       ]],
     [
       [
-        {
-          TAG: /* Steps */1,
-          _0: "1312131"
-        },
+        "1312131",
         [
           [
             /* Misc */0,
@@ -545,30 +428,21 @@ var namedSpecies = [
         ]
       ],
       [
-        {
-          TAG: /* Steps */1,
-          _0: "3121311"
-        },
+        "3121311",
         [[
             /* Misc */0,
             ""
           ]]
       ],
       [
-        {
-          TAG: /* Steps */1,
-          _0: "1213113"
-        },
+        "1213113",
         [[
             /* Misc */0,
             "Ultraphrygian"
           ]]
       ],
       [
-        {
-          TAG: /* Steps */1,
-          _0: "2131131"
-        },
+        "2131131",
         [
           [
             /* Misc */0,
@@ -593,30 +467,21 @@ var namedSpecies = [
         ]
       ],
       [
-        {
-          TAG: /* Steps */1,
-          _0: "1311312"
-        },
+        "1311312",
         [[
             /* Misc */0,
             "Oriental"
           ]]
       ],
       [
-        {
-          TAG: /* Steps */1,
-          _0: "3113121"
-        },
+        "3113121",
         [[
             /* Misc */0,
             ""
           ]]
       ],
       [
-        {
-          TAG: /* Steps */1,
-          _0: "1131213"
-        },
+        "1131213",
         [[
             /* Misc */0,
             ""
@@ -625,16 +490,10 @@ var namedSpecies = [
     ]
   ],
   [
-    {
-      TAG: /* Steps */1,
-      _0: "1322211"
-    },
+    "1322211",
     [],
     [[
-        {
-          TAG: /* Steps */1,
-          _0: "1322211"
-        },
+        "1322211",
         [[
             /* Misc */0,
             "Enigmatic"
@@ -642,40 +501,28 @@ var namedSpecies = [
       ]]
   ],
   [
-    {
-      TAG: /* Steps */1,
-      _0: "1222131"
-    },
+    "1222131",
     [[
         /* Misc */0,
         "Neapolitan Minor"
       ]],
     [
       [
-        {
-          TAG: /* Steps */1,
-          _0: "1222131"
-        },
+        "1222131",
         [[
             /* Misc */0,
             "Neapolitan Minor "
           ]]
       ],
       [
-        {
-          TAG: /* Steps */1,
-          _0: "2131122"
-        },
+        "2131122",
         [[
             /* Misc */0,
             "Gypsy Minor"
           ]]
       ],
       [
-        {
-          TAG: /* Steps */1,
-          _0: "1122213"
-        },
+        "1122213",
         [[
             /* Misc */0,
             "Ultralocrian"
@@ -684,40 +531,28 @@ var namedSpecies = [
     ]
   ],
   [
-    {
-      TAG: /* Steps */1,
-      _0: "1222221"
-    },
+    "1222221",
     [[
         /* Misc */0,
         "Neapolitan Major"
       ]],
     [
       [
-        {
-          TAG: /* Steps */1,
-          _0: "1222221"
-        },
+        "1222221",
         [[
             /* Misc */0,
             "Neapolitan Major"
           ]]
       ],
       [
-        {
-          TAG: /* Steps */1,
-          _0: "2222211"
-        },
+        "2222211",
         [[
             /* Misc */0,
             "Leading Whole Tone"
           ]]
       ],
       [
-        {
-          TAG: /* Steps */1,
-          _0: "2112222"
-        },
+        "2112222",
         [[
             /* Misc */0,
             "Major Locrian"
@@ -726,10 +561,7 @@ var namedSpecies = [
     ]
   ],
   [
-    {
-      TAG: /* Steps */1,
-      _0: "1311231"
-    },
+    "1311231",
     [[
         /* Misc */0,
         "Persian"
@@ -737,10 +569,7 @@ var namedSpecies = [
     []
   ],
   [
-    {
-      TAG: /* Steps */1,
-      _0: "21212121"
-    },
+    "21212121",
     [[
         /* Misc */0,
         "Octatonic"
@@ -748,10 +577,7 @@ var namedSpecies = [
     []
   ],
   [
-    {
-      TAG: /* Steps */1,
-      _0: "22122111"
-    },
+    "22122111",
     [[
         /* Misc */0,
         "Bebop Dominant"
@@ -759,10 +585,7 @@ var namedSpecies = [
     []
   ],
   [
-    {
-      TAG: /* Steps */1,
-      _0: "22121121"
-    },
+    "22121121",
     [[
         /* Misc */0,
         "Bebop Major"
@@ -770,10 +593,7 @@ var namedSpecies = [
     []
   ],
   [
-    {
-      TAG: /* Steps */1,
-      _0: "212211111"
-    },
+    "212211111",
     [
       [
         /* Misc */0,
@@ -787,10 +607,7 @@ var namedSpecies = [
     []
   ],
   [
-    {
-      TAG: /* Steps */1,
-      _0: "111111111111"
-    },
+    "111111111111",
     [[
         /* Misc */0,
         "Chromatic"

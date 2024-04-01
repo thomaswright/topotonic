@@ -246,11 +246,10 @@ module Species = {
 
     let _scaleRange = Array.range(1, scaleLength)
 
-    let speciesNameData = Data.namedSpecies->Array.keep(((sId, _, _)) => {
-      switch sId {
-      | Bits(s) => s
-      | Steps(s) => s->BitOps.stringToIntArray->stepsToBits
-      }
+    let speciesNameData = Data.namedSpecies->Array.keep(((s, _, _)) => {
+      s
+      ->BitOps.stringToIntArray
+      ->stepsToBits
       ->BitOps.stringToStringArray
       ->DataGeneration.getRotations
       ->DataGeneration.any(x => {
@@ -371,12 +370,7 @@ module Species = {
                       ->Array.keepMap(((_, _, modes)) => {
                         modes->Array.getBy(
                           ((mId, _)) => {
-                            let match = switch mId {
-                            | Bits(s) => s
-                            | Steps(stepString) => stepString->BitOps.stringToIntArray->stepsToBits
-                            }
-
-                            modeId == match
+                            modeId == mId->BitOps.stringToIntArray->stepsToBits
                           },
                         )
                       })
@@ -496,12 +490,7 @@ let make = () => {
     Data.namedSpecies
     ->Array.keepMap(((_, _, modes)) => {
       modes->Array.getBy(((mId, _)) => {
-        let match = switch mId {
-        | Bits(s) => s
-        | Steps(stepString) => stepString->BitOps.stringToIntArray->stepsToBits
-        }
-
-        graphBits->BitOps.intArrayToString == match
+        graphBits->BitOps.intArrayToString == mId->BitOps.stringToIntArray->stepsToBits
       })
     })
     ->Array.get(0)
@@ -511,15 +500,11 @@ let make = () => {
   let scaleNames =
     Data.namedSpecies
     ->Array.keepMap(((sId, sNames, _modes)) => {
-      let match = switch sId {
-      | Bits(s) => s
-      | Steps(stepString) => stepString->BitOps.stringToIntArray->stepsToBits
-      }
       let isMatch =
         graphBits
         ->DataGeneration.getRotations
         ->DataGeneration.any(x => {
-          x->BitOps.intArrayToString == match
+          x->BitOps.intArrayToString == sId->BitOps.stringToIntArray->stepsToBits
         })
 
       isMatch ? sNames->Array.map(((_tradition, name)) => name)->Some : None

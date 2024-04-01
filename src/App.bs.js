@@ -383,10 +383,7 @@ function App$Species(Props) {
   }
   Belt_Array.range(1, scaleLength);
   var speciesNameData = Belt_Array.keep(Data.namedSpecies, (function (param) {
-          var sId = param[0];
-          var tmp;
-          tmp = sId.TAG === /* Bits */0 ? sId._0 : stepsToBits(DataGeneration.BitOps.stringToIntArray(sId._0));
-          return DataGeneration.any(DataGeneration.getRotations(DataGeneration.BitOps.stringToStringArray(tmp)), (function (x) {
+          return DataGeneration.any(DataGeneration.getRotations(DataGeneration.BitOps.stringToStringArray(stepsToBits(DataGeneration.BitOps.stringToIntArray(param[0])))), (function (x) {
                         return DataGeneration.BitOps.stringArrayToString(x) === speciesId;
                       }));
         }));
@@ -482,10 +479,7 @@ function App$Species(Props) {
                                               var modeKind = DataGeneration.startsWith1(DataGeneration.BitOps.stringToStringArray(modeId)) ? /* Mode */1 : /* NonMode */2;
                                               var modeNames = Belt_Option.mapWithDefault(Belt_Array.get(Belt_Array.keepMap(speciesNameData, (function (param) {
                                                                 return Belt_Array.getBy(param[2], (function (param) {
-                                                                              var mId = param[0];
-                                                                              var match;
-                                                                              match = mId.TAG === /* Bits */0 ? mId._0 : stepsToBits(DataGeneration.BitOps.stringToIntArray(mId._0));
-                                                                              return modeId === match;
+                                                                              return modeId === stepsToBits(DataGeneration.BitOps.stringToIntArray(param[0]));
                                                                             }));
                                                               })), 0), [], (function (param) {
                                                         return Belt_Array.map(param[1], (function (param) {
@@ -617,10 +611,7 @@ function App(Props) {
         }));
   var modeNames = Belt_Option.mapWithDefault(Belt_Array.get(Belt_Array.keepMap(Data.namedSpecies, (function (param) {
                     return Belt_Array.getBy(param[2], (function (param) {
-                                  var mId = param[0];
-                                  var match;
-                                  match = mId.TAG === /* Bits */0 ? mId._0 : stepsToBits(DataGeneration.BitOps.stringToIntArray(mId._0));
-                                  return DataGeneration.BitOps.intArrayToString(graphBits) === match;
+                                  return DataGeneration.BitOps.intArrayToString(graphBits) === stepsToBits(DataGeneration.BitOps.stringToIntArray(param[0]));
                                 }));
                   })), 0), [], (function (param) {
             return Belt_Array.map(param[1], (function (param) {
@@ -629,10 +620,8 @@ function App(Props) {
           })).join(", ");
   var scaleNames = Belt_Array.concatMany(Belt_Array.keepMap(Data.namedSpecies, (function (param) {
                 var sId = param[0];
-                var match;
-                match = sId.TAG === /* Bits */0 ? sId._0 : stepsToBits(DataGeneration.BitOps.stringToIntArray(sId._0));
                 var isMatch = DataGeneration.any(DataGeneration.getRotations(graphBits), (function (x) {
-                        return DataGeneration.BitOps.intArrayToString(x) === match;
+                        return DataGeneration.BitOps.intArrayToString(x) === stepsToBits(DataGeneration.BitOps.stringToIntArray(sId));
                       }));
                 if (isMatch) {
                   return Belt_Array.map(param[1], (function (param) {
