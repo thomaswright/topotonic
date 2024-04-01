@@ -133,6 +133,14 @@ var dimAugs = [
   "d8"
 ];
 
+var IntervalRefs = {
+  pitchKeys: pitchKeys,
+  pitchKeysShort: pitchKeysShort,
+  semitones: semitones,
+  mMPs: mMPs,
+  dimAugs: dimAugs
+};
+
 function stepsToBits(x) {
   return Belt_Array.reduce(x, "", (function (acc, value) {
                 var tmp;
@@ -216,7 +224,7 @@ function bitToDisplaySymbol(bit, index, currentKey, currentStepDisplay, bitStrin
   }
 }
 
-function App$Key(Props) {
+function App$StepButton(Props) {
   var selected = Props.selected;
   var onClick = Props.onClick;
   var children = Props.children;
@@ -229,8 +237,8 @@ function App$Key(Props) {
             }, children);
 }
 
-var Key = {
-  make: App$Key
+var StepButton = {
+  make: App$StepButton
 };
 
 function App$Scale(Props) {
@@ -672,7 +680,7 @@ function App(Props) {
                           className: "grid grid-cols-4 gap-2 w-full"
                         }, Belt_Array.mapWithIndex(pitchKeys, (function (i, v) {
                                 var selected = i === currentKey;
-                                return React.createElement(App$Key, {
+                                return React.createElement(App$StepButton, {
                                             selected: selected,
                                             onClick: (function (param) {
                                                 Curry._1(setCurrentKey, (function (param) {
@@ -684,7 +692,7 @@ function App(Props) {
                                           });
                               }))), React.createElement("div", {
                           className: "w-full text-center pb-2 pt-3 font-medium"
-                        }, "Step Display"), React.createElement(App$Key, {
+                        }, "Step Display"), React.createElement(App$StepButton, {
                           selected: currentStepDisplay === /* Key */0,
                           onClick: (function (param) {
                               Curry._1(setCurrentStepDisplay, (function (param) {
@@ -694,7 +702,7 @@ function App(Props) {
                           children: "Key"
                         }), React.createElement("div", {
                           className: "grid grid-cols-3 gap-2 w-full pb-2 pt-2"
-                        }, React.createElement(App$Key, {
+                        }, React.createElement(App$StepButton, {
                               selected: currentStepDisplay === /* MinMaj */1,
                               onClick: (function (param) {
                                   Curry._1(setCurrentStepDisplay, (function (param) {
@@ -702,7 +710,7 @@ function App(Props) {
                                         }));
                                 }),
                               children: "Min-Maj Int."
-                            }), React.createElement(App$Key, {
+                            }), React.createElement(App$StepButton, {
                               selected: currentStepDisplay === /* DimAug */2,
                               onClick: (function (param) {
                                   Curry._1(setCurrentStepDisplay, (function (param) {
@@ -710,7 +718,7 @@ function App(Props) {
                                         }));
                                 }),
                               children: "Dim-Aug Int."
-                            }), React.createElement(App$Key, {
+                            }), React.createElement(App$StepButton, {
                               selected: currentStepDisplay === /* Semitone */3,
                               onClick: (function (param) {
                                   Curry._1(setCurrentStepDisplay, (function (param) {
@@ -720,7 +728,7 @@ function App(Props) {
                               children: "Semitone Int."
                             })), React.createElement("div", {
                           className: "grid grid-cols-2 gap-2 w-full pb-2"
-                        }, React.createElement(App$Key, {
+                        }, React.createElement(App$StepButton, {
                               selected: currentStepDisplay === /* SemitoneSteps */4,
                               onClick: (function (param) {
                                   Curry._1(setCurrentStepDisplay, (function (param) {
@@ -728,7 +736,7 @@ function App(Props) {
                                         }));
                                 }),
                               children: "Semitone Steps"
-                            }), React.createElement(App$Key, {
+                            }), React.createElement(App$StepButton, {
                               selected: currentStepDisplay === /* HalfnoteSteps */5,
                               onClick: (function (param) {
                                   Curry._1(setCurrentStepDisplay, (function (param) {
@@ -738,7 +746,7 @@ function App(Props) {
                               children: "Halfnote Steps"
                             })), React.createElement("div", {
                           className: " "
-                        }, React.createElement(App$Key, {
+                        }, React.createElement(App$StepButton, {
                               selected: currentStepDisplay === /* Binary */6,
                               onClick: (function (param) {
                                   Curry._1(setCurrentStepDisplay, (function (param) {
@@ -834,16 +842,12 @@ export {
   ChevronDown ,
   PlayIcon ,
   Collapsed ,
-  pitchKeys ,
-  pitchKeysShort ,
-  semitones ,
-  mMPs ,
-  dimAugs ,
+  IntervalRefs ,
   stepsToBits ,
   bitsToSemitoneSteps ,
   bitsToHalfnoteSteps ,
   bitToDisplaySymbol ,
-  Key ,
+  StepButton ,
   Scale ,
   Species ,
   PageTitle ,

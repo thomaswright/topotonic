@@ -1,5 +1,11 @@
 open Belt
 
+type key = int
+
+type stepDisplay = Key | MinMaj | DimAug | Semitone | SemitoneSteps | HalfnoteSteps | Binary
+
+type kind = Species | Mode | NonMode
+
 let result = DataGeneration.result
 let join = Js.Array2.joinWith(_, " ")
 let str = React.string
@@ -45,28 +51,28 @@ module Collapsed = {
 }
 
 // let namedData = Data.namedSpecies-> Array.
+module IntervalRefs = {
+  let pitchKeys = [
+    `C`,
+    `C♯/D♭`,
+    `D`,
+    `D♯/E♭`,
+    `E`,
+    `F`,
+    `F♯/G♭`,
+    `G`,
+    `G♯/A♭`,
+    `A`,
+    `A♯/B♭`,
+    `B`,
+  ]
 
-let pitchKeys = [
-  `C`,
-  `C♯/D♭`,
-  `D`,
-  `D♯/E♭`,
-  `E`,
-  `F`,
-  `F♯/G♭`,
-  `G`,
-  `G♯/A♭`,
-  `A`,
-  `A♯/B♭`,
-  `B`,
-]
-
-let pitchKeysShort = [`C`, `C♯`, `D`, `D♯`, `E`, `F`, `F♯`, `G`, `G♯`, `A`, `A♯`, `B`]
-let semitones = [`0`, `1`, `2`, `3`, `4`, `5`, `6`, `7`, `8`, `9`, `10`, `11`]
-let mMPs = [`P1`, `m2`, `M2`, `m3`, `M3`, `P4`, `TT`, `P5`, `m6`, `M6`, `m7`, `M7`]
-// TODO: replace TT with d5/A4 when we have proper scaling
-let dimAugs = [`d2`, `A1`, `d3`, `A2`, `d4`, `A3`, `TT`, `d6`, `A5`, `d7`, `A6`, `d8`]
-
+  let pitchKeysShort = [`C`, `C♯`, `D`, `D♯`, `E`, `F`, `F♯`, `G`, `G♯`, `A`, `A♯`, `B`]
+  let semitones = [`0`, `1`, `2`, `3`, `4`, `5`, `6`, `7`, `8`, `9`, `10`, `11`]
+  let mMPs = [`P1`, `m2`, `M2`, `m3`, `M3`, `P4`, `TT`, `P5`, `m6`, `M6`, `m7`, `M7`]
+  // TODO: replace TT with d5/A4 when we have proper scaling
+  let dimAugs = [`d2`, `A1`, `d3`, `A2`, `d4`, `A3`, `TT`, `d6`, `A5`, `d7`, `A6`, `d8`]
+}
 let stepsToBits = x => {
   x->Array.reduce("", (acc, value) => {
     acc ++
@@ -104,29 +110,21 @@ let bitsToHalfnoteSteps = x => {
   ->Belt.Array.sliceToEnd(1)
 }
 
-type key = int
-
-type stepDisplay = Key | MinMaj | DimAug | Semitone | SemitoneSteps | HalfnoteSteps | Binary
-
-type kind = Species | Mode | NonMode
-
-// type bitDisplay = Bit | Index
-
 let bitToDisplaySymbol = (bit, index, currentKey, currentStepDisplay, bitString) => {
   let a = switch currentStepDisplay {
-  | Key => pitchKeysShort->DataGeneration.rotate(currentKey)
-  | DimAug => dimAugs
-  | Semitone => semitones
-  | MinMaj => mMPs
-  | SemitoneSteps => semitones
-  | HalfnoteSteps => semitones
+  | Key => IntervalRefs.pitchKeysShort->DataGeneration.rotate(currentKey)
+  | DimAug => IntervalRefs.dimAugs
+  | Semitone => IntervalRefs.semitones
+  | MinMaj => IntervalRefs.mMPs
+  | SemitoneSteps => IntervalRefs.semitones
+  | HalfnoteSteps => IntervalRefs.semitones
   | Binary => bitString->BitOps.stringToStringArray
   }
   bit == "0" ? `•` : a->Array.get(index)->Option.getWithDefault("")
 }
 // `•`
 
-module Key = {
+module StepButton = {
   @react.component
   let make = (~selected, ~onClick, ~children) => {
     <div
@@ -470,13 +468,13 @@ let make = () => {
 
   let graphDisplay = {
     switch currentStepDisplay {
-    | Binary => semitones
-    | Semitone => semitones
-    | SemitoneSteps => semitones
-    | HalfnoteSteps => semitones
-    | DimAug => dimAugs
-    | MinMaj => mMPs
-    | Key => pitchKeys->DataGeneration.rotate(currentKey)
+    | Binary => IntervalRefs.semitones
+    | Semitone => IntervalRefs.semitones
+    | SemitoneSteps => IntervalRefs.semitones
+    | HalfnoteSteps => IntervalRefs.semitones
+    | DimAug => IntervalRefs.dimAugs
+    | MinMaj => IntervalRefs.mMPs
+    | Key => IntervalRefs.pitchKeys->DataGeneration.rotate(currentKey)
     }
   }
 
@@ -564,51 +562,54 @@ let make = () => {
             </div>}
         <div className="w-full text-center pb-2 pt-3 font-medium"> {"Key"->str} </div>
         <div className={"grid grid-cols-4 gap-2 w-full"}>
-          {pitchKeys->reactMapWithIndex((i, v) => {
+          {IntervalRefs.pitchKeys->reactMapWithIndex((i, v) => {
             let selected = i == currentKey
 
-            <Key key={v} selected={selected} onClick={_ => setCurrentKey(_ => i)}> {v->str} </Key>
+            <StepButton key={v} selected={selected} onClick={_ => setCurrentKey(_ => i)}>
+              {v->str}
+            </StepButton>
           })}
         </div>
         <div className="w-full text-center pb-2 pt-3 font-medium"> {"Step Display"->str} </div>
-        <Key selected={currentStepDisplay == Key} onClick={_ => setCurrentStepDisplay(_ => Key)}>
+        <StepButton
+          selected={currentStepDisplay == Key} onClick={_ => setCurrentStepDisplay(_ => Key)}>
           {"Key"->str}
-        </Key>
+        </StepButton>
         <div className="grid grid-cols-3 gap-2 w-full pb-2 pt-2">
-          <Key
+          <StepButton
             selected={currentStepDisplay == MinMaj}
             onClick={_ => setCurrentStepDisplay(_ => MinMaj)}>
             {"Min-Maj Int."->str}
-          </Key>
-          <Key
+          </StepButton>
+          <StepButton
             selected={currentStepDisplay == DimAug}
             onClick={_ => setCurrentStepDisplay(_ => DimAug)}>
             {"Dim-Aug Int."->str}
-          </Key>
-          <Key
+          </StepButton>
+          <StepButton
             selected={currentStepDisplay == Semitone}
             onClick={_ => setCurrentStepDisplay(_ => Semitone)}>
             {"Semitone Int."->str}
-          </Key>
+          </StepButton>
         </div>
         <div className="grid grid-cols-2 gap-2 w-full pb-2">
-          <Key
+          <StepButton
             selected={currentStepDisplay == SemitoneSteps}
             onClick={_ => setCurrentStepDisplay(_ => SemitoneSteps)}>
             {"Semitone Steps"->str}
-          </Key>
-          <Key
+          </StepButton>
+          <StepButton
             selected={currentStepDisplay == HalfnoteSteps}
             onClick={_ => setCurrentStepDisplay(_ => HalfnoteSteps)}>
             {"Halfnote Steps"->str}
-          </Key>
+          </StepButton>
         </div>
         <div className={" "}>
-          <Key
+          <StepButton
             selected={currentStepDisplay == Binary}
             onClick={_ => setCurrentStepDisplay(_ => Binary)}>
             {"Binary"->str}
-          </Key>
+          </StepButton>
         </div>
       </div>
     </div>
