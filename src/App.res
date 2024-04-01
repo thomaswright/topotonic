@@ -585,42 +585,39 @@ let make = () => {
             <Key key={v} selected={selected} onClick={_ => setCurrentKey(_ => i)}> {v->str} </Key>
           })}
         </div>
-        <div className="w-full text-center pb-2 pt-3 font-bold"> {"Step Display"->str} </div>
+        <div className="w-full text-center pb-2 pt-3 font-medium"> {"Step Display"->str} </div>
         <Key selected={currentStepDisplay == Key} onClick={_ => setCurrentStepDisplay(_ => Key)}>
           {"Key"->str}
         </Key>
-        <div className="w-full text-center pb-2 pt-3 font-medium"> {"Intervals"->str} </div>
-        <div className="grid grid-cols-3 gap-2 w-full">
+        <div className="grid grid-cols-3 gap-2 w-full pb-2 pt-2">
           <Key
             selected={currentStepDisplay == MinMaj}
             onClick={_ => setCurrentStepDisplay(_ => MinMaj)}>
-            {"Min-Maj"->str}
+            {"Min-Maj Int."->str}
           </Key>
           <Key
             selected={currentStepDisplay == DimAug}
             onClick={_ => setCurrentStepDisplay(_ => DimAug)}>
-            {"Dim-Aug"->str}
+            {"Dim-Aug Int."->str}
           </Key>
           <Key
             selected={currentStepDisplay == Semitone}
             onClick={_ => setCurrentStepDisplay(_ => Semitone)}>
-            {"Semitone"->str}
+            {"Semitone Int."->str}
           </Key>
         </div>
-        <div className="w-full text-center pb-2 pt-3 font-medium"> {"Steps"->str} </div>
-        <div className="grid grid-cols-2 gap-2 w-full">
+        <div className="grid grid-cols-2 gap-2 w-full pb-2">
           <Key
             selected={currentStepDisplay == SemitoneSteps}
             onClick={_ => setCurrentStepDisplay(_ => SemitoneSteps)}>
-            {"Semitone"->str}
+            {"Semitone Steps"->str}
           </Key>
           <Key
             selected={currentStepDisplay == HalfnoteSteps}
             onClick={_ => setCurrentStepDisplay(_ => HalfnoteSteps)}>
-            {"Halfnote"->str}
+            {"Halfnote Steps"->str}
           </Key>
         </div>
-        <div className="w-full text-center pb-2 pt-3 font-medium"> {"Other"->str} </div>
         <div className={" "}>
           <Key
             selected={currentStepDisplay == Binary}

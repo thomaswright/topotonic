@@ -694,7 +694,7 @@ function App(Props) {
                                             key: v
                                           });
                               }))), React.createElement("div", {
-                          className: "w-full text-center pb-2 pt-3 font-bold"
+                          className: "w-full text-center pb-2 pt-3 font-medium"
                         }, "Step Display"), React.createElement(App$Key, {
                           selected: currentStepDisplay === /* Key */0,
                           onClick: (function (param) {
@@ -704,9 +704,7 @@ function App(Props) {
                             }),
                           children: "Key"
                         }), React.createElement("div", {
-                          className: "w-full text-center pb-2 pt-3 font-medium"
-                        }, "Intervals"), React.createElement("div", {
-                          className: "grid grid-cols-3 gap-2 w-full"
+                          className: "grid grid-cols-3 gap-2 w-full pb-2 pt-2"
                         }, React.createElement(App$Key, {
                               selected: currentStepDisplay === /* MinMaj */1,
                               onClick: (function (param) {
@@ -714,7 +712,7 @@ function App(Props) {
                                           return /* MinMaj */1;
                                         }));
                                 }),
-                              children: "Min-Maj"
+                              children: "Min-Maj Int."
                             }), React.createElement(App$Key, {
                               selected: currentStepDisplay === /* DimAug */2,
                               onClick: (function (param) {
@@ -722,7 +720,7 @@ function App(Props) {
                                           return /* DimAug */2;
                                         }));
                                 }),
-                              children: "Dim-Aug"
+                              children: "Dim-Aug Int."
                             }), React.createElement(App$Key, {
                               selected: currentStepDisplay === /* Semitone */3,
                               onClick: (function (param) {
@@ -730,11 +728,9 @@ function App(Props) {
                                           return /* Semitone */3;
                                         }));
                                 }),
-                              children: "Semitone"
+                              children: "Semitone Int."
                             })), React.createElement("div", {
-                          className: "w-full text-center pb-2 pt-3 font-medium"
-                        }, "Steps"), React.createElement("div", {
-                          className: "grid grid-cols-2 gap-2 w-full"
+                          className: "grid grid-cols-2 gap-2 w-full pb-2"
                         }, React.createElement(App$Key, {
                               selected: currentStepDisplay === /* SemitoneSteps */4,
                               onClick: (function (param) {
@@ -742,7 +738,7 @@ function App(Props) {
                                           return /* SemitoneSteps */4;
                                         }));
                                 }),
-                              children: "Semitone"
+                              children: "Semitone Steps"
                             }), React.createElement(App$Key, {
                               selected: currentStepDisplay === /* HalfnoteSteps */5,
                               onClick: (function (param) {
@@ -750,10 +746,8 @@ function App(Props) {
                                           return /* HalfnoteSteps */5;
                                         }));
                                 }),
-                              children: "Halfnote"
+                              children: "Halfnote Steps"
                             })), React.createElement("div", {
-                          className: "w-full text-center pb-2 pt-3 font-medium"
-                        }, "Other"), React.createElement("div", {
                           className: " "
                         }, React.createElement(App$Key, {
                               selected: currentStepDisplay === /* Binary */6,
