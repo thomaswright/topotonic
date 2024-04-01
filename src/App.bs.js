@@ -187,15 +187,28 @@ function bitsToHalfnoteSteps(x) {
                   })), 1);
 }
 
-function bitToDisplaySymbol(bit, index, currentKey) {
-  if (currentKey === undefined) {
-    return bit;
+function bitToDisplaySymbol(bit, index, currentKey, currentStepDisplay, bitString) {
+  var a;
+  switch (currentStepDisplay) {
+    case /* Key */0 :
+        a = DataGeneration.rotate(pitchKeysShort, currentKey);
+        break;
+    case /* MinMaj */1 :
+        a = mMPs;
+        break;
+    case /* DimAug */2 :
+        a = dimAugs;
+        break;
+    case /* Semitone */3 :
+    case /* SemitoneSteps */4 :
+    case /* HalfnoteSteps */5 :
+        a = semitones;
+        break;
+    case /* Binary */6 :
+        a = DataGeneration.BitOps.stringToStringArray(bitString);
+        break;
+    
   }
-  var a = typeof currentKey === "number" ? (
-      currentKey !== 1 ? (
-          currentKey !== 0 ? semitones : mMPs
-        ) : dimAugs
-    ) : DataGeneration.rotate(pitchKeysShort, currentKey._0);
   if (bit === "0") {
     return "•";
   } else {
@@ -222,13 +235,26 @@ var Key = {
 
 function App$Scale(Props) {
   var bitString = Props.bitString;
+  var currentStepDisplay = Props.currentStepDisplay;
   var currentKey = Props.currentKey;
   var kind = Props.kind;
-  var x = currentKey !== undefined && typeof currentKey === "number" ? (
-      currentKey !== 3 ? (
-          currentKey >= 4 ? bitsToHalfnoteSteps(bitString).length : 12
-        ) : bitsToSemitoneSteps(bitString).length
-    ) : 12;
+  var x;
+  if (currentStepDisplay >= 4) {
+    switch (currentStepDisplay) {
+      case /* SemitoneSteps */4 :
+          x = bitsToSemitoneSteps(bitString).length;
+          break;
+      case /* HalfnoteSteps */5 :
+          x = bitsToHalfnoteSteps(bitString).length;
+          break;
+      case /* Binary */6 :
+          x = 12;
+          break;
+      
+    }
+  } else {
+    x = 12;
+  }
   var gridCols;
   switch (x) {
     case 0 :
@@ -296,24 +322,27 @@ function App$Scale(Props) {
   };
   var tmp;
   var exit = 0;
-  if (currentKey !== undefined && typeof currentKey === "number") {
-    if (currentKey !== 3) {
-      if (currentKey >= 4) {
-        tmp = Belt_Array.mapWithIndex(bitsToHalfnoteSteps(bitString), container);
-      } else {
-        exit = 1;
-      }
-    } else {
-      tmp = Belt_Array.mapWithIndex(bitsToSemitoneSteps(bitString), (function (i, step) {
-              return container(i, String(step));
-            }));
+  if (currentStepDisplay >= 4) {
+    switch (currentStepDisplay) {
+      case /* SemitoneSteps */4 :
+          tmp = Belt_Array.mapWithIndex(bitsToSemitoneSteps(bitString), (function (i, step) {
+                  return container(i, String(step));
+                }));
+          break;
+      case /* HalfnoteSteps */5 :
+          tmp = Belt_Array.mapWithIndex(bitsToHalfnoteSteps(bitString), container);
+          break;
+      case /* Binary */6 :
+          exit = 1;
+          break;
+      
     }
   } else {
     exit = 1;
   }
   if (exit === 1) {
     tmp = Belt_Array.mapWithIndex(DataGeneration.BitOps.stringToStringArray(bitString), (function (i, bit) {
-            return container(i, bitToDisplaySymbol(bit, i, currentKey));
+            return container(i, bitToDisplaySymbol(bit, i, currentKey, currentStepDisplay, bitString));
           }));
   }
   return React.createElement("div", {
@@ -330,17 +359,28 @@ var Scale = {
 
 function App$Species(Props) {
   var currentBits = Props.currentBits;
+  var currentStepDisplay = Props.currentStepDisplay;
   var setCurrentBits = Props.setCurrentBits;
   var currentKey = Props.currentKey;
   var speciesId = Props.speciesId;
   var speciesDetails = Props.speciesDetails;
-  var scaleLength = currentKey !== undefined ? (
-      typeof currentKey === "number" ? (
-          currentKey !== 3 ? (
-              currentKey >= 4 ? bitsToHalfnoteSteps(speciesId).length : DataGeneration.BitOps.stringToStringArray(speciesId).length
-            ) : bitsToSemitoneSteps(speciesId).length
-        ) : DataGeneration.BitOps.stringToStringArray(speciesId).length
-    ) : DataGeneration.BitOps.stringToStringArray(speciesId).length;
+  var scaleLength;
+  if (currentStepDisplay >= 4) {
+    switch (currentStepDisplay) {
+      case /* SemitoneSteps */4 :
+          scaleLength = bitsToSemitoneSteps(speciesId).length;
+          break;
+      case /* HalfnoteSteps */5 :
+          scaleLength = bitsToHalfnoteSteps(speciesId).length;
+          break;
+      case /* Binary */6 :
+          scaleLength = DataGeneration.BitOps.stringToStringArray(speciesId).length;
+          break;
+      
+    }
+  } else {
+    scaleLength = DataGeneration.BitOps.stringToStringArray(speciesId).length;
+  }
   Belt_Array.range(1, scaleLength);
   var speciesNameData = Belt_Array.keep(Data.namedSpecies, (function (param) {
           var sId = param[0];
@@ -411,6 +451,7 @@ function App$Species(Props) {
                                         className: "flex flex-row"
                                       }, React.createElement(App$Scale, {
                                             bitString: speciesId,
+                                            currentStepDisplay: currentStepDisplay,
                                             currentKey: currentKey,
                                             kind: /* Species */0,
                                             selected: false
@@ -480,6 +521,7 @@ function App$Species(Props) {
                                                                 className: "flex flex-row items-center text-xs pt-0.5 pl-0.5 justify-start flex-1 overflow-x-hidden text-ellipsis whitespace-nowrap px-1"
                                                               }, modeNames), React.createElement(App$Scale, {
                                                               bitString: modeId,
+                                                              currentStepDisplay: currentStepDisplay,
                                                               currentKey: currentKey,
                                                               kind: modeKind,
                                                               selected: selected
@@ -540,19 +582,34 @@ function App(Props) {
   var setSelectedGenus = match$1[1];
   var selectedGenus = match$1[0];
   var match$2 = React.useState(function () {
-        return /* Pitch */{
-                _0: 0
-              };
+        return 0;
       });
   var setCurrentKey = match$2[1];
   var currentKey = match$2[0];
-  var graphKeys = currentKey !== undefined ? (
-      typeof currentKey === "number" ? (
-          currentKey !== 1 ? (
-              currentKey !== 0 ? semitones : mMPs
-            ) : dimAugs
-        ) : DataGeneration.rotate(pitchKeys, currentKey._0)
-    ) : semitones;
+  var match$3 = React.useState(function () {
+        return /* Key */0;
+      });
+  var setCurrentStepDisplay = match$3[1];
+  var currentStepDisplay = match$3[0];
+  var graphDisplay;
+  switch (currentStepDisplay) {
+    case /* Key */0 :
+        graphDisplay = DataGeneration.rotate(pitchKeys, currentKey);
+        break;
+    case /* MinMaj */1 :
+        graphDisplay = mMPs;
+        break;
+    case /* DimAug */2 :
+        graphDisplay = dimAugs;
+        break;
+    case /* Semitone */3 :
+    case /* SemitoneSteps */4 :
+    case /* HalfnoteSteps */5 :
+    case /* Binary */6 :
+        graphDisplay = semitones;
+        break;
+    
+  }
   var graphBits = Belt_Option.mapWithDefault(currentBits, Belt_Array.map(Belt_Array.range(0, DataGeneration.Config.bits - 1 | 0), (function (param) {
               return 0;
             })), (function (b) {
@@ -593,14 +650,14 @@ function App(Props) {
                     }, React.createElement("div", {
                           className: "pt-2 w-full self-center"
                         }, React.createElement(make$1, {
-                              data: Belt_Array.zip(graphKeys, graphBits)
+                              data: Belt_Array.zip(graphDisplay, graphBits)
                             })), Belt_Option.isNone(currentBits) ? null : React.createElement("div", {
                             className: "relative"
                           }, React.createElement("button", {
                                 className: "absolute -top-4 right-4 flex flex-row gap-2 py-1 px-4 border border-plain-400 bg-plain-200 rounded-full items-center justify-center font-bold text-xl",
                                 onClick: (function (param) {
                                     var cChromScale = generateChromaticScale(110, 12);
-                                    var newBase = currentKey !== undefined && typeof currentKey !== "number" ? Belt_Option.getWithDefault(Belt_Array.get(cChromScale, currentKey._0), 110) : 110;
+                                    var newBase = Belt_Option.getWithDefault(Belt_Array.get(cChromScale, currentKey), 110);
                                     var newChromScale = generateChromaticScale(110 + newBase | 0, 12);
                                     var x = Belt_Array.keepWithIndex(newChromScale, (function (_v, i) {
                                             return Belt_Option.mapWithDefault(Belt_Array.get(graphBits, i), false, (function (bit) {
@@ -622,53 +679,55 @@ function App(Props) {
                             className: "w-full text-lg text-center pb-2 font-bold text-accent-600"
                           }, "Mode: " + modeNames + ""), React.createElement("div", {
                           className: "w-full text-center pb-2 pt-3 font-medium"
-                        }, "Keys"), React.createElement("div", {
+                        }, "Key"), React.createElement("div", {
                           className: "grid grid-cols-4 gap-2 w-full"
                         }, Belt_Array.mapWithIndex(pitchKeys, (function (i, v) {
-                                var selected = currentKey !== undefined && typeof currentKey !== "number" ? currentKey._0 === i : false;
+                                var selected = i === currentKey;
                                 return React.createElement(App$Key, {
                                             selected: selected,
                                             onClick: (function (param) {
                                                 Curry._1(setCurrentKey, (function (param) {
-                                                        return /* Pitch */{
-                                                                _0: i
-                                                              };
+                                                        return i;
                                                       }));
                                               }),
                                             children: v,
                                             key: v
                                           });
                               }))), React.createElement("div", {
+                          className: "w-full text-center pb-2 pt-3 font-bold"
+                        }, "Step Display"), React.createElement(App$Key, {
+                          selected: currentStepDisplay === /* Key */0,
+                          onClick: (function (param) {
+                              Curry._1(setCurrentStepDisplay, (function (param) {
+                                      return /* Key */0;
+                                    }));
+                            }),
+                          children: "Key"
+                        }), React.createElement("div", {
                           className: "w-full text-center pb-2 pt-3 font-medium"
                         }, "Intervals"), React.createElement("div", {
                           className: "grid grid-cols-3 gap-2 w-full"
                         }, React.createElement(App$Key, {
-                              selected: Belt_Option.mapWithDefault(currentKey, false, (function (x) {
-                                      return x === /* MinMaj */0;
-                                    })),
+                              selected: currentStepDisplay === /* MinMaj */1,
                               onClick: (function (param) {
-                                  Curry._1(setCurrentKey, (function (param) {
-                                          return /* MinMaj */0;
+                                  Curry._1(setCurrentStepDisplay, (function (param) {
+                                          return /* MinMaj */1;
                                         }));
                                 }),
                               children: "Min-Maj"
                             }), React.createElement(App$Key, {
-                              selected: Belt_Option.mapWithDefault(currentKey, false, (function (x) {
-                                      return x === /* DimAug */1;
-                                    })),
+                              selected: currentStepDisplay === /* DimAug */2,
                               onClick: (function (param) {
-                                  Curry._1(setCurrentKey, (function (param) {
-                                          return /* DimAug */1;
+                                  Curry._1(setCurrentStepDisplay, (function (param) {
+                                          return /* DimAug */2;
                                         }));
                                 }),
                               children: "Dim-Aug"
                             }), React.createElement(App$Key, {
-                              selected: Belt_Option.mapWithDefault(currentKey, false, (function (x) {
-                                      return x === /* Semitone */2;
-                                    })),
+                              selected: currentStepDisplay === /* Semitone */3,
                               onClick: (function (param) {
-                                  Curry._1(setCurrentKey, (function (param) {
-                                          return /* Semitone */2;
+                                  Curry._1(setCurrentStepDisplay, (function (param) {
+                                          return /* Semitone */3;
                                         }));
                                 }),
                               children: "Semitone"
@@ -677,22 +736,18 @@ function App(Props) {
                         }, "Steps"), React.createElement("div", {
                           className: "grid grid-cols-2 gap-2 w-full"
                         }, React.createElement(App$Key, {
-                              selected: Belt_Option.mapWithDefault(currentKey, false, (function (x) {
-                                      return x === /* SemitoneSteps */3;
-                                    })),
+                              selected: currentStepDisplay === /* SemitoneSteps */4,
                               onClick: (function (param) {
-                                  Curry._1(setCurrentKey, (function (param) {
-                                          return /* SemitoneSteps */3;
+                                  Curry._1(setCurrentStepDisplay, (function (param) {
+                                          return /* SemitoneSteps */4;
                                         }));
                                 }),
                               children: "Semitone"
                             }), React.createElement(App$Key, {
-                              selected: Belt_Option.mapWithDefault(currentKey, false, (function (x) {
-                                      return x === /* HalfnoteSteps */4;
-                                    })),
+                              selected: currentStepDisplay === /* HalfnoteSteps */5,
                               onClick: (function (param) {
-                                  Curry._1(setCurrentKey, (function (param) {
-                                          return /* HalfnoteSteps */4;
+                                  Curry._1(setCurrentStepDisplay, (function (param) {
+                                          return /* HalfnoteSteps */5;
                                         }));
                                 }),
                               children: "Halfnote"
@@ -701,10 +756,10 @@ function App(Props) {
                         }, "Other"), React.createElement("div", {
                           className: " "
                         }, React.createElement(App$Key, {
-                              selected: Belt_Option.isNone(currentKey),
+                              selected: currentStepDisplay === /* Binary */6,
                               onClick: (function (param) {
-                                  Curry._1(setCurrentKey, (function (param) {
-                                          
+                                  Curry._1(setCurrentStepDisplay, (function (param) {
+                                          return /* Binary */6;
                                         }));
                                 }),
                               children: "Binary"
@@ -764,6 +819,7 @@ function App(Props) {
                                                   return React.createElement(App$Species, {
                                                               genusId: genusId,
                                                               currentBits: currentBits,
+                                                              currentStepDisplay: currentStepDisplay,
                                                               setCurrentBits: setCurrentBits,
                                                               currentKey: currentKey,
                                                               speciesId: speciesId,

@@ -1,6 +1,6 @@
 // Species
 
-type tradition = Misc | ChinesePenta | Numbers | ModernGreek | Jewish
+type tradition = Misc | ChinesePenta | Numbers | ModernGreek | Jewish | MiddleEast
 
 type encoding = Bits(string) | Steps(string)
 
@@ -17,13 +17,19 @@ let namedSpecies: array<species> = [
     Bits("101010010100"),
     [(Misc, "Pentatonic")],
     [
-      (Bits("101010010100"), [(Misc, "Major Pentatonic"), (ChinesePenta, `宮 Gong`)]),
+      (
+        Bits("101010010100"),
+        [(Misc, "Major Pentatonic"), (ChinesePenta, `宮 Gong`), (MiddleEast, "Ajam")],
+      ),
       (
         Bits("101001010010"),
-        [(Misc, "Egyptian"), (Misc, "Suspended"), (ChinesePenta, `商 Shang`)],
+        [(Misc, "Egyptian"), (Misc, "Suspended Pentatonic"), (ChinesePenta, `商 Shang`)],
       ),
       (Bits("100101001010"), [(Misc, "Blues 5 Minor"), (ChinesePenta, `角 Jue`)]),
-      (Bits("101001010100"), [(Misc, "Blues 5 Major"), (ChinesePenta, `徵 Zhi`)]),
+      (
+        Bits("101001010100"),
+        [(Misc, "Ritsusen"), (Misc, "Yo"), (Misc, "Blues 5 Major"), (ChinesePenta, `徵 Zhi`)],
+      ),
       (Bits("100101010010"), [(Misc, "Minor Pentatonic"), (ChinesePenta, `羽 Yu`)]),
     ],
   ),
@@ -74,7 +80,10 @@ let namedSpecies: array<species> = [
     [
       (Steps("2122131"), [(Misc, "Harmonic Minor")]),
       (Steps("2131212"), [(Misc, "Ukranian Dorian"), (Jewish, "Mi Sheberach")]),
-      (Steps("1312122"), [(Misc, "Phrygian Dominant"), (Jewish, "Ahavah Rabbah")]),
+      (
+        Steps("1312122"),
+        [(Misc, "Phrygian Dominant"), (Jewish, "Ahavah Rabbah"), (MiddleEast, "Hijaz")],
+      ),
     ],
   ),
   (
@@ -91,6 +100,7 @@ let namedSpecies: array<species> = [
           (Misc, "Hungarian Minor"),
           (Misc, "Gypsy Minor"),
           (Misc, "Algerian"),
+          (MiddleEast, "Nawa Athar"),
         ],
       ),
       (Steps("1311312"), [(Misc, "Oriental")]),
@@ -121,6 +131,6 @@ let namedSpecies: array<species> = [
   (Steps("21212121"), [(Misc, "Octatonic")], []),
   (Steps("22122111"), [(Misc, "Bebop Dominant")], []),
   (Steps("22121121"), [(Misc, "Bebop Major")], []),
-  (Steps("212211111"), [(Misc, "Melodic Minor")], []),
+  (Steps("212211111"), [(Misc, "Melodic Minor"), (MiddleEast, "Nahawand")], []),
   (Steps("111111111111"), [(Misc, "Chromatic")], []),
 ]

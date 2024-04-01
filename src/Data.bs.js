@@ -25,6 +25,10 @@ var namedSpecies = [
           [
             /* ChinesePenta */1,
             "宮 Gong"
+          ],
+          [
+            /* MiddleEast */5,
+            "Ajam"
           ]
         ]
       ],
@@ -40,7 +44,7 @@ var namedSpecies = [
           ],
           [
             /* Misc */0,
-            "Suspended"
+            "Suspended Pentatonic"
           ],
           [
             /* ChinesePenta */1,
@@ -70,6 +74,14 @@ var namedSpecies = [
           _0: "101001010100"
         },
         [
+          [
+            /* Misc */0,
+            "Ritsusen"
+          ],
+          [
+            /* Misc */0,
+            "Yo"
+          ],
           [
             /* Misc */0,
             "Blues 5 Major"
@@ -497,6 +509,10 @@ var namedSpecies = [
           [
             /* Jewish */4,
             "Ahavah Rabbah"
+          ],
+          [
+            /* MiddleEast */5,
+            "Hijaz"
           ]
         ]
       ]
@@ -569,6 +585,10 @@ var namedSpecies = [
           [
             /* Misc */0,
             "Algerian"
+          ],
+          [
+            /* MiddleEast */5,
+            "Nawa Athar"
           ]
         ]
       ],
@@ -754,10 +774,16 @@ var namedSpecies = [
       TAG: /* Steps */1,
       _0: "212211111"
     },
-    [[
+    [
+      [
         /* Misc */0,
         "Melodic Minor"
-      ]],
+      ],
+      [
+        /* MiddleEast */5,
+        "Nahawand"
+      ]
+    ],
     []
   ],
   [

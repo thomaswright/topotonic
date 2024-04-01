@@ -104,27 +104,25 @@ let bitsToHalfnoteSteps = x => {
   ->Belt.Array.sliceToEnd(1)
 }
 
-type key = Pitch(int) | MinMaj | DimAug | Semitone | SemitoneSteps | HalfnoteSteps
+type key = int
+
+type stepDisplay = Key | MinMaj | DimAug | Semitone | SemitoneSteps | HalfnoteSteps | Binary
 
 type kind = Species | Mode | NonMode
 
 // type bitDisplay = Bit | Index
 
-let bitToDisplaySymbol = (bit, index, currentKey) => {
-  switch currentKey {
-  | None => bit
-  | Some(x) => {
-      let a = switch x {
-      | Pitch(shift) => pitchKeysShort->DataGeneration.rotate(shift)
-      | DimAug => dimAugs
-      | Semitone => semitones
-      | MinMaj => mMPs
-      | SemitoneSteps => semitones
-      | HalfnoteSteps => semitones
-      }
-      bit == "0" ? `•` : a->Array.get(index)->Option.getWithDefault("")
-    }
+let bitToDisplaySymbol = (bit, index, currentKey, currentStepDisplay, bitString) => {
+  let a = switch currentStepDisplay {
+  | Key => pitchKeysShort->DataGeneration.rotate(currentKey)
+  | DimAug => dimAugs
+  | Semitone => semitones
+  | MinMaj => mMPs
+  | SemitoneSteps => semitones
+  | HalfnoteSteps => semitones
+  | Binary => bitString->BitOps.stringToStringArray
   }
+  bit == "0" ? `•` : a->Array.get(index)->Option.getWithDefault("")
 }
 // `•`
 
@@ -144,10 +142,10 @@ module Key = {
 
 module Scale = {
   @react.component
-  let make = (~bitString, ~currentKey: option<key>, ~kind: kind, ~selected as _: bool) => {
-    let gridCols = switch currentKey {
-    | Some(SemitoneSteps) => bitString->bitsToSemitoneSteps->Array.length
-    | Some(HalfnoteSteps) => bitString->bitsToHalfnoteSteps->Array.length
+  let make = (~bitString, ~currentStepDisplay, ~currentKey, ~kind: kind, ~selected as _: bool) => {
+    let gridCols = switch currentStepDisplay {
+    | SemitoneSteps => bitString->bitsToSemitoneSteps->Array.length
+    | HalfnoteSteps => bitString->bitsToHalfnoteSteps->Array.length
     | _ => 12
     }->{
       x =>
@@ -184,8 +182,8 @@ module Scale = {
       </div>
 
     <div className={["flex-1 grid", gridCols]->join}>
-      {switch currentKey {
-      | Some(SemitoneSteps) =>
+      {switch currentStepDisplay {
+      | SemitoneSteps =>
         bitString
         ->bitsToSemitoneSteps
         ->Array.mapWithIndex((i, step) => {
@@ -193,7 +191,7 @@ module Scale = {
         })
         ->React.array
 
-      | Some(HalfnoteSteps) =>
+      | HalfnoteSteps =>
         bitString
         ->bitsToHalfnoteSteps
         ->Array.mapWithIndex((i, step) => {
@@ -205,7 +203,7 @@ module Scale = {
         bitString
         ->BitOps.stringToStringArray
         ->Array.mapWithIndex((i, bit) => {
-          container(i, bitToDisplaySymbol(bit, i, currentKey)->str)
+          container(i, bitToDisplaySymbol(bit, i, currentKey, currentStepDisplay, bitString)->str)
         })
         ->React.array
       }}
@@ -232,16 +230,17 @@ module Species = {
   let make = (
     ~genusId,
     ~currentBits,
+    ~currentStepDisplay,
     ~setCurrentBits,
-    ~currentKey: option<key>,
+    ~currentKey: key,
     ~speciesId: string,
     ~speciesDetails: DataGeneration.speciesDetails,
   ) => {
     // let (base, setBase) = React.useState(_ => None)
 
-    let scaleLength = switch currentKey {
-    | Some(SemitoneSteps) => speciesId->bitsToSemitoneSteps->Array.length
-    | Some(HalfnoteSteps) => speciesId->bitsToHalfnoteSteps->Array.length
+    let scaleLength = switch currentStepDisplay {
+    | SemitoneSteps => speciesId->bitsToSemitoneSteps->Array.length
+    | HalfnoteSteps => speciesId->bitsToHalfnoteSteps->Array.length
     | _ => speciesId->BitOps.stringToStringArray->Array.length
     }
 
@@ -325,7 +324,11 @@ module Species = {
                     </div>}
                 <div className="flex flex-row">
                   <Scale
-                    selected={false} currentKey={currentKey} bitString={speciesId} kind={Species}
+                    selected={false}
+                    currentKey={currentKey}
+                    bitString={speciesId}
+                    kind={Species}
+                    currentStepDisplay={currentStepDisplay}
                   />
                   <div className=" flex-none flex flex-row items-center justify-center w-10 px-1">
                     {speciesDetails.isSymmetric ? <Symmetry /> : React.null}
@@ -405,6 +408,7 @@ module Species = {
                       <Scale
                         selected={selected}
                         currentKey={currentKey}
+                        currentStepDisplay={currentStepDisplay}
                         bitString={modeId}
                         kind={modeKind}
                       />
@@ -467,17 +471,18 @@ let make = () => {
   let (currentBits, setCurrentBits) = React.useState(_ => None)
   let (selectedGenus, setSelectedGenus) = React.useState(_ => None)
 
-  let (currentKey: option<key>, setCurrentKey) = React.useState(_ => Some(Pitch(0)))
+  let (currentKey: int, setCurrentKey) = React.useState(_ => 0)
+  let (currentStepDisplay: stepDisplay, setCurrentStepDisplay) = React.useState(_ => Key)
 
-  let graphKeys = {
-    switch currentKey {
-    | None => semitones
-    | Some(Semitone) => semitones
-    | Some(SemitoneSteps) => semitones
-    | Some(HalfnoteSteps) => semitones
-    | Some(DimAug) => dimAugs
-    | Some(MinMaj) => mMPs
-    | Some(Pitch(shift)) => pitchKeys->DataGeneration.rotate(shift)
+  let graphDisplay = {
+    switch currentStepDisplay {
+    | Binary => semitones
+    | Semitone => semitones
+    | SemitoneSteps => semitones
+    | HalfnoteSteps => semitones
+    | DimAug => dimAugs
+    | MinMaj => mMPs
+    | Key => pitchKeys->DataGeneration.rotate(currentKey)
     }
   }
 
@@ -528,7 +533,7 @@ let make = () => {
       className="flex-1 flex flex-col w-screen md:w-auto md:max-w-[500px] p-2  overflow-y-scroll items-center">
       <div className=" md:max-h-min  max-w-[500px] w-full">
         <div className={"pt-2 w-full self-center"}>
-          <SVG data={Array.zip(graphKeys, graphBits)} />
+          <SVG data={Array.zip(graphDisplay, graphBits)} />
         </div>
         {currentBits->Option.isNone
           ? React.null
@@ -538,10 +543,8 @@ let make = () => {
                 onClick={_ => {
                   let cBaseFreq = 110
                   let cChromScale = generateChromaticScale(cBaseFreq, 12)
-                  let newBase = switch currentKey {
-                  | Some(Pitch(i)) => cChromScale->Array.get(i)->Option.getWithDefault(cBaseFreq)
-                  | _ => cBaseFreq
-                  }
+                  let newBase = cChromScale->Array.get(currentKey)->Option.getWithDefault(cBaseFreq)
+
                   let newChromScale = generateChromaticScale(cBaseFreq + newBase, 12)
 
                   let seq =
@@ -574,53 +577,54 @@ let make = () => {
           : <div className="w-full text-lg text-center pb-2 font-bold text-accent-600">
               {`Mode: ${modeNames}`->str}
             </div>}
-        <div className="w-full text-center pb-2 pt-3 font-medium"> {"Keys"->str} </div>
+        <div className="w-full text-center pb-2 pt-3 font-medium"> {"Key"->str} </div>
         <div className={"grid grid-cols-4 gap-2 w-full"}>
           {pitchKeys->reactMapWithIndex((i, v) => {
-            let selected = switch currentKey {
-            | Some(Pitch(c)) => c == i
-            | _ => false
-            }
+            let selected = i == currentKey
 
-            <Key key={v} selected={selected} onClick={_ => setCurrentKey(_ => Some(Pitch(i)))}>
-              {v->str}
-            </Key>
+            <Key key={v} selected={selected} onClick={_ => setCurrentKey(_ => i)}> {v->str} </Key>
           })}
         </div>
+        <div className="w-full text-center pb-2 pt-3 font-bold"> {"Step Display"->str} </div>
+        <Key selected={currentStepDisplay == Key} onClick={_ => setCurrentStepDisplay(_ => Key)}>
+          {"Key"->str}
+        </Key>
         <div className="w-full text-center pb-2 pt-3 font-medium"> {"Intervals"->str} </div>
         <div className="grid grid-cols-3 gap-2 w-full">
           <Key
-            selected={currentKey->Option.mapWithDefault(false, x => x == MinMaj)}
-            onClick={_ => setCurrentKey(_ => Some(MinMaj))}>
+            selected={currentStepDisplay == MinMaj}
+            onClick={_ => setCurrentStepDisplay(_ => MinMaj)}>
             {"Min-Maj"->str}
           </Key>
           <Key
-            selected={currentKey->Option.mapWithDefault(false, x => x == DimAug)}
-            onClick={_ => setCurrentKey(_ => Some(DimAug))}>
+            selected={currentStepDisplay == DimAug}
+            onClick={_ => setCurrentStepDisplay(_ => DimAug)}>
             {"Dim-Aug"->str}
           </Key>
           <Key
-            selected={currentKey->Option.mapWithDefault(false, x => x == Semitone)}
-            onClick={_ => setCurrentKey(_ => Some(Semitone))}>
+            selected={currentStepDisplay == Semitone}
+            onClick={_ => setCurrentStepDisplay(_ => Semitone)}>
             {"Semitone"->str}
           </Key>
         </div>
         <div className="w-full text-center pb-2 pt-3 font-medium"> {"Steps"->str} </div>
         <div className="grid grid-cols-2 gap-2 w-full">
           <Key
-            selected={currentKey->Option.mapWithDefault(false, x => x == SemitoneSteps)}
-            onClick={_ => setCurrentKey(_ => Some(SemitoneSteps))}>
+            selected={currentStepDisplay == SemitoneSteps}
+            onClick={_ => setCurrentStepDisplay(_ => SemitoneSteps)}>
             {"Semitone"->str}
           </Key>
           <Key
-            selected={currentKey->Option.mapWithDefault(false, x => x == HalfnoteSteps)}
-            onClick={_ => setCurrentKey(_ => Some(HalfnoteSteps))}>
+            selected={currentStepDisplay == HalfnoteSteps}
+            onClick={_ => setCurrentStepDisplay(_ => HalfnoteSteps)}>
             {"Halfnote"->str}
           </Key>
         </div>
         <div className="w-full text-center pb-2 pt-3 font-medium"> {"Other"->str} </div>
         <div className={" "}>
-          <Key selected={currentKey->Option.isNone} onClick={_ => setCurrentKey(_ => None)}>
+          <Key
+            selected={currentStepDisplay == Binary}
+            onClick={_ => setCurrentStepDisplay(_ => Binary)}>
             {"Binary"->str}
           </Key>
         </div>
@@ -688,6 +692,7 @@ let make = () => {
                   currentBits={currentBits}
                   setCurrentBits={setCurrentBits}
                   currentKey={currentKey}
+                  currentStepDisplay={currentStepDisplay}
                   speciesId={speciesId}
                   speciesDetails={speciesDetails}
                 />
