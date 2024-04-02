@@ -129,8 +129,10 @@ module StepButton = {
   let make = (~selected, ~onClick, ~children) => {
     <div
       className={[
-        selected ? "bg-blue-300 border-blue-500" : "bg-plain-100 border-plain-400",
-        "col-span-1 rounded p-1 px-2 border text-center",
+        selected
+          ? "text-blue-700 border-blue-700 bg-blue-50 font-bold hover:border-blue-700"
+          : "border-black bg-white font-medium border-transparent hover:border-neutral-700 hover:bg-neutral-100",
+        "col-span-1 p-1 rounded-lg px-2 text-center border-2 cursor-default",
       ]->join}
       onClick={onClick}>
       {children}
@@ -429,6 +431,18 @@ module PageTitle = {
   }
 }
 
+module Card = {
+  @react.component
+  let make = (~title, ~className="", ~children) => {
+    <div className={["border  border-black mt-2 overflow-hidden ", className]->join}>
+      <div className="w-full text-center py-1 font-bold border-b border-neutral-400 ">
+        {title->str}
+      </div>
+      <div className={"p-2"}> {children} </div>
+    </div>
+  }
+}
+
 module About = {
   @module("./about.jsx") @react.component
   external make: unit => React.element = "default"
@@ -522,7 +536,8 @@ let make = () => {
           ? React.null
           : <div className="relative">
               <button
-                className={"absolute -top-4 right-4 flex flex-row gap-2 py-1 px-4 border border-plain-400 bg-plain-200 rounded-full items-center justify-center font-bold text-xl"}
+                className={"absolute -top-4 right-4 flex flex-row gap-2 py-1 px-6 
+                rounded-full items-center justify-center font-bold text-xl bg-neutral-200 border-2 border-transparent hover:border-black"}
                 onClick={_ => {
                   let cBaseFreq = 110
                   let cChromScale = generateChromaticScale(cBaseFreq, 12)
@@ -552,7 +567,7 @@ let make = () => {
             </div>}
         {scaleNames == ""
           ? React.null
-          : <div className="w-full text-lg text-center pt-2 font-bold text-accent-600">
+          : <div className="w-full text-lg text-center mt-4 font-bold text-accent-600">
               {`Scale: ${scaleNames}`->str}
             </div>}
         {modeNames == ""
@@ -560,57 +575,59 @@ let make = () => {
           : <div className="w-full text-lg text-center pb-2 font-bold text-accent-600">
               {`Mode: ${modeNames}`->str}
             </div>}
-        <div className="w-full text-center pb-2 pt-3 font-medium"> {"Key"->str} </div>
-        <div className={"grid grid-cols-4 gap-2 w-full"}>
-          {IntervalRefs.pitchKeys->reactMapWithIndex((i, v) => {
-            let selected = i == currentKey
+        <Card title={"Key"} className="mt-8">
+          <div className={"grid grid-cols-4 gap-2 w-full "}>
+            {IntervalRefs.pitchKeys->reactMapWithIndex((i, v) => {
+              let selected = i == currentKey
 
-            <StepButton key={v} selected={selected} onClick={_ => setCurrentKey(_ => i)}>
-              {v->str}
+              <StepButton key={v} selected={selected} onClick={_ => setCurrentKey(_ => i)}>
+                {v->str}
+              </StepButton>
+            })}
+          </div>
+        </Card>
+        <Card title={"Step Display"}>
+          <StepButton
+            selected={currentStepDisplay == Key} onClick={_ => setCurrentStepDisplay(_ => Key)}>
+            {"Key"->str}
+          </StepButton>
+          <div className="grid grid-cols-3 gap-2 w-full pb-2 pt-2">
+            <StepButton
+              selected={currentStepDisplay == MinMaj}
+              onClick={_ => setCurrentStepDisplay(_ => MinMaj)}>
+              {"Min-Maj Int."->str}
             </StepButton>
-          })}
-        </div>
-        <div className="w-full text-center pb-2 pt-3 font-medium"> {"Step Display"->str} </div>
-        <StepButton
-          selected={currentStepDisplay == Key} onClick={_ => setCurrentStepDisplay(_ => Key)}>
-          {"Key"->str}
-        </StepButton>
-        <div className="grid grid-cols-3 gap-2 w-full pb-2 pt-2">
-          <StepButton
-            selected={currentStepDisplay == MinMaj}
-            onClick={_ => setCurrentStepDisplay(_ => MinMaj)}>
-            {"Min-Maj Int."->str}
-          </StepButton>
-          <StepButton
-            selected={currentStepDisplay == DimAug}
-            onClick={_ => setCurrentStepDisplay(_ => DimAug)}>
-            {"Dim-Aug Int."->str}
-          </StepButton>
-          <StepButton
-            selected={currentStepDisplay == Semitone}
-            onClick={_ => setCurrentStepDisplay(_ => Semitone)}>
-            {"Semitone Int."->str}
-          </StepButton>
-        </div>
-        <div className="grid grid-cols-2 gap-2 w-full pb-2">
-          <StepButton
-            selected={currentStepDisplay == SemitoneSteps}
-            onClick={_ => setCurrentStepDisplay(_ => SemitoneSteps)}>
-            {"Semitone Steps"->str}
-          </StepButton>
-          <StepButton
-            selected={currentStepDisplay == HalfnoteSteps}
-            onClick={_ => setCurrentStepDisplay(_ => HalfnoteSteps)}>
-            {"Halfnote Steps"->str}
-          </StepButton>
-        </div>
-        <div className={" "}>
-          <StepButton
-            selected={currentStepDisplay == Binary}
-            onClick={_ => setCurrentStepDisplay(_ => Binary)}>
-            {"Binary"->str}
-          </StepButton>
-        </div>
+            <StepButton
+              selected={currentStepDisplay == DimAug}
+              onClick={_ => setCurrentStepDisplay(_ => DimAug)}>
+              {"Dim-Aug Int."->str}
+            </StepButton>
+            <StepButton
+              selected={currentStepDisplay == Semitone}
+              onClick={_ => setCurrentStepDisplay(_ => Semitone)}>
+              {"Semitone Int."->str}
+            </StepButton>
+          </div>
+          <div className="grid grid-cols-2 gap-2 w-full pb-2">
+            <StepButton
+              selected={currentStepDisplay == SemitoneSteps}
+              onClick={_ => setCurrentStepDisplay(_ => SemitoneSteps)}>
+              {"Semitone Steps"->str}
+            </StepButton>
+            <StepButton
+              selected={currentStepDisplay == HalfnoteSteps}
+              onClick={_ => setCurrentStepDisplay(_ => HalfnoteSteps)}>
+              {"Halfnote Steps"->str}
+            </StepButton>
+          </div>
+          <div className={" "}>
+            <StepButton
+              selected={currentStepDisplay == Binary}
+              onClick={_ => setCurrentStepDisplay(_ => Binary)}>
+              {"Binary"->str}
+            </StepButton>
+          </div>
+        </Card>
       </div>
     </div>
     <div className="flex-1 md:flex-1 h-full overflow-scroll xs:px-2">
@@ -630,33 +647,27 @@ let make = () => {
           </div>
         }}
       />
-      <div className=" py-3 text-lg font-medium flex flex-row items-center ">
-        {"Select the number of notes"->str}
-      </div>
-      <div className="flex flex-row overflow-x-scroll gap-2">
-        {Array.range(1, DataGeneration.Config.bits)->reactMap(num => {
-          <div
-            className={[
-              "p-1 px-2 border rounded",
-              selectedGenus->Option.mapWithDefault(false, ((i, _)) => num == i)
-                ? "bg-primary-300 border-primary-500"
-                : "bg-plain-00 border-plain-400",
-            ]->join}
-            onClick={_ =>
-              setSelectedGenus(_ =>
-                result
-                ->Map.Int.keysToArray
-                ->Array.get(num)
-                ->Option.flatMap(
-                  genusId =>
-                    result->Map.Int.get(genusId)->Option.map(species => (genusId, species)),
-                )
-              )}>
-            {num->Int.toString->str}
-          </div>
-        })}
-      </div>
       <div className="md:max-w-[500px]">
+        <Card title={"Number of notes in scale"}>
+          <div className="flex flex-row overflow-x-scroll gap-2">
+            {Array.range(1, DataGeneration.Config.bits)->reactMap(num => {
+              <StepButton
+                selected={selectedGenus->Option.mapWithDefault(false, ((i, _)) => num == i)}
+                onClick={_ =>
+                  setSelectedGenus(_ =>
+                    result
+                    ->Map.Int.keysToArray
+                    ->Array.get(num)
+                    ->Option.flatMap(
+                      genusId =>
+                        result->Map.Int.get(genusId)->Option.map(species => (genusId, species)),
+                    )
+                  )}>
+                {num->Int.toString->str}
+              </StepButton>
+            })}
+          </div>
+        </Card>
         {selectedGenus->Option.mapWithDefault(React.null, ((genusId, species)) => {
           <div className={"mb-1"}>
             <div className="flex flex-row items-center py-4 font-medium text-lg ">

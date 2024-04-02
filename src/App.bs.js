@@ -230,8 +230,8 @@ function App$StepButton(Props) {
   var children = Props.children;
   return React.createElement("div", {
               className: [
-                  selected ? "bg-blue-300 border-blue-500" : "bg-plain-100 border-plain-400",
-                  "col-span-1 rounded p-1 px-2 border text-center"
+                  selected ? "text-blue-700 border-blue-700 bg-blue-50 font-bold hover:border-blue-700" : "border-black bg-white font-medium border-transparent hover:border-neutral-700 hover:bg-neutral-100",
+                  "col-span-1 p-1 rounded-lg px-2 text-center border-2 cursor-default"
                 ].join(" "),
               onClick: onClick
             }, children);
@@ -553,6 +553,27 @@ var PageTitle = {
   make: App$PageTitle
 };
 
+function App$Card(Props) {
+  var title = Props.title;
+  var classNameOpt = Props.className;
+  var children = Props.children;
+  var className = classNameOpt !== undefined ? classNameOpt : "";
+  return React.createElement("div", {
+              className: [
+                  "border  border-black mt-2 overflow-hidden ",
+                  className
+                ].join(" ")
+            }, React.createElement("div", {
+                  className: "w-full text-center py-1 font-bold border-b border-neutral-400 "
+                }, title), React.createElement("div", {
+                  className: "p-2"
+                }, children));
+}
+
+var Card = {
+  make: App$Card
+};
+
 var make$2 = AboutJsx;
 
 var About = {
@@ -651,7 +672,7 @@ function App(Props) {
                             })), Belt_Option.isNone(currentBits) ? null : React.createElement("div", {
                             className: "relative"
                           }, React.createElement("button", {
-                                className: "absolute -top-4 right-4 flex flex-row gap-2 py-1 px-4 border border-plain-400 bg-plain-200 rounded-full items-center justify-center font-bold text-xl",
+                                className: "absolute -top-4 right-4 flex flex-row gap-2 py-1 px-6 \n                rounded-full items-center justify-center font-bold text-xl bg-neutral-200 border-2 border-transparent hover:border-black",
                                 onClick: (function (param) {
                                     var cChromScale = generateChromaticScale(110, 12);
                                     var newBase = Belt_Option.getWithDefault(Belt_Array.get(cChromScale, currentKey), 110);
@@ -671,90 +692,93 @@ function App(Props) {
                               }, React.createElement(Fa.FaPlay, {
                                     size: 16
                                   }), "Play")), scaleNames === "" ? null : React.createElement("div", {
-                            className: "w-full text-lg text-center pt-2 font-bold text-accent-600"
+                            className: "w-full text-lg text-center mt-4 font-bold text-accent-600"
                           }, "Scale: " + scaleNames + ""), modeNames === "" ? null : React.createElement("div", {
                             className: "w-full text-lg text-center pb-2 font-bold text-accent-600"
-                          }, "Mode: " + modeNames + ""), React.createElement("div", {
-                          className: "w-full text-center pb-2 pt-3 font-medium"
-                        }, "Key"), React.createElement("div", {
-                          className: "grid grid-cols-4 gap-2 w-full"
-                        }, Belt_Array.mapWithIndex(pitchKeys, (function (i, v) {
-                                var selected = i === currentKey;
-                                return React.createElement(App$StepButton, {
-                                            selected: selected,
-                                            onClick: (function (param) {
-                                                Curry._1(setCurrentKey, (function (param) {
-                                                        return i;
-                                                      }));
-                                              }),
-                                            children: v,
-                                            key: v
-                                          });
-                              }))), React.createElement("div", {
-                          className: "w-full text-center pb-2 pt-3 font-medium"
-                        }, "Step Display"), React.createElement(App$StepButton, {
-                          selected: currentStepDisplay === /* Key */0,
-                          onClick: (function (param) {
-                              Curry._1(setCurrentStepDisplay, (function (param) {
-                                      return /* Key */0;
-                                    }));
-                            }),
-                          children: "Key"
-                        }), React.createElement("div", {
-                          className: "grid grid-cols-3 gap-2 w-full pb-2 pt-2"
+                          }, "Mode: " + modeNames + ""), React.createElement(App$Card, {
+                          title: "Key",
+                          className: "mt-8",
+                          children: React.createElement("div", {
+                                className: "grid grid-cols-4 gap-2 w-full "
+                              }, Belt_Array.mapWithIndex(pitchKeys, (function (i, v) {
+                                      var selected = i === currentKey;
+                                      return React.createElement(App$StepButton, {
+                                                  selected: selected,
+                                                  onClick: (function (param) {
+                                                      Curry._1(setCurrentKey, (function (param) {
+                                                              return i;
+                                                            }));
+                                                    }),
+                                                  children: v,
+                                                  key: v
+                                                });
+                                    })))
+                        }), React.createElement(App$Card, {
+                          title: "Step Display",
+                          children: null
                         }, React.createElement(App$StepButton, {
-                              selected: currentStepDisplay === /* MinMaj */1,
+                              selected: currentStepDisplay === /* Key */0,
                               onClick: (function (param) {
                                   Curry._1(setCurrentStepDisplay, (function (param) {
-                                          return /* MinMaj */1;
+                                          return /* Key */0;
                                         }));
                                 }),
-                              children: "Min-Maj Int."
-                            }), React.createElement(App$StepButton, {
-                              selected: currentStepDisplay === /* DimAug */2,
-                              onClick: (function (param) {
-                                  Curry._1(setCurrentStepDisplay, (function (param) {
-                                          return /* DimAug */2;
-                                        }));
-                                }),
-                              children: "Dim-Aug Int."
-                            }), React.createElement(App$StepButton, {
-                              selected: currentStepDisplay === /* Semitone */3,
-                              onClick: (function (param) {
-                                  Curry._1(setCurrentStepDisplay, (function (param) {
-                                          return /* Semitone */3;
-                                        }));
-                                }),
-                              children: "Semitone Int."
-                            })), React.createElement("div", {
-                          className: "grid grid-cols-2 gap-2 w-full pb-2"
-                        }, React.createElement(App$StepButton, {
-                              selected: currentStepDisplay === /* SemitoneSteps */4,
-                              onClick: (function (param) {
-                                  Curry._1(setCurrentStepDisplay, (function (param) {
-                                          return /* SemitoneSteps */4;
-                                        }));
-                                }),
-                              children: "Semitone Steps"
-                            }), React.createElement(App$StepButton, {
-                              selected: currentStepDisplay === /* HalfnoteSteps */5,
-                              onClick: (function (param) {
-                                  Curry._1(setCurrentStepDisplay, (function (param) {
-                                          return /* HalfnoteSteps */5;
-                                        }));
-                                }),
-                              children: "Halfnote Steps"
-                            })), React.createElement("div", {
-                          className: " "
-                        }, React.createElement(App$StepButton, {
-                              selected: currentStepDisplay === /* Binary */6,
-                              onClick: (function (param) {
-                                  Curry._1(setCurrentStepDisplay, (function (param) {
-                                          return /* Binary */6;
-                                        }));
-                                }),
-                              children: "Binary"
-                            })))), React.createElement("div", {
+                              children: "Key"
+                            }), React.createElement("div", {
+                              className: "grid grid-cols-3 gap-2 w-full pb-2 pt-2"
+                            }, React.createElement(App$StepButton, {
+                                  selected: currentStepDisplay === /* MinMaj */1,
+                                  onClick: (function (param) {
+                                      Curry._1(setCurrentStepDisplay, (function (param) {
+                                              return /* MinMaj */1;
+                                            }));
+                                    }),
+                                  children: "Min-Maj Int."
+                                }), React.createElement(App$StepButton, {
+                                  selected: currentStepDisplay === /* DimAug */2,
+                                  onClick: (function (param) {
+                                      Curry._1(setCurrentStepDisplay, (function (param) {
+                                              return /* DimAug */2;
+                                            }));
+                                    }),
+                                  children: "Dim-Aug Int."
+                                }), React.createElement(App$StepButton, {
+                                  selected: currentStepDisplay === /* Semitone */3,
+                                  onClick: (function (param) {
+                                      Curry._1(setCurrentStepDisplay, (function (param) {
+                                              return /* Semitone */3;
+                                            }));
+                                    }),
+                                  children: "Semitone Int."
+                                })), React.createElement("div", {
+                              className: "grid grid-cols-2 gap-2 w-full pb-2"
+                            }, React.createElement(App$StepButton, {
+                                  selected: currentStepDisplay === /* SemitoneSteps */4,
+                                  onClick: (function (param) {
+                                      Curry._1(setCurrentStepDisplay, (function (param) {
+                                              return /* SemitoneSteps */4;
+                                            }));
+                                    }),
+                                  children: "Semitone Steps"
+                                }), React.createElement(App$StepButton, {
+                                  selected: currentStepDisplay === /* HalfnoteSteps */5,
+                                  onClick: (function (param) {
+                                      Curry._1(setCurrentStepDisplay, (function (param) {
+                                              return /* HalfnoteSteps */5;
+                                            }));
+                                    }),
+                                  children: "Halfnote Steps"
+                                })), React.createElement("div", {
+                              className: " "
+                            }, React.createElement(App$StepButton, {
+                                  selected: currentStepDisplay === /* Binary */6,
+                                  onClick: (function (param) {
+                                      Curry._1(setCurrentStepDisplay, (function (param) {
+                                              return /* Binary */6;
+                                            }));
+                                    }),
+                                  children: "Binary"
+                                }))))), React.createElement("div", {
                   className: "flex-1 md:flex-1 h-full overflow-scroll xs:px-2"
                 }, React.createElement(App$Collapsed, {
                       render: (function (collapsedState, setCollapsedState) {
@@ -770,33 +794,32 @@ function App(Props) {
                                         }, React.createElement(make$2, {})));
                         })
                     }), React.createElement("div", {
-                      className: " py-3 text-lg font-medium flex flex-row items-center "
-                    }, "Select the number of notes"), React.createElement("div", {
-                      className: "flex flex-row overflow-x-scroll gap-2"
-                    }, Belt_Array.map(Belt_Array.range(1, DataGeneration.Config.bits), (function (num) {
-                            return React.createElement("div", {
-                                        className: [
-                                            "p-1 px-2 border rounded",
-                                            Belt_Option.mapWithDefault(selectedGenus, false, (function (param) {
-                                                    return num === param[0];
-                                                  })) ? "bg-primary-300 border-primary-500" : "bg-plain-00 border-plain-400"
-                                          ].join(" "),
-                                        onClick: (function (param) {
-                                            Curry._1(setSelectedGenus, (function (param) {
-                                                    return Belt_Option.flatMap(Belt_Array.get(Belt_MapInt.keysToArray(DataGeneration.result), num), (function (genusId) {
-                                                                  return Belt_Option.map(Belt_MapInt.get(DataGeneration.result, genusId), (function (species) {
-                                                                                return [
-                                                                                        genusId,
-                                                                                        species
-                                                                                      ];
-                                                                              }));
-                                                                }));
-                                                  }));
-                                          })
-                                      }, String(num));
-                          }))), React.createElement("div", {
                       className: "md:max-w-[500px]"
-                    }, Belt_Option.mapWithDefault(selectedGenus, null, (function (param) {
+                    }, React.createElement(App$Card, {
+                          title: "Number of notes in scale",
+                          children: React.createElement("div", {
+                                className: "flex flex-row overflow-x-scroll gap-2"
+                              }, Belt_Array.map(Belt_Array.range(1, DataGeneration.Config.bits), (function (num) {
+                                      return React.createElement(App$StepButton, {
+                                                  selected: Belt_Option.mapWithDefault(selectedGenus, false, (function (param) {
+                                                          return num === param[0];
+                                                        })),
+                                                  onClick: (function (param) {
+                                                      Curry._1(setSelectedGenus, (function (param) {
+                                                              return Belt_Option.flatMap(Belt_Array.get(Belt_MapInt.keysToArray(DataGeneration.result), num), (function (genusId) {
+                                                                            return Belt_Option.map(Belt_MapInt.get(DataGeneration.result, genusId), (function (species) {
+                                                                                          return [
+                                                                                                  genusId,
+                                                                                                  species
+                                                                                                ];
+                                                                                        }));
+                                                                          }));
+                                                            }));
+                                                    }),
+                                                  children: String(num)
+                                                });
+                                    })))
+                        }), Belt_Option.mapWithDefault(selectedGenus, null, (function (param) {
                             var species = param[1];
                             var genusId = param[0];
                             return React.createElement("div", {
@@ -851,6 +874,7 @@ export {
   Scale ,
   Species ,
   PageTitle ,
+  Card ,
   About ,
   generateChromaticScale ,
   makeNotePlayer ,
