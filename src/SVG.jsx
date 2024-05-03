@@ -79,7 +79,7 @@ const RadialText = ({ x, y, radius, deg, text, selected }) => {
                 ? tailwindColors[accentColor][600]
                 : tailwindColors[plainColor][800]
             }
-            className={"font-bold"}
+            className={selected ? "font-bold" : "font-medium"}
           >
             {text}
           </text>
@@ -138,7 +138,7 @@ export const SVG = ({ data }) => {
       <circle
         cx={center.x}
         cy={center.y}
-        strokeWidth={1}
+        strokeWidth={0.5}
         r={radius}
         fill="none"
         stroke={tailwindColors[plainColor][800]}
@@ -153,7 +153,7 @@ export const SVG = ({ data }) => {
               start={radius * 0.9}
               end={radius * 1.1}
               deg={i * orderDegree}
-              strokeWidth={1}
+              strokeWidth={0.5}
               color={tailwindColors[plainColor][800]}
             />
             <RadialText

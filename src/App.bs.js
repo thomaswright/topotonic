@@ -60,16 +60,16 @@ var Collapsed = {
 
 var pitchKeys = [
   "C",
-  "C♯/D♭",
+  "C♯ D♭",
   "D",
-  "D♯/E♭",
+  "D♯ E♭",
   "E",
   "F",
-  "F♯/G♭",
+  "F♯ G♭",
   "G",
-  "G♯/A♭",
+  "G♯ A♭",
   "A",
-  "A♯/B♭",
+  "A♯ B♭",
   "B"
 ];
 
@@ -230,8 +230,8 @@ function App$StepButton(Props) {
   var children = Props.children;
   return React.createElement("div", {
               className: [
-                  selected ? "text-blue-700 border-blue-700 bg-blue-50 font-bold hover:border-blue-700" : "border-black bg-white font-medium border-transparent hover:border-neutral-700 hover:bg-neutral-100",
-                  "col-span-1 p-1 rounded-lg px-2 text-center border-2 cursor-default"
+                  selected ? "text-blue-700 border-blue-700 bg-blue-50 font-bold hover:border-blue-700" : "border-black bg-white font-medium border-transparent hover:border-neutral-400 hover:bg-neutral-100",
+                  "col-span-1 p-1 rounded-xl px-2 text-center border cursor-default"
                 ].join(" "),
               onClick: onClick
             }, children);
@@ -510,7 +510,7 @@ function App$Species(Props) {
                                               return React.createElement("div", {
                                                           key: modeId,
                                                           className: [
-                                                              "flex flex-col py-px md:justify-start justify-center",
+                                                              "flex flex-col py-px sm:justify-start justify-center",
                                                               selected ? "font-bold" : "",
                                                               tmp
                                                             ].join(" "),
@@ -539,13 +539,13 @@ var Species = {
 
 function App$PageTitle(Props) {
   return React.createElement("div", {
-              className: "font-sans absolute flex flex-row top-5 left-5 "
+              className: "font-sans  flex flex-row py-2 "
             }, React.createElement(make, {
                   size: 32
                 }), React.createElement("div", {
                   className: " -ml-2"
                 }, React.createElement("div", {
-                      className: " text-[rgb(25,0,175)] font-bold text-xl"
+                      className: " text-[rgb(25,0,175)] font-bold text-3xl"
                     }, "opotonic")));
 }
 
@@ -560,11 +560,11 @@ function App$Card(Props) {
   var className = classNameOpt !== undefined ? classNameOpt : "";
   return React.createElement("div", {
               className: [
-                  "border  border-black mt-2 overflow-hidden ",
+                  "border  border-neutral-300 rounded-lg shadow mt-2 overflow-hidden ",
                   className
                 ].join(" ")
             }, React.createElement("div", {
-                  className: "w-full text-center py-1 font-bold border-b border-neutral-400 "
+                  className: "w-full text-center py-1 font-bold bg-neutral-50 border-b border-neutral-300 "
                 }, title), React.createElement("div", {
                   className: "p-2"
                 }, children));
@@ -660,19 +660,15 @@ function App(Props) {
                 
               }))).join(", ");
   return React.createElement("div", {
-              className: "flex md:flex-row flex-col h-screen w-screen "
-            }, React.createElement(App$PageTitle, {}), React.createElement("div", {
-                  className: "flex-1 flex flex-col w-screen md:w-auto md:max-w-[500px] p-2  overflow-y-scroll items-center"
+              className: "flex sm:flex-row flex-col h-screen w-screen "
+            }, React.createElement("div", {
+                  className: "flex-1 flex flex-col w-screen sm:w-auto sm:max-w-[350px] p-2  overflow-y-scroll items-center"
                 }, React.createElement("div", {
-                      className: " md:max-h-min  max-w-[500px] w-full"
-                    }, React.createElement("div", {
-                          className: "pt-2 w-full self-center"
-                        }, React.createElement(make$1, {
-                              data: Belt_Array.zip(graphDisplay, graphBits)
-                            })), Belt_Option.isNone(currentBits) ? null : React.createElement("div", {
-                            className: "relative"
+                      className: "flex flex-row justify-between items-center w-full px-4"
+                    }, React.createElement(App$PageTitle, {}), Belt_Option.isNone(currentBits) ? null : React.createElement("div", {
+                            className: ""
                           }, React.createElement("button", {
-                                className: "absolute -top-4 right-4 flex flex-row gap-2 py-1 px-6 \n                rounded-full items-center justify-center font-bold text-xl bg-neutral-200 border-2 border-transparent hover:border-black",
+                                className: "shadow-sm flex flex-row gap-2 py-1 px-6 \n                rounded-full items-center justify-center font-bold text-xl bg-neutral-100 border border-neutral-300 hover:bg-neutral-200",
                                 onClick: (function (param) {
                                     var cChromScale = generateChromaticScale(110, 12);
                                     var newBase = Belt_Option.getWithDefault(Belt_Array.get(cChromScale, currentKey), 110);
@@ -690,8 +686,14 @@ function App(Props) {
                                           }));
                                   })
                               }, React.createElement(Fa.FaPlay, {
-                                    size: 16
-                                  }), "Play")), scaleNames === "" ? null : React.createElement("div", {
+                                    size: 14
+                                  }), "Play"))), React.createElement("div", {
+                      className: " sm:max-h-min  max-w-[500px] w-full"
+                    }, React.createElement("div", {
+                          className: "pt-2 w-full self-center"
+                        }, React.createElement(make$1, {
+                              data: Belt_Array.zip(graphDisplay, graphBits)
+                            })), scaleNames === "" ? null : React.createElement("div", {
                             className: "w-full text-lg text-center mt-4 font-bold text-accent-600"
                           }, "Scale: " + scaleNames + ""), modeNames === "" ? null : React.createElement("div", {
                             className: "w-full text-lg text-center pb-2 font-bold text-accent-600"
@@ -779,11 +781,11 @@ function App(Props) {
                                     }),
                                   children: "Binary"
                                 }))))), React.createElement("div", {
-                  className: "flex-1 md:flex-1 h-full overflow-scroll xs:px-2"
+                  className: "flex-1 sm:flex-1 h-full overflow-scroll xs:px-2"
                 }, React.createElement(App$Collapsed, {
                       render: (function (collapsedState, setCollapsedState) {
                           return React.createElement("div", undefined, React.createElement("button", {
-                                          className: "px-3 py-1 m-2 ml-3 font-bold bg-plain-200 rounded \n              flex flex-row justify-center items-center gap-1",
+                                          className: "px-3 py-1 my-2 font-bold bg-neutral-200 rounded \n              flex flex-row justify-center items-center gap-1",
                                           onClick: (function (param) {
                                               Curry._1(setCollapsedState, (function (s) {
                                                       return !s;
@@ -794,7 +796,7 @@ function App(Props) {
                                         }, React.createElement(make$2, {})));
                         })
                     }), React.createElement("div", {
-                      className: "md:max-w-[500px]"
+                      className: "sm:max-w-[500px]"
                     }, React.createElement(App$Card, {
                           title: "Number of notes in scale",
                           children: React.createElement("div", {

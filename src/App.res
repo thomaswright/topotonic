@@ -54,16 +54,16 @@ module Collapsed = {
 module IntervalRefs = {
   let pitchKeys = [
     `C`,
-    `C♯/D♭`,
+    `C♯ D♭`,
     `D`,
-    `D♯/E♭`,
+    `D♯ E♭`,
     `E`,
     `F`,
-    `F♯/G♭`,
+    `F♯ G♭`,
     `G`,
-    `G♯/A♭`,
+    `G♯ A♭`,
     `A`,
-    `A♯/B♭`,
+    `A♯ B♭`,
     `B`,
   ]
 
@@ -131,8 +131,8 @@ module StepButton = {
       className={[
         selected
           ? "text-blue-700 border-blue-700 bg-blue-50 font-bold hover:border-blue-700"
-          : "border-black bg-white font-medium border-transparent hover:border-neutral-700 hover:bg-neutral-100",
-        "col-span-1 p-1 rounded-lg px-2 text-center border-2 cursor-default",
+          : "border-black bg-white font-medium border-transparent hover:border-neutral-400 hover:bg-neutral-100",
+        "col-span-1 p-1 rounded-xl px-2 text-center border cursor-default",
       ]->join}
       onClick={onClick}>
       {children}
@@ -211,7 +211,7 @@ module Scale = {
   }
 }
 
-// <div className="hidden md:block  flex-none w-10">
+// <div className="hidden sm:block  flex-none w-10">
 //   {speciesDetails.autoCorrelations
 //   ->Array.get(i)
 //   ->Option.mapWithDefault(React.null, x => {
@@ -384,7 +384,7 @@ module Species = {
                       onClick={_ => setCurrentBits(_ => modeId->BitOps.stringToIntArray->Some)}
                       key={modeId}
                       className={[
-                        "flex flex-col py-px md:justify-start justify-center",
+                        "flex flex-col py-px sm:justify-start justify-center",
                         selected ? "font-bold" : "",
                         switch modeKind {
                         | Mode => selected ? "text-accent-600 " : "text-plain-700"
@@ -419,10 +419,10 @@ module Species = {
 module PageTitle = {
   @react.component
   let make = () => {
-    <div className={"font-sans absolute flex flex-row top-5 left-5 "}>
+    <div className={"font-sans  flex flex-row py-2 "}>
       <Logo size={32} />
       <div className={" -ml-2"}>
-        <div className={" text-[rgb(25,0,175)] font-bold text-xl"}> {"opotonic"->str} </div>
+        <div className={" text-[rgb(25,0,175)] font-bold text-3xl"}> {"opotonic"->str} </div>
         // <div className={"text-cyan-600 text-[10px] font-bold italic -mt-1"}>
         //   {"by T. Wright"->str}
         // </div>
@@ -434,8 +434,12 @@ module PageTitle = {
 module Card = {
   @react.component
   let make = (~title, ~className="", ~children) => {
-    <div className={["border  border-black mt-2 overflow-hidden ", className]->join}>
-      <div className="w-full text-center py-1 font-bold border-b border-neutral-400 ">
+    <div
+      className={[
+        "border  border-neutral-300 rounded-lg shadow mt-2 overflow-hidden ",
+        className,
+      ]->join}>
+      <div className="w-full text-center py-1 font-bold bg-neutral-50 border-b border-neutral-300 ">
         {title->str}
       </div>
       <div className={"p-2"}> {children} </div>
@@ -524,20 +528,17 @@ let make = () => {
     ->Array.concatMany
     ->Js.Array2.joinWith(", ")
 
-  <div className={"flex md:flex-row flex-col h-screen w-screen "}>
-    <PageTitle />
+  <div className={"flex sm:flex-row flex-col h-screen w-screen "}>
     <div
-      className="flex-1 flex flex-col w-screen md:w-auto md:max-w-[500px] p-2  overflow-y-scroll items-center">
-      <div className=" md:max-h-min  max-w-[500px] w-full">
-        <div className={"pt-2 w-full self-center"}>
-          <SVG data={Array.zip(graphDisplay, graphBits)} />
-        </div>
+      className="flex-1 flex flex-col w-screen sm:w-auto sm:max-w-[350px] p-2  overflow-y-scroll items-center">
+      <div className="flex flex-row justify-between items-center w-full px-4">
+        <PageTitle />
         {currentBits->Option.isNone
           ? React.null
-          : <div className="relative">
+          : <div className="">
               <button
-                className={"absolute -top-4 right-4 flex flex-row gap-2 py-1 px-6 
-                rounded-full items-center justify-center font-bold text-xl bg-neutral-200 border-2 border-transparent hover:border-black"}
+                className={"shadow-sm flex flex-row gap-2 py-1 px-6 
+                rounded-full items-center justify-center font-bold text-xl bg-neutral-100 border border-neutral-300 hover:bg-neutral-200"}
                 onClick={_ => {
                   let cBaseFreq = 110
                   let cChromScale = generateChromaticScale(cBaseFreq, 12)
@@ -561,10 +562,15 @@ let make = () => {
                     triggerAttackRelease(. v, "8n", i->Int.toFloat *. 0.5)
                   })
                 }}>
-                <PlayIcon size={16} />
+                <PlayIcon size={14} />
                 {"Play"->str}
               </button>
             </div>}
+      </div>
+      <div className=" sm:max-h-min  max-w-[500px] w-full">
+        <div className={"pt-2 w-full self-center"}>
+          <SVG data={Array.zip(graphDisplay, graphBits)} />
+        </div>
         {scaleNames == ""
           ? React.null
           : <div className="w-full text-lg text-center mt-4 font-bold text-accent-600">
@@ -630,13 +636,13 @@ let make = () => {
         </Card>
       </div>
     </div>
-    <div className="flex-1 md:flex-1 h-full overflow-scroll xs:px-2">
+    <div className="flex-1 sm:flex-1 h-full overflow-scroll xs:px-2">
       <Collapsed
         render={(collapsedState, setCollapsedState) => {
           <div>
             <button
               onClick={_ => setCollapsedState(s => !s)}
-              className={`px-3 py-1 m-2 ml-3 font-bold bg-plain-200 rounded 
+              className={`px-3 py-1 my-2 font-bold bg-neutral-200 rounded 
               flex flex-row justify-center items-center gap-1`}>
               {"About Topotonic"->str}
               <ChevronDown />
@@ -647,7 +653,7 @@ let make = () => {
           </div>
         }}
       />
-      <div className="md:max-w-[500px]">
+      <div className="sm:max-w-[500px]">
         <Card title={"Number of notes in scale"}>
           <div className="flex flex-row overflow-x-scroll gap-2">
             {Array.range(1, DataGeneration.Config.bits)->reactMap(num => {
