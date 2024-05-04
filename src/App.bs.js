@@ -696,10 +696,10 @@ function App(Props) {
                             })), scaleNames === "" ? null : React.createElement("div", {
                             className: "w-full text-lg text-center mt-4 font-bold text-accent-600"
                           }, "Scale: " + scaleNames + ""), modeNames === "" ? null : React.createElement("div", {
-                            className: "w-full text-lg text-center pb-2 font-bold text-accent-600"
+                            className: "w-full text-lg text-center font-bold text-accent-600"
                           }, "Mode: " + modeNames + ""), React.createElement(App$Card, {
                           title: "Key",
-                          className: "mt-8",
+                          className: "mt-4",
                           children: React.createElement("div", {
                                 className: "grid grid-cols-4 gap-2 w-full "
                               }, Belt_Array.mapWithIndex(pitchKeys, (function (i, v) {

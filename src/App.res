@@ -578,10 +578,10 @@ let make = () => {
             </div>}
         {modeNames == ""
           ? React.null
-          : <div className="w-full text-lg text-center pb-2 font-bold text-accent-600">
+          : <div className="w-full text-lg text-center font-bold text-accent-600">
               {`Mode: ${modeNames}`->str}
             </div>}
-        <Card title={"Key"} className="mt-8">
+        <Card title={"Key"} className="mt-4">
           <div className={"grid grid-cols-4 gap-2 w-full "}>
             {IntervalRefs.pitchKeys->reactMapWithIndex((i, v) => {
               let selected = i == currentKey
