@@ -470,9 +470,7 @@ function App$Species(Props) {
                                             currentKey: currentKey,
                                             kind: /* Species */0,
                                             selected: false
-                                          }), React.createElement("div", {
-                                            className: " flex-none flex flex-row items-center justify-center w-10 px-1"
-                                          }, speciesDetails.isSymmetric ? React.createElement(Bs.BsSymmetryVertical, {}) : null))) : React.createElement("div", undefined, React.createElement("div", {
+                                          }))) : React.createElement("div", undefined, React.createElement("div", {
                                         className: "",
                                         onClick: (function (param) {
                                             Curry._1(setSpeciesHidden, (function (param) {

@@ -340,9 +340,9 @@ module Species = {
                     kind={Species}
                     currentStepDisplay={currentStepDisplay}
                   />
-                  <div className=" flex-none flex flex-row items-center justify-center w-10 px-1">
-                    {speciesDetails.isSymmetric ? <Symmetry /> : React.null}
-                  </div>
+                  // <div className=" flex-none flex flex-row items-center justify-center w-10 px-1">
+                  //   {speciesDetails.isSymmetric ? <Symmetry /> : React.null}
+                  // </div>
                 </div>
               </div>
             : <div>
