@@ -316,7 +316,7 @@ module Species = {
           )
         }
 
-        <div className={[" py-1 border rounded-xl mb-2"]->join}>
+        <div className={[" py-1 border border-neutral-300 rounded-xl mb-2"]->join}>
           {speciesHidden
             ? <div className={["font-bold"]->join} onClick={onClickHeader}>
                 {speciesNames == ""
@@ -359,8 +359,8 @@ module Species = {
                     </div>
                   </div>
                 </div>
-                <div className="border-b mx-6 pt-2 border-neutral-500" />
-                <div className={["pt-2 pb-1 px-2 flex flex-col divide-y"]->join}>
+                <div className="border-b mx-6 pt-2 border-neutral-300" />
+                <div className={["py-1 flex flex-col divide-y"]->join}>
                   {speciesDetails.modes->reactMapWithIndex((_i, (modeId, _rotationDegrees)) => {
                     let selected =
                       currentBits->Option.mapWithDefault(false, c =>
@@ -403,7 +403,7 @@ module Species = {
                       {modeNames == ""
                         ? React.null
                         : <div
-                            className={"flex flex-row items-center text-xs px-3 justify-center flex-1 overflow-x-hidden text-ellipsis whitespace-nowrap"}>
+                            className={"flex flex-row items-center text-xs px-3 py-0.5 justify-center flex-1 overflow-x-hidden text-ellipsis whitespace-nowrap"}>
                             {modeNames->str}
                           </div>}
                       <Scale

@@ -446,7 +446,7 @@ function App$Species(Props) {
                           }));
                   };
                   return React.createElement("div", {
-                              className: [" py-1 border rounded-xl mb-2"].join(" ")
+                              className: [" py-1 border border-neutral-300 rounded-xl mb-2"].join(" ")
                             }, speciesHidden ? React.createElement("div", {
                                     className: ["font-bold"].join(" "),
                                     onClick: onClickHeader
@@ -480,9 +480,9 @@ function App$Species(Props) {
                                               }, speciesDetails.isSymmetric ? React.createElement(Bs.BsSymmetryVertical, {}) : null), React.createElement("div", {
                                                 className: "flex-none text-sm font-medium tracking-wide "
                                               }, "SCALE " + scaleName + ""))), React.createElement("div", {
-                                        className: "border-b mx-6 pt-2 border-neutral-500"
+                                        className: "border-b mx-6 pt-2 border-neutral-300"
                                       }), React.createElement("div", {
-                                        className: ["pt-2 pb-1 px-2 flex flex-col divide-y"].join(" ")
+                                        className: ["py-1 flex flex-col divide-y"].join(" ")
                                       }, Belt_Array.mapWithIndex(speciesDetails.modes, (function (_i, param) {
                                               var modeId = param[0];
                                               var selected = Belt_Option.mapWithDefault(currentBits, false, (function (c) {
@@ -524,7 +524,7 @@ function App$Species(Props) {
                                                                     }));
                                                             })
                                                         }, modeNames === "" ? null : React.createElement("div", {
-                                                                className: "flex flex-row items-center text-xs px-3 justify-center flex-1 overflow-x-hidden text-ellipsis whitespace-nowrap"
+                                                                className: "flex flex-row items-center text-xs px-3 py-0.5 justify-center flex-1 overflow-x-hidden text-ellipsis whitespace-nowrap"
                                                               }, modeNames), React.createElement(App$Scale, {
                                                               bitString: modeId,
                                                               currentStepDisplay: currentStepDisplay,
