@@ -10,6 +10,7 @@ import * as IconsJsx from "./Icons.jsx";
 import AboutJsx from "./about.jsx";
 import * as Belt_MapInt from "rescript/lib/es6/belt_MapInt.js";
 import * as Belt_Option from "rescript/lib/es6/belt_Option.js";
+import * as SwitchJsx from "./Switch.jsx";
 import * as Belt_MapString from "rescript/lib/es6/belt_MapString.js";
 import * as DataGeneration from "./DataGeneration.bs.js";
 import * as Bs from "react-icons/bs";
@@ -47,6 +48,12 @@ var ChevronDown = {};
 var ChevronUp = {};
 
 var PlayIcon = {};
+
+var make$2 = SwitchJsx.Switch;
+
+var Switch = {
+  make: make$2
+};
 
 function App$Collapsed(Props) {
   var render = Props.render;
@@ -374,6 +381,7 @@ function App$Species(Props) {
   var currentKey = Props.currentKey;
   var speciesId = Props.speciesId;
   var speciesDetails = Props.speciesDetails;
+  var showNonModes = Props.showNonModes;
   var scaleLength;
   if (currentStepDisplay >= 4) {
     switch (currentStepDisplay) {
@@ -498,6 +506,9 @@ function App$Species(Props) {
                                                                       return param[1];
                                                                     }));
                                                       })).join(", ");
+                                              if (modeKind === /* NonMode */2 && !showNonModes) {
+                                                return null;
+                                              }
                                               var tmp;
                                               switch (modeKind) {
                                                 case /* Species */0 :
@@ -524,7 +535,7 @@ function App$Species(Props) {
                                                                     }));
                                                             })
                                                         }, modeNames === "" ? null : React.createElement("div", {
-                                                                className: "flex flex-row items-center text-xs px-3 py-0.5 justify-center flex-1 overflow-x-hidden text-ellipsis whitespace-nowrap"
+                                                                className: "flex flex-row items-center text-xs px-3 py-0.5 justify-center flex-1"
                                                               }, modeNames), React.createElement(App$Scale, {
                                                               bitString: modeId,
                                                               currentStepDisplay: currentStepDisplay,
@@ -580,10 +591,10 @@ var Card = {
   make: App$Card
 };
 
-var make$2 = AboutJsx;
+var make$3 = AboutJsx;
 
 var About = {
-  make: make$2
+  make: make$3
 };
 
 function generateChromaticScale(startFrequency, numNotes) {
@@ -620,6 +631,11 @@ function App(Props) {
       });
   var setCurrentStepDisplay = match$3[1];
   var currentStepDisplay = match$3[0];
+  var match$4 = React.useState(function () {
+        return false;
+      });
+  var setShowNonModes = match$4[1];
+  var showNonModes = match$4[0];
   var graphDisplay;
   switch (currentStepDisplay) {
     case /* Key */0 :
@@ -790,16 +806,29 @@ function App(Props) {
                       className: "sm:max-w-[500px] pt-2"
                     }, React.createElement(App$Collapsed, {
                           render: (function (collapsedState, setCollapsedState) {
-                              return React.createElement("div", undefined, React.createElement("button", {
-                                              className: "px-3 py-1 my-2 font-bold border border-neutral-300 rounded-lg \n              flex flex-row justify-center items-center gap-1",
-                                              onClick: (function (param) {
-                                                  Curry._1(setCollapsedState, (function (s) {
-                                                          return !s;
-                                                        }));
-                                                })
-                                            }, "About Topotonic", collapsedState ? React.createElement(Fa.FaChevronDown, {}) : React.createElement(Fa.FaChevronUp, {})), React.createElement("div", {
+                              return React.createElement("div", undefined, React.createElement("div", {
+                                              className: "my-2 flex flex-row justify-between items-center"
+                                            }, React.createElement("button", {
+                                                  className: "px-3 py-1  font-bold border border-neutral-300 rounded-lg \n              flex flex-row justify-center items-center gap-1",
+                                                  onClick: (function (param) {
+                                                      Curry._1(setCollapsedState, (function (s) {
+                                                              return !s;
+                                                            }));
+                                                    })
+                                                }, "About Topotonic", collapsedState ? React.createElement(Fa.FaChevronDown, {}) : React.createElement(Fa.FaChevronUp, {})), React.createElement("div", {
+                                                  className: "flex flex-row gap-2"
+                                                }, React.createElement("div", {
+                                                      className: "text-sm"
+                                                    }, "Show Non-Modes"), React.createElement(make$2, {
+                                                      checked: showNonModes,
+                                                      onCheckedChange: (function (param) {
+                                                          Curry._1(setShowNonModes, (function (v) {
+                                                                  return !v;
+                                                                }));
+                                                        })
+                                                    }))), React.createElement("div", {
                                               className: [collapsedState ? "hidden" : ""].join(" ")
-                                            }, React.createElement(make$2, {})));
+                                            }, React.createElement(make$3, {})));
                             })
                         }), React.createElement(App$Card, {
                           title: "Number of notes in scale",
@@ -844,6 +873,7 @@ function App(Props) {
                                                               currentKey: currentKey,
                                                               speciesId: speciesId,
                                                               speciesDetails: param[1],
+                                                              showNonModes: showNonModes,
                                                               key: speciesId
                                                             });
                                                 }))));
@@ -854,7 +884,7 @@ var result = DataGeneration.result;
 
 var BitOps;
 
-var make$3 = App;
+var make$4 = App;
 
 var $$default = App;
 
@@ -871,6 +901,7 @@ export {
   ChevronDown ,
   ChevronUp ,
   PlayIcon ,
+  Switch ,
   Collapsed ,
   IntervalRefs ,
   stepsToBits ,
@@ -886,7 +917,7 @@ export {
   generateChromaticScale ,
   makeNotePlayer ,
   triggerAttackRelease ,
-  make$3 as make,
+  make$4 as make,
   $$default ,
   $$default as default,
 }

@@ -46,6 +46,10 @@ module PlayIcon = {
   @module("react-icons/fa") @react.component
   external make: (~size: int=?, ~color: string=?, ~className: string=?) => React.element = "FaPlay"
 }
+module Switch = {
+  @module("./Switch.jsx") @react.component
+  external make: (~checked: bool, ~onCheckedChange: unit => unit) => React.element = "Switch"
+}
 
 module Collapsed = {
   @react.component
@@ -241,6 +245,7 @@ module Species = {
     ~currentKey: key,
     ~speciesId: string,
     ~speciesDetails: DataGeneration.speciesDetails,
+    ~showNonModes: bool,
   ) => {
     // let (base, setBase) = React.useState(_ => None)
 
@@ -387,33 +392,40 @@ module Species = {
                       )
                       ->Js.Array2.joinWith(", ")
 
-                    <div
-                      onClick={_ => setCurrentBits(_ => modeId->BitOps.stringToIntArray->Some)}
-                      key={modeId}
-                      className={[
-                        "flex flex-col py-1 sm:justify-start justify-center ",
-                        selected ? "font-bold" : "",
-                        switch modeKind {
-                        | Mode => selected ? "text-accent-600 " : "text-plain-700"
-                        | NonMode =>
-                          selected ? "bg-plain-50 text-accent-600" : "bg-plain-50 text-plain-300"
-                        | _ => ""
-                        },
-                      ]->join}>
-                      {modeNames == ""
+                    {
+                      modeKind == NonMode && !showNonModes
                         ? React.null
                         : <div
-                            className={"flex flex-row items-center text-xs px-3 py-0.5 justify-center flex-1 overflow-x-hidden text-ellipsis whitespace-nowrap"}>
-                            {modeNames->str}
-                          </div>}
-                      <Scale
-                        selected={selected}
-                        currentKey={currentKey}
-                        currentStepDisplay={currentStepDisplay}
-                        bitString={modeId}
-                        kind={modeKind}
-                      />
-                    </div>
+                            onClick={_ =>
+                              setCurrentBits(_ => modeId->BitOps.stringToIntArray->Some)}
+                            key={modeId}
+                            className={[
+                              "flex flex-col py-1 sm:justify-start justify-center ",
+                              selected ? "font-bold" : "",
+                              switch modeKind {
+                              | Mode => selected ? "text-accent-600 " : "text-plain-700"
+                              | NonMode =>
+                                selected
+                                  ? "bg-plain-50 text-accent-600"
+                                  : "bg-plain-50 text-plain-300"
+                              | _ => ""
+                              },
+                            ]->join}>
+                            {modeNames == ""
+                              ? React.null
+                              : <div
+                                  className={"flex flex-row items-center text-xs px-3 py-0.5 justify-center flex-1"}>
+                                  {modeNames->str}
+                                </div>}
+                            <Scale
+                              selected={selected}
+                              currentKey={currentKey}
+                              currentStepDisplay={currentStepDisplay}
+                              bitString={modeId}
+                              kind={modeKind}
+                            />
+                          </div>
+                    }
                   })}
                 </div>
               </div>}
@@ -489,6 +501,8 @@ let make = () => {
 
   let (currentKey: int, setCurrentKey) = React.useState(_ => 0)
   let (currentStepDisplay: stepDisplay, setCurrentStepDisplay) = React.useState(_ => Key)
+
+  let (showNonModes, setShowNonModes) = React.useState(_ => false)
 
   let graphDisplay = {
     switch currentStepDisplay {
@@ -642,13 +656,19 @@ let make = () => {
         <Collapsed
           render={(collapsedState, setCollapsedState) => {
             <div>
-              <button
-                onClick={_ => setCollapsedState(s => !s)}
-                className={`px-3 py-1 my-2 font-bold border border-neutral-300 rounded-lg 
+              <div className={"my-2 flex flex-row justify-between items-center"}>
+                <button
+                  onClick={_ => setCollapsedState(s => !s)}
+                  className={`px-3 py-1  font-bold border border-neutral-300 rounded-lg 
               flex flex-row justify-center items-center gap-1`}>
-                {"About Topotonic"->str}
-                {collapsedState ? <ChevronDown /> : <ChevronUp />}
-              </button>
+                  {"About Topotonic"->str}
+                  {collapsedState ? <ChevronDown /> : <ChevronUp />}
+                </button>
+                <div className="flex flex-row gap-2">
+                  <div className="text-sm"> {"Show Non-Modes"->str} </div>
+                  <Switch checked={showNonModes} onCheckedChange={() => setShowNonModes(v => !v)} />
+                </div>
+              </div>
               <div className={[collapsedState ? "hidden" : ""]->join}>
                 <About />
               </div>
@@ -688,6 +708,7 @@ let make = () => {
               ->Map.String.toArray
               ->reactMap(((speciesId, speciesDetails)) =>
                 <Species
+                  showNonModes={showNonModes}
                   key={speciesId}
                   genusId={genusId}
                   currentBits={currentBits}
