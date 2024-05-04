@@ -44,6 +44,8 @@ var Symmetry = {};
 
 var ChevronDown = {};
 
+var ChevronUp = {};
+
 var PlayIcon = {};
 
 function App$Collapsed(Props) {
@@ -444,7 +446,7 @@ function App$Species(Props) {
                           }));
                   };
                   return React.createElement("div", {
-                              className: [" py-2 "].join(" ")
+                              className: [" py-1 border rounded-xl mb-2"].join(" ")
                             }, speciesHidden ? React.createElement("div", {
                                     className: ["font-bold"].join(" "),
                                     onClick: onClickHeader
@@ -478,7 +480,9 @@ function App$Species(Props) {
                                               }, speciesDetails.isSymmetric ? React.createElement(Bs.BsSymmetryVertical, {}) : null), React.createElement("div", {
                                                 className: "flex-none text-sm font-medium tracking-wide "
                                               }, "SCALE " + scaleName + ""))), React.createElement("div", {
-                                        className: ["mt-1 mb-4 border-y border-plain-500"].join(" ")
+                                        className: "border-b mx-6 pt-2 border-neutral-500"
+                                      }), React.createElement("div", {
+                                        className: ["pt-2 pb-1 px-2 flex flex-col divide-y"].join(" ")
                                       }, Belt_Array.mapWithIndex(speciesDetails.modes, (function (_i, param) {
                                               var modeId = param[0];
                                               var selected = Belt_Option.mapWithDefault(currentBits, false, (function (c) {
@@ -510,7 +514,7 @@ function App$Species(Props) {
                                               return React.createElement("div", {
                                                           key: modeId,
                                                           className: [
-                                                              "flex flex-col py-px sm:justify-start justify-center",
+                                                              "flex flex-col py-1 sm:justify-start justify-center ",
                                                               selected ? "font-bold" : "",
                                                               tmp
                                                             ].join(" "),
@@ -520,7 +524,7 @@ function App$Species(Props) {
                                                                     }));
                                                             })
                                                         }, modeNames === "" ? null : React.createElement("div", {
-                                                                className: "flex flex-row items-center text-xs pt-0.5 pl-0.5 justify-start flex-1 overflow-x-hidden text-ellipsis whitespace-nowrap px-1"
+                                                                className: "flex flex-row items-center text-xs px-3 justify-center flex-1 overflow-x-hidden text-ellipsis whitespace-nowrap"
                                                               }, modeNames), React.createElement(App$Scale, {
                                                               bitString: modeId,
                                                               currentStepDisplay: currentStepDisplay,
@@ -560,13 +564,15 @@ function App$Card(Props) {
   var className = classNameOpt !== undefined ? classNameOpt : "";
   return React.createElement("div", {
               className: [
-                  "border  border-neutral-300 rounded-lg shadow mt-2 overflow-hidden ",
+                  "border  border-neutral-300 rounded-xl mt-2 overflow-hidden ",
                   className
                 ].join(" ")
             }, React.createElement("div", {
-                  className: "w-full text-center py-1 font-bold bg-neutral-50 border-b border-neutral-300 "
-                }, title), React.createElement("div", {
-                  className: "p-2"
+                  className: "px-6"
+                }, React.createElement("div", {
+                      className: "w-full text-center py-2 font-bold border-b border-neutral-300 "
+                    }, title)), React.createElement("div", {
+                  className: "px-2 py-3"
                 }, children));
 }
 
@@ -665,29 +671,27 @@ function App(Props) {
                   className: "flex-1 flex flex-col w-screen sm:w-auto sm:max-w-[350px] p-2  overflow-y-scroll items-center"
                 }, React.createElement("div", {
                       className: "flex flex-row justify-between items-center w-full px-4"
-                    }, React.createElement(App$PageTitle, {}), Belt_Option.isNone(currentBits) ? null : React.createElement("div", {
-                            className: ""
-                          }, React.createElement("button", {
-                                className: "shadow-sm flex flex-row gap-2 py-1 px-6 \n                rounded-full items-center justify-center font-bold text-xl bg-neutral-100 border border-neutral-300 hover:bg-neutral-200",
-                                onClick: (function (param) {
-                                    var cChromScale = generateChromaticScale(110, 12);
-                                    var newBase = Belt_Option.getWithDefault(Belt_Array.get(cChromScale, currentKey), 110);
-                                    var newChromScale = generateChromaticScale(110 + newBase | 0, 12);
-                                    var x = Belt_Array.keepWithIndex(newChromScale, (function (_v, i) {
-                                            return Belt_Option.mapWithDefault(Belt_Array.get(graphBits, i), false, (function (bit) {
-                                                          return bit === 1;
-                                                        }));
-                                          }));
-                                    var seq = Belt_Option.mapWithDefault(Belt_Array.get(x, 0), x, (function (head) {
-                                            return Belt_Array.concat(x, [(head << 1)]);
-                                          }));
-                                    Belt_Array.forEachWithIndex(seq, (function (i, v) {
-                                            triggerAttackRelease(v, "8n", i * 0.5);
-                                          }));
-                                  })
-                              }, React.createElement(Fa.FaPlay, {
-                                    size: 14
-                                  }), "Play"))), React.createElement("div", {
+                    }, React.createElement(App$PageTitle, {}), Belt_Option.isNone(currentBits) ? null : React.createElement("button", {
+                            className: "flex flex-row gap-2 py-1 px-5 rounded-full items-center\n               justify-center font-bold text-white bg-accent-600   hover:bg-accent-700",
+                            onClick: (function (param) {
+                                var cChromScale = generateChromaticScale(110, 12);
+                                var newBase = Belt_Option.getWithDefault(Belt_Array.get(cChromScale, currentKey), 110);
+                                var newChromScale = generateChromaticScale(110 + newBase | 0, 12);
+                                var x = Belt_Array.keepWithIndex(newChromScale, (function (_v, i) {
+                                        return Belt_Option.mapWithDefault(Belt_Array.get(graphBits, i), false, (function (bit) {
+                                                      return bit === 1;
+                                                    }));
+                                      }));
+                                var seq = Belt_Option.mapWithDefault(Belt_Array.get(x, 0), x, (function (head) {
+                                        return Belt_Array.concat(x, [(head << 1)]);
+                                      }));
+                                Belt_Array.forEachWithIndex(seq, (function (i, v) {
+                                        triggerAttackRelease(v, "8n", i * 0.5);
+                                      }));
+                              })
+                          }, React.createElement(Fa.FaPlay, {
+                                size: 14
+                              }), "Play")), React.createElement("div", {
                       className: " sm:max-h-min  max-w-[500px] w-full"
                     }, React.createElement("div", {
                           className: "pt-2 w-full self-center"
@@ -782,22 +786,22 @@ function App(Props) {
                                   children: "Binary"
                                 }))))), React.createElement("div", {
                   className: "flex-1 sm:flex-1 h-full overflow-scroll xs:px-2"
-                }, React.createElement(App$Collapsed, {
-                      render: (function (collapsedState, setCollapsedState) {
-                          return React.createElement("div", undefined, React.createElement("button", {
-                                          className: "px-3 py-1 my-2 font-bold bg-neutral-200 rounded \n              flex flex-row justify-center items-center gap-1",
-                                          onClick: (function (param) {
-                                              Curry._1(setCollapsedState, (function (s) {
-                                                      return !s;
-                                                    }));
-                                            })
-                                        }, "About Topotonic", React.createElement(Fa.FaChevronDown, {})), React.createElement("div", {
-                                          className: [collapsedState ? "hidden" : ""].join(" ")
-                                        }, React.createElement(make$2, {})));
-                        })
-                    }), React.createElement("div", {
-                      className: "sm:max-w-[500px]"
-                    }, React.createElement(App$Card, {
+                }, React.createElement("div", {
+                      className: "sm:max-w-[500px] pt-2"
+                    }, React.createElement(App$Collapsed, {
+                          render: (function (collapsedState, setCollapsedState) {
+                              return React.createElement("div", undefined, React.createElement("button", {
+                                              className: "px-3 py-1 my-2 font-bold border border-neutral-300 rounded-lg \n              flex flex-row justify-center items-center gap-1",
+                                              onClick: (function (param) {
+                                                  Curry._1(setCollapsedState, (function (s) {
+                                                          return !s;
+                                                        }));
+                                                })
+                                            }, "About Topotonic", collapsedState ? React.createElement(Fa.FaChevronDown, {}) : React.createElement(Fa.FaChevronUp, {})), React.createElement("div", {
+                                              className: [collapsedState ? "hidden" : ""].join(" ")
+                                            }, React.createElement(make$2, {})));
+                            })
+                        }), React.createElement(App$Card, {
                           title: "Number of notes in scale",
                           children: React.createElement("div", {
                                 className: "flex flex-row overflow-x-scroll gap-2"
@@ -865,6 +869,7 @@ export {
   SVG ,
   Symmetry ,
   ChevronDown ,
+  ChevronUp ,
   PlayIcon ,
   Collapsed ,
   IntervalRefs ,

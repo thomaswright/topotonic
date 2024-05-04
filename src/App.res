@@ -36,6 +36,12 @@ module ChevronDown = {
     "FaChevronDown"
 }
 
+module ChevronUp = {
+  @module("react-icons/fa") @react.component
+  external make: (~size: int=?, ~color: string=?, ~className: string=?) => React.element =
+    "FaChevronUp"
+}
+
 module PlayIcon = {
   @module("react-icons/fa") @react.component
   external make: (~size: int=?, ~color: string=?, ~className: string=?) => React.element = "FaPlay"
@@ -310,7 +316,7 @@ module Species = {
           )
         }
 
-        <div className={[" py-2 "]->join}>
+        <div className={[" py-1 border rounded-xl mb-2"]->join}>
           {speciesHidden
             ? <div className={["font-bold"]->join} onClick={onClickHeader}>
                 {speciesNames == ""
@@ -353,7 +359,8 @@ module Species = {
                     </div>
                   </div>
                 </div>
-                <div className={["mt-1 mb-4 border-y border-plain-500"]->join}>
+                <div className="border-b mx-6 pt-2 border-neutral-500" />
+                <div className={["pt-2 pb-1 px-2 flex flex-col divide-y"]->join}>
                   {speciesDetails.modes->reactMapWithIndex((_i, (modeId, _rotationDegrees)) => {
                     let selected =
                       currentBits->Option.mapWithDefault(false, c =>
@@ -384,7 +391,7 @@ module Species = {
                       onClick={_ => setCurrentBits(_ => modeId->BitOps.stringToIntArray->Some)}
                       key={modeId}
                       className={[
-                        "flex flex-col py-px sm:justify-start justify-center",
+                        "flex flex-col py-1 sm:justify-start justify-center ",
                         selected ? "font-bold" : "",
                         switch modeKind {
                         | Mode => selected ? "text-accent-600 " : "text-plain-700"
@@ -396,7 +403,7 @@ module Species = {
                       {modeNames == ""
                         ? React.null
                         : <div
-                            className={"flex flex-row items-center text-xs pt-0.5 pl-0.5 justify-start flex-1 overflow-x-hidden text-ellipsis whitespace-nowrap px-1"}>
+                            className={"flex flex-row items-center text-xs px-3 justify-center flex-1 overflow-x-hidden text-ellipsis whitespace-nowrap"}>
                             {modeNames->str}
                           </div>}
                       <Scale
@@ -435,14 +442,13 @@ module Card = {
   @react.component
   let make = (~title, ~className="", ~children) => {
     <div
-      className={[
-        "border  border-neutral-300 rounded-lg shadow mt-2 overflow-hidden ",
-        className,
-      ]->join}>
-      <div className="w-full text-center py-1 font-bold bg-neutral-50 border-b border-neutral-300 ">
-        {title->str}
+      className={["border  border-neutral-300 rounded-xl mt-2 overflow-hidden ", className]->join}>
+      <div className="px-6">
+        <div className="w-full text-center py-2 font-bold border-b border-neutral-300 ">
+          {title->str}
+        </div>
       </div>
-      <div className={"p-2"}> {children} </div>
+      <div className={"px-2 py-3"}> {children} </div>
     </div>
   }
 }
@@ -528,6 +534,25 @@ let make = () => {
     ->Array.concatMany
     ->Js.Array2.joinWith(", ")
 
+  let playNotes = () => {
+    let cBaseFreq = 110
+    let cChromScale = generateChromaticScale(cBaseFreq, 12)
+    let newBase = cChromScale->Array.get(currentKey)->Option.getWithDefault(cBaseFreq)
+
+    let newChromScale = generateChromaticScale(cBaseFreq + newBase, 12)
+
+    let seq =
+      newChromScale
+      ->Array.keepWithIndex((_v, i) => {
+        graphBits->Array.get(i)->Option.mapWithDefault(false, bit => bit == 1)
+      })
+      ->(x => x->Array.get(0)->Option.mapWithDefault(x, head => Array.concat(x, [head * 2])))
+
+    seq->Array.forEachWithIndex((i, v) => {
+      triggerAttackRelease(. v, "8n", i->Int.toFloat *. 0.5)
+    })
+  }
+
   <div className={"flex sm:flex-row flex-col h-screen w-screen "}>
     <div
       className="flex-1 flex flex-col w-screen sm:w-auto sm:max-w-[350px] p-2  overflow-y-scroll items-center">
@@ -535,37 +560,13 @@ let make = () => {
         <PageTitle />
         {currentBits->Option.isNone
           ? React.null
-          : <div className="">
-              <button
-                className={"shadow-sm flex flex-row gap-2 py-1 px-6 
-                rounded-full items-center justify-center font-bold text-xl bg-neutral-100 border border-neutral-300 hover:bg-neutral-200"}
-                onClick={_ => {
-                  let cBaseFreq = 110
-                  let cChromScale = generateChromaticScale(cBaseFreq, 12)
-                  let newBase = cChromScale->Array.get(currentKey)->Option.getWithDefault(cBaseFreq)
-
-                  let newChromScale = generateChromaticScale(cBaseFreq + newBase, 12)
-
-                  let seq =
-                    newChromScale
-                    ->Array.keepWithIndex((_v, i) => {
-                      graphBits->Array.get(i)->Option.mapWithDefault(false, bit => bit == 1)
-                    })
-                    ->(
-                      x =>
-                        x
-                        ->Array.get(0)
-                        ->Option.mapWithDefault(x, head => Array.concat(x, [head * 2]))
-                    )
-
-                  seq->Array.forEachWithIndex((i, v) => {
-                    triggerAttackRelease(. v, "8n", i->Int.toFloat *. 0.5)
-                  })
-                }}>
-                <PlayIcon size={14} />
-                {"Play"->str}
-              </button>
-            </div>}
+          : <button
+              className={"flex flex-row gap-2 py-1 px-5 rounded-full items-center
+               justify-center font-bold text-white bg-accent-600   hover:bg-accent-700"}
+              onClick={_ => {playNotes()}}>
+              <PlayIcon size={14} />
+              {"Play"->str}
+            </button>}
       </div>
       <div className=" sm:max-h-min  max-w-[500px] w-full">
         <div className={"pt-2 w-full self-center"}>
@@ -637,23 +638,23 @@ let make = () => {
       </div>
     </div>
     <div className="flex-1 sm:flex-1 h-full overflow-scroll xs:px-2">
-      <Collapsed
-        render={(collapsedState, setCollapsedState) => {
-          <div>
-            <button
-              onClick={_ => setCollapsedState(s => !s)}
-              className={`px-3 py-1 my-2 font-bold bg-neutral-200 rounded 
+      <div className="sm:max-w-[500px] pt-2">
+        <Collapsed
+          render={(collapsedState, setCollapsedState) => {
+            <div>
+              <button
+                onClick={_ => setCollapsedState(s => !s)}
+                className={`px-3 py-1 my-2 font-bold border border-neutral-300 rounded-lg 
               flex flex-row justify-center items-center gap-1`}>
-              {"About Topotonic"->str}
-              <ChevronDown />
-            </button>
-            <div className={[collapsedState ? "hidden" : ""]->join}>
-              <About />
+                {"About Topotonic"->str}
+                {collapsedState ? <ChevronDown /> : <ChevronUp />}
+              </button>
+              <div className={[collapsedState ? "hidden" : ""]->join}>
+                <About />
+              </div>
             </div>
-          </div>
-        }}
-      />
-      <div className="sm:max-w-[500px]">
+          }}
+        />
         <Card title={"Number of notes in scale"}>
           <div className="flex flex-row overflow-x-scroll gap-2">
             {Array.range(1, DataGeneration.Config.bits)->reactMap(num => {
