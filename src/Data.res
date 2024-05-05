@@ -1,16 +1,10 @@
-// Species
-
 type tradition = Misc | ChinesePenta | Numbers | ModernGreek | Jewish | MiddleEast
-
-// type encoding = Bits(string) | (string)
 
 type scaleName = (tradition, string)
 
 type mode = (int, array<scaleName>)
 
 type species = (string, array<scaleName>, array<mode>)
-
-// let namedSpecies: array<species> = [(("222222"), [(Misc, "whole tone")], [])]
 
 let namedSpecies: array<species> = [
   (
@@ -47,22 +41,62 @@ let namedSpecies: array<species> = [
   ),
   (
     "1212222",
-    [(Misc, "Melodic"), (Misc, "Half Diminished")],
-    [(0, [(Misc, "Altered"), (Misc, "Palamidian"), (Misc, "Super Locrian")])],
+    [(Misc, "Jazz Minor"), (Misc, "Ascending Melodic Minor")],
+    [
+      (
+        0,
+        [
+          (Misc, "Altered"),
+          (Misc, "Altered Dominant"),
+          (Misc, "Super Locrian"),
+          (Misc, "Jazz Minor VII"),
+        ],
+      ),
+      (1, [(Misc, "Jazz Minor I")]),
+      (2, [(Misc, "Dorian ♭2"), (Misc, "Phrygian ♮6"), (Misc, "Jazz Minor II")]),
+      (3, [(Misc, "Lydian Augmented"), (Misc, "Jazz Minor III")]),
+      (
+        4,
+        [
+          (Misc, "Acoustic"),
+          (Misc, "Lydian Dominant"),
+          (Misc, "Mixolydian ♯4"),
+          (Misc, "Overtone"),
+          (Misc, "Jazz Minor IV"),
+        ],
+      ),
+      (
+        5,
+        [
+          (Misc, "Aeolian Dominant"),
+          (Misc, "Mixolydian ♭6"),
+          (Misc, "Descending Melodic Major"),
+          (Misc, "Hindu"),
+          (Misc, "Jazz Minor V"),
+        ],
+      ),
+      (
+        6,
+        [
+          (Misc, "Half-diminished"),
+          (Misc, "Locrian ♮2"),
+          (Misc, "Aeolian ♭5"),
+          (Misc, "Jazz Minor VI"),
+        ],
+      ),
+    ],
   ),
-  ("21414", [(Misc, "Hirajoshi")], []),
-  ("14232", [(Misc, "Insen")], []),
-  ("14142", [(Misc, "Iwato")], []),
-  ("321132", [(Misc, "Blues 6")], []),
+  ("14142", [], [(0, [(Misc, "Iwato")]), (3, [(Misc, "Hirajoshi")])]),
+  ("14232", [], [(0, [(Misc, "Insen")])]),
+  ("113232", [], [(4, [(Misc, "Blues 6")])]),
   ("222222", [(Misc, "Whole Tone")], []),
-  ("222123", [(Misc, "Acoustic")], []),
-  ("313131", [(Misc, "Augmented")], []),
-  ("121215", [(Misc, "Istrian")], []),
-  ("222312", [(Misc, "Prometheus")], []),
+  ("131313", [], [(1, [(Misc, "Augmented")])]),
+  ("121215", [], [(0, [(Misc, "Istrian")])]),
+  ("122223", [], [(2, [(Misc, "Prometheus")])]),
   ("132132", [(Misc, "Tritone")], []),
-  ("2121132", [(Misc, "Blues 7")], []),
+  ("1132212", [], [(4, [(Misc, "Blues 7")])]),
   ("1212132", [], [(5, [(Misc, "Romanian Major")])]),
-  ("2212131", [(Misc, "Harmonic Major")], []),
+  ("1213122", [(Misc, "Harmonic Major")], [(5, [(Misc, "Harmonic Major I")])]),
   ("2121222", [], [(0, [(Jewish, "Yistabach")])]),
   (
     "1212213",
@@ -77,7 +111,17 @@ let namedSpecies: array<species> = [
     "1131213",
     [(Misc, "Double Harmonic")],
     [
-      (1, [(Misc, "Double Harmonic Major"), (Misc, "Gypsy Major")]),
+      (
+        1,
+        [
+          (Misc, "Double Harmonic Major"),
+          (Misc, "Gypsy Major"),
+          (Misc, "Byzantine"),
+          (Misc, "Arabic (Hijaz Kar)"),
+          (Misc, "Bhairav Raga"),
+          (Misc, "Mayamalavagowla"),
+        ],
+      ),
       (2, [(Misc, "")]),
       (3, [(Misc, "Ultraphrygian")]),
       (
@@ -86,7 +130,7 @@ let namedSpecies: array<species> = [
           (Misc, "Double Harmonic Minor"),
           (Misc, "Hungarian Minor"),
           (Misc, "Gypsy Minor"),
-          (Misc, "Algerian"),
+          (Misc, "Algerian (First Octave)"),
           (MiddleEast, "Nawa Athar"),
         ],
       ),
@@ -95,6 +139,7 @@ let namedSpecies: array<species> = [
       (0, [(Misc, "")]),
     ],
   ),
+  ("1212123", [], [(6, [(Misc, "Hungarian Major")])]),
   ("1113222", [], [(2, [(Misc, "Enigmatic")])]),
   (
     "1122213",
@@ -116,8 +161,14 @@ let namedSpecies: array<species> = [
   ),
   ("1123113", [], [(5, [(Misc, "Persian")])]),
   ("12121212", [(Misc, "Octatonic")], []),
-  ("11122122", [(Misc, "Bebop Dominant")], []),
-  ("11212212", [(Misc, "Bebop Major")], []),
+  ("11122122", [], [(3, [(Misc, "Bebop Dominant")])]),
+  ("11212212", [], [(2, [(Misc, "Bebop Harmonic Minor")]), (4, [(Misc, "Bebop Major")])]),
+  ("11212122", [], [(4, [(Misc, "Bebop Melodic Minor")])]),
+  ("11221122", [], [(2, [(Misc, "Seventh flat 5 diminished")])]),
   ("111112122", [(Misc, "Melodic Minor"), (MiddleEast, "Nahawand")], []),
+  ("111211122", [], [(3, [(Misc, "Blues 9")])]),
   ("111111111111", [(Misc, "Chromatic")], []),
 ]
+
+// Possible Additions:
+// - Messiaen Modes

@@ -213,14 +213,15 @@ var namedSpecies = [
     [
       [
         /* Misc */0,
-        "Melodic"
+        "Jazz Minor"
       ],
       [
         /* Misc */0,
-        "Half Diminished"
+        "Ascending Melodic Minor"
       ]
     ],
-    [[
+    [
+      [
         0,
         [
           [
@@ -229,46 +230,169 @@ var namedSpecies = [
           ],
           [
             /* Misc */0,
-            "Palamidian"
+            "Altered Dominant"
           ],
           [
             /* Misc */0,
             "Super Locrian"
+          ],
+          [
+            /* Misc */0,
+            "Jazz Minor VII"
           ]
         ]
-      ]]
-  ],
-  [
-    "21414",
-    [[
-        /* Misc */0,
-        "Hirajoshi"
-      ]],
-    []
-  ],
-  [
-    "14232",
-    [[
-        /* Misc */0,
-        "Insen"
-      ]],
-    []
+      ],
+      [
+        1,
+        [[
+            /* Misc */0,
+            "Jazz Minor I"
+          ]]
+      ],
+      [
+        2,
+        [
+          [
+            /* Misc */0,
+            "Dorian ♭2"
+          ],
+          [
+            /* Misc */0,
+            "Phrygian ♮6"
+          ],
+          [
+            /* Misc */0,
+            "Jazz Minor II"
+          ]
+        ]
+      ],
+      [
+        3,
+        [
+          [
+            /* Misc */0,
+            "Lydian Augmented"
+          ],
+          [
+            /* Misc */0,
+            "Jazz Minor III"
+          ]
+        ]
+      ],
+      [
+        4,
+        [
+          [
+            /* Misc */0,
+            "Acoustic"
+          ],
+          [
+            /* Misc */0,
+            "Lydian Dominant"
+          ],
+          [
+            /* Misc */0,
+            "Mixolydian ♯4"
+          ],
+          [
+            /* Misc */0,
+            "Overtone"
+          ],
+          [
+            /* Misc */0,
+            "Jazz Minor IV"
+          ]
+        ]
+      ],
+      [
+        5,
+        [
+          [
+            /* Misc */0,
+            "Aeolian Dominant"
+          ],
+          [
+            /* Misc */0,
+            "Mixolydian ♭6"
+          ],
+          [
+            /* Misc */0,
+            "Descending Melodic Major"
+          ],
+          [
+            /* Misc */0,
+            "Hindu"
+          ],
+          [
+            /* Misc */0,
+            "Jazz Minor V"
+          ]
+        ]
+      ],
+      [
+        6,
+        [
+          [
+            /* Misc */0,
+            "Half-diminished"
+          ],
+          [
+            /* Misc */0,
+            "Locrian ♮2"
+          ],
+          [
+            /* Misc */0,
+            "Aeolian ♭5"
+          ],
+          [
+            /* Misc */0,
+            "Jazz Minor VI"
+          ]
+        ]
+      ]
+    ]
   ],
   [
     "14142",
-    [[
-        /* Misc */0,
-        "Iwato"
-      ]],
-    []
+    [],
+    [
+      [
+        0,
+        [[
+            /* Misc */0,
+            "Iwato"
+          ]]
+      ],
+      [
+        3,
+        [[
+            /* Misc */0,
+            "Hirajoshi"
+          ]]
+      ]
+    ]
   ],
   [
-    "321132",
+    "14232",
+    [],
     [[
-        /* Misc */0,
-        "Blues 6"
-      ]],
-    []
+        0,
+        [[
+            /* Misc */0,
+            "Insen"
+          ]]
+      ]]
+  ],
+  [
+    "113232",
+    [],
+    [[
+        4,
+        [[
+            /* Misc */0,
+            "Blues 6"
+          ]]
+      ]]
   ],
   [
     "222222",
@@ -279,36 +403,37 @@ var namedSpecies = [
     []
   ],
   [
-    "222123",
+    "131313",
+    [],
     [[
-        /* Misc */0,
-        "Acoustic"
-      ]],
-    []
-  ],
-  [
-    "313131",
-    [[
-        /* Misc */0,
-        "Augmented"
-      ]],
-    []
+        1,
+        [[
+            /* Misc */0,
+            "Augmented"
+          ]]
+      ]]
   ],
   [
     "121215",
+    [],
     [[
-        /* Misc */0,
-        "Istrian"
-      ]],
-    []
+        0,
+        [[
+            /* Misc */0,
+            "Istrian"
+          ]]
+      ]]
   ],
   [
-    "222312",
+    "122223",
+    [],
     [[
-        /* Misc */0,
-        "Prometheus"
-      ]],
-    []
+        2,
+        [[
+            /* Misc */0,
+            "Prometheus"
+          ]]
+      ]]
   ],
   [
     "132132",
@@ -319,12 +444,15 @@ var namedSpecies = [
     []
   ],
   [
-    "2121132",
+    "1132212",
+    [],
     [[
-        /* Misc */0,
-        "Blues 7"
-      ]],
-    []
+        4,
+        [[
+            /* Misc */0,
+            "Blues 7"
+          ]]
+      ]]
   ],
   [
     "1212132",
@@ -338,12 +466,18 @@ var namedSpecies = [
       ]]
   ],
   [
-    "2212131",
+    "1213122",
     [[
         /* Misc */0,
         "Harmonic Major"
       ]],
-    []
+    [[
+        5,
+        [[
+            /* Misc */0,
+            "Harmonic Major I"
+          ]]
+      ]]
   ],
   [
     "2121222",
@@ -419,6 +553,22 @@ var namedSpecies = [
           [
             /* Misc */0,
             "Gypsy Major"
+          ],
+          [
+            /* Misc */0,
+            "Byzantine"
+          ],
+          [
+            /* Misc */0,
+            "Arabic (Hijaz Kar)"
+          ],
+          [
+            /* Misc */0,
+            "Bhairav Raga"
+          ],
+          [
+            /* Misc */0,
+            "Mayamalavagowla"
           ]
         ]
       ],
@@ -453,7 +603,7 @@ var namedSpecies = [
           ],
           [
             /* Misc */0,
-            "Algerian"
+            "Algerian (First Octave)"
           ],
           [
             /* MiddleEast */5,
@@ -483,6 +633,17 @@ var namedSpecies = [
           ]]
       ]
     ]
+  ],
+  [
+    "1212123",
+    [],
+    [[
+        6,
+        [[
+            /* Misc */0,
+            "Hungarian Major"
+          ]]
+      ]]
   ],
   [
     "1113222",
@@ -570,19 +731,56 @@ var namedSpecies = [
   ],
   [
     "11122122",
+    [],
     [[
-        /* Misc */0,
-        "Bebop Dominant"
-      ]],
-    []
+        3,
+        [[
+            /* Misc */0,
+            "Bebop Dominant"
+          ]]
+      ]]
   ],
   [
     "11212212",
+    [],
+    [
+      [
+        2,
+        [[
+            /* Misc */0,
+            "Bebop Harmonic Minor"
+          ]]
+      ],
+      [
+        4,
+        [[
+            /* Misc */0,
+            "Bebop Major"
+          ]]
+      ]
+    ]
+  ],
+  [
+    "11212122",
+    [],
     [[
-        /* Misc */0,
-        "Bebop Major"
-      ]],
-    []
+        4,
+        [[
+            /* Misc */0,
+            "Bebop Melodic Minor"
+          ]]
+      ]]
+  ],
+  [
+    "11221122",
+    [],
+    [[
+        2,
+        [[
+            /* Misc */0,
+            "Seventh flat 5 diminished"
+          ]]
+      ]]
   ],
   [
     "111112122",
@@ -597,6 +795,17 @@ var namedSpecies = [
       ]
     ],
     []
+  ],
+  [
+    "111211122",
+    [],
+    [[
+        3,
+        [[
+            /* Misc */0,
+            "Blues 9"
+          ]]
+      ]]
   ],
   [
     "111111111111",
