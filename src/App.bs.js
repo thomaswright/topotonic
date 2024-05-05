@@ -67,6 +67,39 @@ var Collapsed = {
   make: App$Collapsed
 };
 
+function getGridCols(x) {
+  switch (x) {
+    case 0 :
+        return "grid-cols-0";
+    case 1 :
+        return "grid-cols-1";
+    case 2 :
+        return "grid-cols-2";
+    case 3 :
+        return "grid-cols-3";
+    case 4 :
+        return "grid-cols-4";
+    case 5 :
+        return "grid-cols-5";
+    case 6 :
+        return "grid-cols-6";
+    case 7 :
+        return "grid-cols-7";
+    case 8 :
+        return "grid-cols-8";
+    case 9 :
+        return "grid-cols-9";
+    case 10 :
+        return "grid-cols-10";
+    case 11 :
+        return "grid-cols-11";
+    case 12 :
+        return "grid-cols-12";
+    default:
+      return "grid-cols-12";
+  }
+}
+
 var pitchKeys = [
   "C",
   "C♯ D♭",
@@ -233,6 +266,10 @@ function bitToDisplaySymbol(bit, index, currentKey, currentStepDisplay, bitStrin
   }
 }
 
+function scaleRepToMode(s, rot) {
+  return DataGeneration.BitOps.intArrayToString(DataGeneration.BitOps.stringToIntArray(stepsToBits(DataGeneration.rotate(DataGeneration.BitOps.stringToIntArray(s), rot))));
+}
+
 function App$StepButton(Props) {
   var selected = Props.selected;
   var onClick = Props.onClick;
@@ -313,67 +350,24 @@ function App$Scale(Props) {
   var currentStepDisplay = Props.currentStepDisplay;
   var currentKey = Props.currentKey;
   var kind = Props.kind;
-  var x;
+  var tmp;
   if (currentStepDisplay >= 4) {
     switch (currentStepDisplay) {
       case /* SemitoneSteps */4 :
-          x = bitsToSemitoneSteps(bitString).length;
+          tmp = bitsToSemitoneSteps(bitString).length;
           break;
       case /* HalfnoteSteps */5 :
-          x = bitsToHalfnoteSteps(bitString).length;
+          tmp = bitsToHalfnoteSteps(bitString).length;
           break;
       case /* Binary */6 :
-          x = 12;
+          tmp = 12;
           break;
       
     }
   } else {
-    x = 12;
+    tmp = 12;
   }
-  var gridCols;
-  switch (x) {
-    case 0 :
-        gridCols = "grid-cols-0";
-        break;
-    case 1 :
-        gridCols = "grid-cols-1";
-        break;
-    case 2 :
-        gridCols = "grid-cols-2";
-        break;
-    case 3 :
-        gridCols = "grid-cols-3";
-        break;
-    case 4 :
-        gridCols = "grid-cols-4";
-        break;
-    case 5 :
-        gridCols = "grid-cols-5";
-        break;
-    case 6 :
-        gridCols = "grid-cols-6";
-        break;
-    case 7 :
-        gridCols = "grid-cols-7";
-        break;
-    case 8 :
-        gridCols = "grid-cols-8";
-        break;
-    case 9 :
-        gridCols = "grid-cols-9";
-        break;
-    case 10 :
-        gridCols = "grid-cols-10";
-        break;
-    case 11 :
-        gridCols = "grid-cols-11";
-        break;
-    case 12 :
-        gridCols = "grid-cols-12";
-        break;
-    default:
-      gridCols = "grid-cols-12";
-  }
+  var gridCols = getGridCols(tmp);
   var container = function (i, content) {
     var tmp;
     switch (kind) {
@@ -395,17 +389,17 @@ function App$Scale(Props) {
                   ].join(" ")
               }, content);
   };
-  var tmp;
+  var tmp$1;
   var exit = 0;
   if (currentStepDisplay >= 4) {
     switch (currentStepDisplay) {
       case /* SemitoneSteps */4 :
-          tmp = Belt_Array.mapWithIndex(bitsToSemitoneSteps(bitString), (function (i, step) {
+          tmp$1 = Belt_Array.mapWithIndex(bitsToSemitoneSteps(bitString), (function (i, step) {
                   return container(i, String(step));
                 }));
           break;
       case /* HalfnoteSteps */5 :
-          tmp = Belt_Array.mapWithIndex(bitsToHalfnoteSteps(bitString), container);
+          tmp$1 = Belt_Array.mapWithIndex(bitsToHalfnoteSteps(bitString), container);
           break;
       case /* Binary */6 :
           exit = 1;
@@ -416,7 +410,7 @@ function App$Scale(Props) {
     exit = 1;
   }
   if (exit === 1) {
-    tmp = Belt_Array.mapWithIndex(DataGeneration.BitOps.stringToStringArray(bitString), (function (i, bit) {
+    tmp$1 = Belt_Array.mapWithIndex(DataGeneration.BitOps.stringToStringArray(bitString), (function (i, bit) {
             return container(i, bitToDisplaySymbol(bit, i, currentKey, currentStepDisplay, bitString));
           }));
   }
@@ -425,7 +419,7 @@ function App$Scale(Props) {
                   "flex-1 grid",
                   gridCols
                 ].join(" ")
-            }, tmp);
+            }, tmp$1);
 }
 
 var Scale = {
@@ -565,7 +559,7 @@ function App$Species(Props) {
                                               var modeNames = Belt_Option.mapWithDefault(Belt_Array.get(Belt_Array.keepMap(speciesNameData, (function (param) {
                                                                 var s = param[0];
                                                                 return Belt_Array.getBy(param[2], (function (param) {
-                                                                              return modeId === DataGeneration.BitOps.intArrayToString(DataGeneration.BitOps.stringToIntArray(stepsToBits(DataGeneration.rotate(DataGeneration.BitOps.stringToIntArray(s), param[0]))));
+                                                                              return modeId === scaleRepToMode(s, param[0]);
                                                                             }));
                                                               })), 0), [], (function (param) {
                                                         return Belt_Array.map(param[1], (function (param) {
@@ -671,7 +665,7 @@ function App(Props) {
   var modeNames = Belt_Option.mapWithDefault(Belt_Array.get(Belt_Array.keepMap(Data.namedSpecies, (function (param) {
                     var s = param[0];
                     return Belt_Array.getBy(param[2], (function (param) {
-                                  return DataGeneration.BitOps.intArrayToString(graphBits) === DataGeneration.BitOps.intArrayToString(DataGeneration.BitOps.stringToIntArray(stepsToBits(DataGeneration.rotate(DataGeneration.BitOps.stringToIntArray(s), param[0]))));
+                                  return DataGeneration.BitOps.intArrayToString(graphBits) === scaleRepToMode(s, param[0]);
                                 }));
                   })), 0), [], (function (param) {
             return Belt_Array.map(param[1], (function (param) {
@@ -818,7 +812,7 @@ function App(Props) {
                               return React.createElement("div", undefined, React.createElement("div", {
                                               className: "my-2 flex flex-row justify-between items-center"
                                             }, React.createElement("button", {
-                                                  className: "px-3 py-1  font-bold border border-neutral-300 rounded-lg \n              flex flex-row justify-center items-center gap-1",
+                                                  className: "px-3 py-1 font-bold border border-neutral-300 rounded-lg \n              flex flex-row justify-center items-center gap-1",
                                                   onClick: (function (param) {
                                                       Curry._1(setCollapsedState, (function (s) {
                                                               return !s;
@@ -912,11 +906,13 @@ export {
   PlayIcon ,
   Switch ,
   Collapsed ,
+  getGridCols ,
   IntervalRefs ,
   stepsToBits ,
   bitsToSemitoneSteps ,
   bitsToHalfnoteSteps ,
   bitToDisplaySymbol ,
+  scaleRepToMode ,
   StepButton ,
   PageTitle ,
   Card ,

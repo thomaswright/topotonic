@@ -60,6 +60,24 @@ module Collapsed = {
   }
 }
 
+let getGridCols = x =>
+  switch x {
+  | 0 => "grid-cols-0"
+  | 1 => "grid-cols-1"
+  | 2 => "grid-cols-2"
+  | 3 => "grid-cols-3"
+  | 4 => "grid-cols-4"
+  | 5 => "grid-cols-5"
+  | 6 => "grid-cols-6"
+  | 7 => "grid-cols-7"
+  | 8 => "grid-cols-8"
+  | 9 => "grid-cols-9"
+  | 10 => "grid-cols-10"
+  | 11 => "grid-cols-11"
+  | 12 => "grid-cols-12"
+  | _ => "grid-cols-12"
+  }
+
 module IntervalRefs = {
   let pitchKeys = [
     `C`,
@@ -132,6 +150,14 @@ let bitToDisplaySymbol = (bit, index, currentKey, currentStepDisplay, bitString)
   }
   bit == "0" ? `•` : a->Array.get(index)->Option.getWithDefault("")
 }
+
+let scaleRepToMode = (s, rot) =>
+  s
+  ->BitOps.stringToIntArray
+  ->DataGeneration.rotate(rot)
+  ->stepsToBits
+  ->BitOps.stringToIntArray
+  ->BitOps.intArrayToString
 
 module StepButton = {
   @react.component
@@ -208,25 +234,8 @@ module Scale = {
     | SemitoneSteps => bitString->bitsToSemitoneSteps->Array.length
     | HalfnoteSteps => bitString->bitsToHalfnoteSteps->Array.length
     | _ => 12
-    }->{
-      x =>
-        switch x {
-        | 0 => "grid-cols-0"
-        | 1 => "grid-cols-1"
-        | 2 => "grid-cols-2"
-        | 3 => "grid-cols-3"
-        | 4 => "grid-cols-4"
-        | 5 => "grid-cols-5"
-        | 6 => "grid-cols-6"
-        | 7 => "grid-cols-7"
-        | 8 => "grid-cols-8"
-        | 9 => "grid-cols-9"
-        | 10 => "grid-cols-10"
-        | 11 => "grid-cols-11"
-        | 12 => "grid-cols-12"
-        | _ => "grid-cols-12"
-        }
-    }
+    }->getGridCols
+
     let container = (i, content) =>
       <div
         key={i->Int.toString}
@@ -421,13 +430,7 @@ module Species = {
                       ->Array.keepMap(((s, _, modes)) => {
                         modes->Array.getBy(
                           ((mId, _)) => {
-                            modeId ==
-                              s
-                              ->BitOps.stringToIntArray
-                              ->DataGeneration.rotate(mId)
-                              ->stepsToBits
-                              ->BitOps.stringToIntArray
-                              ->BitOps.intArrayToString
+                            modeId == s->scaleRepToMode(mId)
                           },
                         )
                       })
@@ -512,13 +515,7 @@ let make = () => {
     Data.namedSpecies
     ->Array.keepMap(((s, _, modes)) => {
       modes->Array.getBy(((mId, _)) => {
-        graphBits->BitOps.intArrayToString ==
-          s
-          ->BitOps.stringToIntArray
-          ->DataGeneration.rotate(mId)
-          ->stepsToBits
-          ->BitOps.stringToIntArray
-          ->BitOps.intArrayToString
+        graphBits->BitOps.intArrayToString == s->scaleRepToMode(mId)
       })
     })
     ->Array.get(0)
@@ -651,7 +648,7 @@ let make = () => {
               <div className={"my-2 flex flex-row justify-between items-center"}>
                 <button
                   onClick={_ => setCollapsedState(s => !s)}
-                  className={`px-3 py-1  font-bold border border-neutral-300 rounded-lg 
+                  className={`px-3 py-1 font-bold border border-neutral-300 rounded-lg 
               flex flex-row justify-center items-center gap-1`}>
                   {"About Topotonic"->str}
                   {collapsedState ? <ChevronDown /> : <ChevronUp />}
