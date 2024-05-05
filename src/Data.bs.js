@@ -10,7 +10,7 @@ var namedSpecies = [
       ]],
     [
       [
-        "22323",
+        0,
         [
           [
             /* Misc */0,
@@ -27,7 +27,7 @@ var namedSpecies = [
         ]
       ],
       [
-        "23232",
+        1,
         [
           [
             /* Misc */0,
@@ -44,7 +44,7 @@ var namedSpecies = [
         ]
       ],
       [
-        "32322",
+        2,
         [
           [
             /* Misc */0,
@@ -57,7 +57,7 @@ var namedSpecies = [
         ]
       ],
       [
-        "23223",
+        3,
         [
           [
             /* Misc */0,
@@ -78,7 +78,7 @@ var namedSpecies = [
         ]
       ],
       [
-        "23223",
+        4,
         [
           [
             /* Misc */0,
@@ -100,7 +100,7 @@ var namedSpecies = [
       ]],
     [
       [
-        "1221222",
+        0,
         [
           [
             /* Numbers */2,
@@ -113,7 +113,7 @@ var namedSpecies = [
         ]
       ],
       [
-        "2212221",
+        1,
         [
           [
             /* Numbers */2,
@@ -130,7 +130,7 @@ var namedSpecies = [
         ]
       ],
       [
-        "2122212",
+        2,
         [
           [
             /* Numbers */2,
@@ -143,7 +143,7 @@ var namedSpecies = [
         ]
       ],
       [
-        "1222122",
+        3,
         [
           [
             /* Numbers */2,
@@ -156,7 +156,7 @@ var namedSpecies = [
         ]
       ],
       [
-        "2221221",
+        4,
         [
           [
             /* Numbers */2,
@@ -169,7 +169,7 @@ var namedSpecies = [
         ]
       ],
       [
-        "2212212",
+        5,
         [
           [
             /* Numbers */2,
@@ -186,7 +186,7 @@ var namedSpecies = [
         ]
       ],
       [
-        "2122122",
+        6,
         [
           [
             /* Numbers */2,
@@ -210,9 +210,18 @@ var namedSpecies = [
   ],
   [
     "1212222",
-    [],
+    [
+      [
+        /* Misc */0,
+        "Melodic"
+      ],
+      [
+        /* Misc */0,
+        "Half Diminished"
+      ]
+    ],
     [[
-        "1212222",
+        0,
         [
           [
             /* Misc */0,
@@ -318,29 +327,15 @@ var namedSpecies = [
     []
   ],
   [
-    "1321212",
+    "1212132",
     [],
     [[
-        "1321212",
+        5,
         [[
             /* Misc */0,
             "Romanian Major"
           ]]
       ]]
-  ],
-  [
-    "2122221",
-    [
-      [
-        /* Misc */0,
-        "Melodic"
-      ],
-      [
-        /* Misc */0,
-        "Half Diminished"
-      ]
-    ],
-    []
   ],
   [
     "2212131",
@@ -354,7 +349,7 @@ var namedSpecies = [
     "2121222",
     [],
     [[
-        "2121222",
+        0,
         [[
             /* Jewish */4,
             "Yistabach"
@@ -362,21 +357,21 @@ var namedSpecies = [
       ]]
   ],
   [
-    "2122131",
+    "1212213",
     [[
         /* Misc */0,
         "Harmonic Minor"
       ]],
     [
       [
-        "2122131",
+        1,
         [[
             /* Misc */0,
-            "Harmonic Minor"
+            "Harmonic Minor I"
           ]]
       ],
       [
-        "2131212",
+        4,
         [
           [
             /* Misc */0,
@@ -389,7 +384,7 @@ var namedSpecies = [
         ]
       ],
       [
-        "1312122",
+        5,
         [
           [
             /* Misc */0,
@@ -408,14 +403,14 @@ var namedSpecies = [
     ]
   ],
   [
-    "1312131",
+    "1131213",
     [[
         /* Misc */0,
         "Double Harmonic"
       ]],
     [
       [
-        "1312131",
+        1,
         [
           [
             /* Misc */0,
@@ -428,21 +423,21 @@ var namedSpecies = [
         ]
       ],
       [
-        "3121311",
+        2,
         [[
             /* Misc */0,
             ""
           ]]
       ],
       [
-        "1213113",
+        3,
         [[
             /* Misc */0,
             "Ultraphrygian"
           ]]
       ],
       [
-        "2131131",
+        4,
         [
           [
             /* Misc */0,
@@ -467,21 +462,21 @@ var namedSpecies = [
         ]
       ],
       [
-        "1311312",
+        5,
         [[
             /* Misc */0,
             "Oriental"
           ]]
       ],
       [
-        "3113121",
+        6,
         [[
             /* Misc */0,
             ""
           ]]
       ],
       [
-        "1131213",
+        0,
         [[
             /* Misc */0,
             ""
@@ -490,10 +485,10 @@ var namedSpecies = [
     ]
   ],
   [
-    "1322211",
+    "1113222",
     [],
     [[
-        "1322211",
+        2,
         [[
             /* Misc */0,
             "Enigmatic"
@@ -501,28 +496,25 @@ var namedSpecies = [
       ]]
   ],
   [
-    "1222131",
-    [[
-        /* Misc */0,
-        "Neapolitan Minor"
-      ]],
+    "1122213",
+    [],
     [
       [
-        "1222131",
+        1,
         [[
             /* Misc */0,
-            "Neapolitan Minor "
+            "Neapolitan Minor"
           ]]
       ],
       [
-        "2131122",
+        4,
         [[
             /* Misc */0,
             "Gypsy Minor"
           ]]
       ],
       [
-        "1122213",
+        0,
         [[
             /* Misc */0,
             "Ultralocrian"
@@ -531,28 +523,25 @@ var namedSpecies = [
     ]
   ],
   [
-    "1222221",
-    [[
-        /* Misc */0,
-        "Neapolitan Major"
-      ]],
+    "1122222",
+    [],
     [
       [
-        "1222221",
+        1,
         [[
             /* Misc */0,
             "Neapolitan Major"
           ]]
       ],
       [
-        "2222211",
+        2,
         [[
             /* Misc */0,
             "Leading Whole Tone"
           ]]
       ],
       [
-        "2112222",
+        6,
         [[
             /* Misc */0,
             "Major Locrian"
@@ -561,15 +550,18 @@ var namedSpecies = [
     ]
   ],
   [
-    "1311231",
+    "1123113",
+    [],
     [[
-        /* Misc */0,
-        "Persian"
-      ]],
-    []
+        5,
+        [[
+            /* Misc */0,
+            "Persian"
+          ]]
+      ]]
   ],
   [
-    "21212121",
+    "12121212",
     [[
         /* Misc */0,
         "Octatonic"
@@ -577,7 +569,7 @@ var namedSpecies = [
     []
   ],
   [
-    "22122111",
+    "11122122",
     [[
         /* Misc */0,
         "Bebop Dominant"
@@ -585,7 +577,7 @@ var namedSpecies = [
     []
   ],
   [
-    "22121121",
+    "11212212",
     [[
         /* Misc */0,
         "Bebop Major"
@@ -593,7 +585,7 @@ var namedSpecies = [
     []
   ],
   [
-    "212211111",
+    "111112122",
     [
       [
         /* Misc */0,

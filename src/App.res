@@ -258,14 +258,14 @@ module Species = {
     let _scaleRange = Array.range(1, scaleLength)
 
     let speciesNameData = Data.namedSpecies->Array.keep(((s, _, _)) => {
-      s
-      ->BitOps.stringToIntArray
-      ->stepsToBits
-      ->BitOps.stringToStringArray
-      ->DataGeneration.getRotations
-      ->DataGeneration.any(x => {
-        x->BitOps.stringArrayToString == speciesId
-      })
+      s->BitOps.stringToIntArray->stepsToBits == speciesId
+
+      // ->BitOps.stringToStringArray
+
+      // ->DataGeneration.getRotations
+      // ->DataGeneration.any(x => {
+      //   x->BitOps.stringArrayToString == speciesId
+      // })
     })
 
     let speciesNames =
@@ -279,6 +279,16 @@ module Species = {
         ->Js.Array2.joinWith(", ")
       })
       ->Array.keep(x => x != "")
+      ->Js.Array2.joinWith(", ")
+
+    let speciesModeNames =
+      speciesNameData
+      ->Array.map(((_, _, modes)) => {
+        modes
+        ->Array.map(((_, modeNames)) => modeNames->Array.map(((_, name)) => name))
+        ->Array.concatMany
+      })
+      ->Array.concatMany
       ->Js.Array2.joinWith(", ")
 
     let numModes =
@@ -325,7 +335,12 @@ module Species = {
           {speciesHidden
             ? <div className={["font-bold"]->join} onClick={onClickHeader}>
                 {speciesNames == ""
-                  ? React.null
+                  ? speciesModeNames != ""
+                      ? <div
+                          className="text-sm px-3 text-center text-ellipsis overflow-hidden whitespace-nowrap">
+                          {("Modes: " ++ speciesModeNames)->str}
+                        </div>
+                      : React.null
                   : <div className="flex flex-row justify-center items-center pb-1">
                       <div
                         className="text-lg flex-none overflow-x-hidden text-ellipsis whitespace-nowrap px-1">
@@ -379,10 +394,28 @@ module Species = {
 
                     let modeNames =
                       speciesNameData
-                      ->Array.keepMap(((_, _, modes)) => {
+                      ->Array.keepMap(((s, _, modes)) => {
                         modes->Array.getBy(
                           ((mId, _)) => {
-                            modeId == mId->BitOps.stringToIntArray->stepsToBits
+                            // if s == "1123113" {
+                            //   Js.log3(
+                            //     "Persian",
+                            //     modeId,
+                            //     s
+                            //     ->BitOps.stringToIntArray
+                            //     ->stepsToBits
+                            //     ->BitOps.stringToIntArray
+                            //     ->DataGeneration.rotate(mId)
+                            //     ->BitOps.intArrayToString,
+                            //   )
+                            // }
+                            modeId ==
+                              s
+                              ->BitOps.stringToIntArray
+                              ->DataGeneration.rotate(mId)
+                              ->stepsToBits
+                              ->BitOps.stringToIntArray
+                              ->BitOps.intArrayToString
                           },
                         )
                       })
@@ -524,9 +557,15 @@ let make = () => {
 
   let modeNames =
     Data.namedSpecies
-    ->Array.keepMap(((_, _, modes)) => {
+    ->Array.keepMap(((s, _, modes)) => {
       modes->Array.getBy(((mId, _)) => {
-        graphBits->BitOps.intArrayToString == mId->BitOps.stringToIntArray->stepsToBits
+        graphBits->BitOps.intArrayToString ==
+          s
+          ->BitOps.stringToIntArray
+          ->DataGeneration.rotate(mId)
+          ->stepsToBits
+          ->BitOps.stringToIntArray
+          ->BitOps.intArrayToString
       })
     })
     ->Array.get(0)

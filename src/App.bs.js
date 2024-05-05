@@ -401,9 +401,7 @@ function App$Species(Props) {
   }
   Belt_Array.range(1, scaleLength);
   var speciesNameData = Belt_Array.keep(Data.namedSpecies, (function (param) {
-          return DataGeneration.any(DataGeneration.getRotations(DataGeneration.BitOps.stringToStringArray(stepsToBits(DataGeneration.BitOps.stringToIntArray(param[0])))), (function (x) {
-                        return DataGeneration.BitOps.stringArrayToString(x) === speciesId;
-                      }));
+          return stepsToBits(DataGeneration.BitOps.stringToIntArray(param[0])) === speciesId;
         }));
   var speciesNames = Belt_Array.keep(Belt_Array.map(speciesNameData, (function (param) {
                 return Belt_Array.keep(Belt_Array.map(param[1], (function (param) {
@@ -414,6 +412,13 @@ function App$Species(Props) {
               })), (function (x) {
             return x !== "";
           })).join(", ");
+  var speciesModeNames = Belt_Array.concatMany(Belt_Array.map(speciesNameData, (function (param) {
+                return Belt_Array.concatMany(Belt_Array.map(param[2], (function (param) {
+                                  return Belt_Array.map(param[1], (function (param) {
+                                                return param[1];
+                                              }));
+                                })));
+              }))).join(", ");
   var numModes = Belt_Array.keep(speciesDetails.modes, (function (param) {
           return DataGeneration.startsWith1(DataGeneration.BitOps.stringToStringArray(param[0]));
         })).length;
@@ -458,7 +463,11 @@ function App$Species(Props) {
                             }, speciesHidden ? React.createElement("div", {
                                     className: ["font-bold"].join(" "),
                                     onClick: onClickHeader
-                                  }, speciesNames === "" ? null : React.createElement("div", {
+                                  }, speciesNames === "" ? (
+                                      speciesModeNames !== "" ? React.createElement("div", {
+                                              className: "text-sm px-3 text-center text-ellipsis overflow-hidden whitespace-nowrap"
+                                            }, "Modes: " + speciesModeNames) : null
+                                    ) : React.createElement("div", {
                                           className: "flex flex-row justify-center items-center pb-1"
                                         }, React.createElement("div", {
                                               className: "text-lg flex-none overflow-x-hidden text-ellipsis whitespace-nowrap px-1"
@@ -496,8 +505,9 @@ function App$Species(Props) {
                                                     }));
                                               var modeKind = DataGeneration.startsWith1(DataGeneration.BitOps.stringToStringArray(modeId)) ? /* Mode */1 : /* NonMode */2;
                                               var modeNames = Belt_Option.mapWithDefault(Belt_Array.get(Belt_Array.keepMap(speciesNameData, (function (param) {
+                                                                var s = param[0];
                                                                 return Belt_Array.getBy(param[2], (function (param) {
-                                                                              return modeId === stepsToBits(DataGeneration.BitOps.stringToIntArray(param[0]));
+                                                                              return modeId === DataGeneration.BitOps.intArrayToString(DataGeneration.BitOps.stringToIntArray(stepsToBits(DataGeneration.rotate(DataGeneration.BitOps.stringToIntArray(s), param[0]))));
                                                                             }));
                                                               })), 0), [], (function (param) {
                                                         return Belt_Array.map(param[1], (function (param) {
@@ -659,8 +669,9 @@ function App(Props) {
           return b;
         }));
   var modeNames = Belt_Option.mapWithDefault(Belt_Array.get(Belt_Array.keepMap(Data.namedSpecies, (function (param) {
+                    var s = param[0];
                     return Belt_Array.getBy(param[2], (function (param) {
-                                  return DataGeneration.BitOps.intArrayToString(graphBits) === stepsToBits(DataGeneration.BitOps.stringToIntArray(param[0]));
+                                  return DataGeneration.BitOps.intArrayToString(graphBits) === DataGeneration.BitOps.intArrayToString(DataGeneration.BitOps.stringToIntArray(stepsToBits(DataGeneration.rotate(DataGeneration.BitOps.stringToIntArray(s), param[0]))));
                                 }));
                   })), 0), [], (function (param) {
             return Belt_Array.map(param[1], (function (param) {

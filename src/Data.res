@@ -6,7 +6,7 @@ type tradition = Misc | ChinesePenta | Numbers | ModernGreek | Jewish | MiddleEa
 
 type scaleName = (tradition, string)
 
-type mode = (string, array<scaleName>)
+type mode = (int, array<scaleName>)
 
 type species = (string, array<scaleName>, array<mode>)
 
@@ -17,28 +17,25 @@ let namedSpecies: array<species> = [
     "22323",
     [(Misc, "Pentatonic")],
     [
-      ("22323", [(Misc, "Major Pentatonic"), (ChinesePenta, `宮 Gong`), (MiddleEast, "Ajam")]),
-      ("23232", [(Misc, "Egyptian"), (Misc, "Suspended Pentatonic"), (ChinesePenta, `商 Shang`)]),
-      ("32322", [(Misc, "Blues 5 Minor"), (ChinesePenta, `角 Jue`)]),
-      (
-        "23223",
-        [(Misc, "Ritsusen"), (Misc, "Yo"), (Misc, "Blues 5 Major"), (ChinesePenta, `徵 Zhi`)],
-      ),
-      ("23223", [(Misc, "Minor Pentatonic"), (ChinesePenta, `羽 Yu`)]),
+      (0, [(Misc, "Major Pentatonic"), (ChinesePenta, `宮 Gong`), (MiddleEast, "Ajam")]),
+      (1, [(Misc, "Egyptian"), (Misc, "Suspended Pentatonic"), (ChinesePenta, `商 Shang`)]),
+      (2, [(Misc, "Blues 5 Minor"), (ChinesePenta, `角 Jue`)]),
+      (3, [(Misc, "Ritsusen"), (Misc, "Yo"), (Misc, "Blues 5 Major"), (ChinesePenta, `徵 Zhi`)]),
+      (4, [(Misc, "Minor Pentatonic"), (ChinesePenta, `羽 Yu`)]),
     ],
   ),
   (
     "1221222",
     [(Misc, "Diatonic")],
     [
-      ("1221222", [(Numbers, "7"), (ModernGreek, "Locrian")]),
-      ("2212221", [(Numbers, "1"), (ModernGreek, "Ionian"), (Misc, "Natural Major")]),
-      ("2122212", [(Numbers, "2"), (ModernGreek, "Dorian")]),
-      ("1222122", [(Numbers, "3"), (ModernGreek, "Phrygian")]),
-      ("2221221", [(Numbers, "4"), (ModernGreek, "Lydian")]),
-      ("2212212", [(Numbers, "5"), (ModernGreek, "Mixolydian"), (Jewish, "Adonai Malakh")]),
+      (0, [(Numbers, "7"), (ModernGreek, "Locrian")]),
+      (1, [(Numbers, "1"), (ModernGreek, "Ionian"), (Misc, "Natural Major")]),
+      (2, [(Numbers, "2"), (ModernGreek, "Dorian")]),
+      (3, [(Numbers, "3"), (ModernGreek, "Phrygian")]),
+      (4, [(Numbers, "4"), (ModernGreek, "Lydian")]),
+      (5, [(Numbers, "5"), (ModernGreek, "Mixolydian"), (Jewish, "Adonai Malakh")]),
       (
-        "2122122",
+        6,
         [
           (Numbers, "6"),
           (ModernGreek, "Aeolian"),
@@ -50,8 +47,8 @@ let namedSpecies: array<species> = [
   ),
   (
     "1212222",
-    [],
-    [("1212222", [(Misc, "Altered"), (Misc, "Palamidian"), (Misc, "Super Locrian")])],
+    [(Misc, "Melodic"), (Misc, "Half Diminished")],
+    [(0, [(Misc, "Altered"), (Misc, "Palamidian"), (Misc, "Super Locrian")])],
   ),
   ("21414", [(Misc, "Hirajoshi")], []),
   ("14232", [(Misc, "Insen")], []),
@@ -64,28 +61,27 @@ let namedSpecies: array<species> = [
   ("222312", [(Misc, "Prometheus")], []),
   ("132132", [(Misc, "Tritone")], []),
   ("2121132", [(Misc, "Blues 7")], []),
-  ("1321212", [], [("1321212", [(Misc, "Romanian Major")])]),
-  ("2122221", [(Misc, "Melodic"), (Misc, "Half Diminished")], []),
+  ("1212132", [], [(5, [(Misc, "Romanian Major")])]),
   ("2212131", [(Misc, "Harmonic Major")], []),
-  ("2121222", [], [("2121222", [(Jewish, "Yistabach")])]),
+  ("2121222", [], [(0, [(Jewish, "Yistabach")])]),
   (
-    "2122131",
+    "1212213",
     [(Misc, "Harmonic Minor")],
     [
-      ("2122131", [(Misc, "Harmonic Minor")]),
-      ("2131212", [(Misc, "Ukranian Dorian"), (Jewish, "Mi Sheberach")]),
-      ("1312122", [(Misc, "Phrygian Dominant"), (Jewish, "Ahavah Rabbah"), (MiddleEast, "Hijaz")]),
+      (1, [(Misc, "Harmonic Minor I")]),
+      (4, [(Misc, "Ukranian Dorian"), (Jewish, "Mi Sheberach")]),
+      (5, [(Misc, "Phrygian Dominant"), (Jewish, "Ahavah Rabbah"), (MiddleEast, "Hijaz")]),
     ],
   ),
   (
-    "1312131",
+    "1131213",
     [(Misc, "Double Harmonic")],
     [
-      ("1312131", [(Misc, "Double Harmonic Major"), (Misc, "Gypsy Major")]),
-      ("3121311", [(Misc, "")]),
-      ("1213113", [(Misc, "Ultraphrygian")]),
+      (1, [(Misc, "Double Harmonic Major"), (Misc, "Gypsy Major")]),
+      (2, [(Misc, "")]),
+      (3, [(Misc, "Ultraphrygian")]),
       (
-        "2131131",
+        4,
         [
           (Misc, "Double Harmonic Minor"),
           (Misc, "Hungarian Minor"),
@@ -94,34 +90,34 @@ let namedSpecies: array<species> = [
           (MiddleEast, "Nawa Athar"),
         ],
       ),
-      ("1311312", [(Misc, "Oriental")]),
-      ("3113121", [(Misc, "")]),
-      ("1131213", [(Misc, "")]),
+      (5, [(Misc, "Oriental")]),
+      (6, [(Misc, "")]),
+      (0, [(Misc, "")]),
     ],
   ),
-  ("1322211", [], [("1322211", [(Misc, "Enigmatic")])]),
+  ("1113222", [], [(2, [(Misc, "Enigmatic")])]),
   (
-    "1222131",
-    [(Misc, "Neapolitan Minor")],
+    "1122213",
+    [],
     [
-      ("1222131", [(Misc, "Neapolitan Minor ")]),
-      ("2131122", [(Misc, "Gypsy Minor")]),
-      ("1122213", [(Misc, "Ultralocrian")]),
+      (1, [(Misc, "Neapolitan Minor")]),
+      (4, [(Misc, "Gypsy Minor")]),
+      (0, [(Misc, "Ultralocrian")]),
     ],
   ),
   (
-    "1222221",
-    [(Misc, "Neapolitan Major")],
+    "1122222",
+    [],
     [
-      ("1222221", [(Misc, "Neapolitan Major")]),
-      ("2222211", [(Misc, "Leading Whole Tone")]),
-      ("2112222", [(Misc, "Major Locrian")]),
+      (1, [(Misc, "Neapolitan Major")]),
+      (2, [(Misc, "Leading Whole Tone")]),
+      (6, [(Misc, "Major Locrian")]),
     ],
   ),
-  ("1311231", [(Misc, "Persian")], []),
-  ("21212121", [(Misc, "Octatonic")], []),
-  ("22122111", [(Misc, "Bebop Dominant")], []),
-  ("22121121", [(Misc, "Bebop Major")], []),
-  ("212211111", [(Misc, "Melodic Minor"), (MiddleEast, "Nahawand")], []),
+  ("1123113", [], [(5, [(Misc, "Persian")])]),
+  ("12121212", [(Misc, "Octatonic")], []),
+  ("11122122", [(Misc, "Bebop Dominant")], []),
+  ("11212212", [(Misc, "Bebop Major")], []),
+  ("111112122", [(Misc, "Melodic Minor"), (MiddleEast, "Nahawand")], []),
   ("111111111111", [(Misc, "Chromatic")], []),
 ]
