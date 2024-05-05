@@ -60,7 +60,6 @@ module Collapsed = {
   }
 }
 
-// let namedData = Data.namedSpecies-> Array.
 module IntervalRefs = {
   let pitchKeys = [
     `C`,
@@ -83,6 +82,7 @@ module IntervalRefs = {
   // TODO: replace TT with d5/A4 when we have proper scaling
   let dimAugs = [`d2`, `A1`, `d3`, `A2`, `d4`, `A3`, `TT`, `d6`, `A5`, `d7`, `A6`, `d8`]
 }
+
 let stepsToBits = x => {
   x->Array.reduce("", (acc, value) => {
     acc ++
@@ -132,7 +132,6 @@ let bitToDisplaySymbol = (bit, index, currentKey, currentStepDisplay, bitString)
   }
   bit == "0" ? `•` : a->Array.get(index)->Option.getWithDefault("")
 }
-// `•`
 
 module StepButton = {
   @react.component
@@ -149,6 +148,58 @@ module StepButton = {
     </div>
   }
 }
+
+module PageTitle = {
+  @react.component
+  let make = () => {
+    <div className={"font-sans  flex flex-row py-2 "}>
+      <Logo size={32} />
+      <div className={" -ml-2"}>
+        <div className={" text-[rgb(25,0,175)] font-bold text-3xl"}> {"opotonic"->str} </div>
+      </div>
+    </div>
+  }
+}
+
+module Card = {
+  @react.component
+  let make = (~title, ~className="", ~children) => {
+    <div
+      className={["border  border-neutral-300 rounded-xl mt-2 overflow-hidden ", className]->join}>
+      <div className="px-6">
+        <div className="w-full text-center py-2 font-bold border-b border-neutral-300 ">
+          {title->str}
+        </div>
+      </div>
+      <div className={"px-2 py-3"}> {children} </div>
+    </div>
+  }
+}
+
+module About = {
+  @module("./about.jsx") @react.component
+  external make: unit => React.element = "default"
+}
+
+let generateChromaticScale = (startFrequency, numNotes) => {
+  let semitoneRatio = 2. ** (1. /. 12.)
+
+  Array.range(0, numNotes)->Array.map(v => {
+    (startFrequency->Float.fromInt *. semitoneRatio ** v->Float.fromInt)->Int.fromFloat
+  })
+}
+
+// Must be uncurried.
+// Will throw a "this is undefined" error otherwise.
+type notePlayer = {
+  playNote: (. int, int) => unit,
+  setVolume: (. float) => unit,
+  playNotesSequentially: (. array<(int, int)>, int) => unit,
+}
+
+@module("./NotePlayer.js") @new external makeNotePlayer: unit => notePlayer = "default"
+
+@module("./Tone.js") external triggerAttackRelease: (. int, string, float) => unit = "default"
 
 module Scale = {
   @react.component
@@ -221,20 +272,6 @@ module Scale = {
   }
 }
 
-// <div className="hidden sm:block  flex-none w-10">
-//   {speciesDetails.autoCorrelations
-//   ->Array.get(i)
-//   ->Option.mapWithDefault(React.null, x => {
-//     <div
-//       key={i->Int.toString ++ "auto-correlation"}
-//       className={[
-//         "text-center align-middle font-bold text-plain-700 ",
-//       ]->join}>
-//       {x->str}
-//     </div>
-//   })}
-// </div>
-
 module Species = {
   @react.component
   let make = (
@@ -247,8 +284,6 @@ module Species = {
     ~speciesDetails: DataGeneration.speciesDetails,
     ~showNonModes: bool,
   ) => {
-    // let (base, setBase) = React.useState(_ => None)
-
     let scaleLength = switch currentStepDisplay {
     | SemitoneSteps => speciesId->bitsToSemitoneSteps->Array.length
     | HalfnoteSteps => speciesId->bitsToHalfnoteSteps->Array.length
@@ -259,13 +294,6 @@ module Species = {
 
     let speciesNameData = Data.namedSpecies->Array.keep(((s, _, _)) => {
       s->BitOps.stringToIntArray->stepsToBits == speciesId
-
-      // ->BitOps.stringToStringArray
-
-      // ->DataGeneration.getRotations
-      // ->DataGeneration.any(x => {
-      //   x->BitOps.stringArrayToString == speciesId
-      // })
     })
 
     let speciesNames =
@@ -299,7 +327,6 @@ module Species = {
     let numPitchClasses = speciesDetails.modes->Array.length
 
     let _uniqueNumModes = numModes != genusId
-    // let uniqueNumPitchClasses = numPitchClasses != Config.bits
 
     let _modesDisplay =
       <span> {`(${numModes->Int.toString}:${numPitchClasses->Int.toString})`->str} </span>
@@ -312,9 +339,6 @@ module Species = {
 
         let _speciesIdModeSelected =
           currentBits->Option.mapWithDefault(false, c => c->BitOps.intArrayToString == speciesId)
-
-        // TODO:
-        // {uniqueNumModes ? modesDisplay : React.null}
 
         let scaleName = speciesId->BitOps.stringToInt->Int.toString
 
@@ -397,18 +421,6 @@ module Species = {
                       ->Array.keepMap(((s, _, modes)) => {
                         modes->Array.getBy(
                           ((mId, _)) => {
-                            // if s == "1123113" {
-                            //   Js.log3(
-                            //     "Persian",
-                            //     modeId,
-                            //     s
-                            //     ->BitOps.stringToIntArray
-                            //     ->stepsToBits
-                            //     ->BitOps.stringToIntArray
-                            //     ->DataGeneration.rotate(mId)
-                            //     ->BitOps.intArrayToString,
-                            //   )
-                            // }
                             modeId ==
                               s
                               ->BitOps.stringToIntArray
@@ -467,65 +479,6 @@ module Species = {
     />
   }
 }
-
-module PageTitle = {
-  @react.component
-  let make = () => {
-    <div className={"font-sans  flex flex-row py-2 "}>
-      <Logo size={32} />
-      <div className={" -ml-2"}>
-        <div className={" text-[rgb(25,0,175)] font-bold text-3xl"}> {"opotonic"->str} </div>
-        // <div className={"text-cyan-600 text-[10px] font-bold italic -mt-1"}>
-        //   {"by T. Wright"->str}
-        // </div>
-      </div>
-    </div>
-  }
-}
-
-module Card = {
-  @react.component
-  let make = (~title, ~className="", ~children) => {
-    <div
-      className={["border  border-neutral-300 rounded-xl mt-2 overflow-hidden ", className]->join}>
-      <div className="px-6">
-        <div className="w-full text-center py-2 font-bold border-b border-neutral-300 ">
-          {title->str}
-        </div>
-      </div>
-      <div className={"px-2 py-3"}> {children} </div>
-    </div>
-  }
-}
-
-module About = {
-  @module("./about.jsx") @react.component
-  external make: unit => React.element = "default"
-}
-
-let generateChromaticScale = (startFrequency, numNotes) => {
-  let semitoneRatio = 2. ** (1. /. 12.)
-
-  Array.range(0, numNotes)->Array.map(v => {
-    (startFrequency->Float.fromInt *. semitoneRatio ** v->Float.fromInt)->Int.fromFloat
-  })
-}
-
-// Important that these be uncurried.
-// Will throw a "this is undefined" error otherwise.
-type notePlayer = {
-  playNote: (. int, int) => unit,
-  setVolume: (. float) => unit,
-  playNotesSequentially: (. array<(int, int)>, int) => unit,
-}
-
-@module("./NotePlayer.js") @new external makeNotePlayer: unit => notePlayer = "default"
-
-// let notePlayer = makeNotePlayer()
-
-// notePlayer.setVolume(. 0.3)
-
-@module("./Tone.js") external triggerAttackRelease: (. int, string, float) => unit = "default"
 
 @react.component
 let make = () => {

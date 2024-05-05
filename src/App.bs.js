@@ -250,6 +250,64 @@ var StepButton = {
   make: App$StepButton
 };
 
+function App$PageTitle(Props) {
+  return React.createElement("div", {
+              className: "font-sans  flex flex-row py-2 "
+            }, React.createElement(make, {
+                  size: 32
+                }), React.createElement("div", {
+                  className: " -ml-2"
+                }, React.createElement("div", {
+                      className: " text-[rgb(25,0,175)] font-bold text-3xl"
+                    }, "opotonic")));
+}
+
+var PageTitle = {
+  make: App$PageTitle
+};
+
+function App$Card(Props) {
+  var title = Props.title;
+  var classNameOpt = Props.className;
+  var children = Props.children;
+  var className = classNameOpt !== undefined ? classNameOpt : "";
+  return React.createElement("div", {
+              className: [
+                  "border  border-neutral-300 rounded-xl mt-2 overflow-hidden ",
+                  className
+                ].join(" ")
+            }, React.createElement("div", {
+                  className: "px-6"
+                }, React.createElement("div", {
+                      className: "w-full text-center py-2 font-bold border-b border-neutral-300 "
+                    }, title)), React.createElement("div", {
+                  className: "px-2 py-3"
+                }, children));
+}
+
+var Card = {
+  make: App$Card
+};
+
+var make$3 = AboutJsx;
+
+var About = {
+  make: make$3
+};
+
+function generateChromaticScale(startFrequency, numNotes) {
+  var semitoneRatio = Math.pow(2, 1 / 12);
+  return Belt_Array.map(Belt_Array.range(0, numNotes), (function (v) {
+                return startFrequency * Math.pow(semitoneRatio, v) | 0;
+              }));
+}
+
+function makeNotePlayer(prim) {
+  return new NotePlayerJs();
+}
+
+var triggerAttackRelease = ToneJs;
+
 function App$Scale(Props) {
   var bitString = Props.bitString;
   var currentStepDisplay = Props.currentStepDisplay;
@@ -560,64 +618,6 @@ var Species = {
   make: App$Species
 };
 
-function App$PageTitle(Props) {
-  return React.createElement("div", {
-              className: "font-sans  flex flex-row py-2 "
-            }, React.createElement(make, {
-                  size: 32
-                }), React.createElement("div", {
-                  className: " -ml-2"
-                }, React.createElement("div", {
-                      className: " text-[rgb(25,0,175)] font-bold text-3xl"
-                    }, "opotonic")));
-}
-
-var PageTitle = {
-  make: App$PageTitle
-};
-
-function App$Card(Props) {
-  var title = Props.title;
-  var classNameOpt = Props.className;
-  var children = Props.children;
-  var className = classNameOpt !== undefined ? classNameOpt : "";
-  return React.createElement("div", {
-              className: [
-                  "border  border-neutral-300 rounded-xl mt-2 overflow-hidden ",
-                  className
-                ].join(" ")
-            }, React.createElement("div", {
-                  className: "px-6"
-                }, React.createElement("div", {
-                      className: "w-full text-center py-2 font-bold border-b border-neutral-300 "
-                    }, title)), React.createElement("div", {
-                  className: "px-2 py-3"
-                }, children));
-}
-
-var Card = {
-  make: App$Card
-};
-
-var make$3 = AboutJsx;
-
-var About = {
-  make: make$3
-};
-
-function generateChromaticScale(startFrequency, numNotes) {
-  var semitoneRatio = Math.pow(2, 1 / 12);
-  return Belt_Array.map(Belt_Array.range(0, numNotes), (function (v) {
-                return startFrequency * Math.pow(semitoneRatio, v) | 0;
-              }));
-}
-
-function makeNotePlayer(prim) {
-  return new NotePlayerJs();
-}
-
-var triggerAttackRelease = ToneJs;
-
 function App(Props) {
   var match = React.useState(function () {
         
@@ -918,14 +918,14 @@ export {
   bitsToHalfnoteSteps ,
   bitToDisplaySymbol ,
   StepButton ,
-  Scale ,
-  Species ,
   PageTitle ,
   Card ,
   About ,
   generateChromaticScale ,
   makeNotePlayer ,
   triggerAttackRelease ,
+  Scale ,
+  Species ,
   make$4 as make,
   $$default ,
   $$default as default,
