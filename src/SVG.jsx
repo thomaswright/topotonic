@@ -74,11 +74,7 @@ const RadialText = ({ x, y, radius, deg, text, selected }) => {
             dominantBaseline={dominantBaseline}
             textAnchor={textAnchor}
             fontSize={5}
-            fill={
-              selected
-                ? tailwindColors[accentColor][600]
-                : tailwindColors[plainColor][800]
-            }
+            fill={selected ? "var(--accent)" : tailwindColors[plainColor][800]}
             className={selected ? "font-bold" : "font-medium"}
           >
             {text}
@@ -172,7 +168,7 @@ export const SVG = ({ data }) => {
                 end={radius * 1.1}
                 deg={i * orderDegree}
                 strokeWidth={1}
-                color={tailwindColors[accentColor][600]}
+                color={"var(--accent)"}
               />
             ) : null}
           </g>

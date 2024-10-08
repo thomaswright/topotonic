@@ -2,6 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  background-color: hsl(37, 100%, 92%);
+  --card: hsl(37, 100%, 82%);
+  --card-title: #000;
+  --card-select-bg: hsl(37, 87%, 55%);
+  --species-bg: hsl(37, 87%, 55%);
+  --accent: hsl(0, 100%, 40%);
+}
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",

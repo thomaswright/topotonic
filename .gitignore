@@ -54,3 +54,5 @@ lib/bs
 *.sln
 *.sw?
 
+# Other
+_project/

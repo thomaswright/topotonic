@@ -276,8 +276,8 @@ function App$StepButton(Props) {
   var children = Props.children;
   return React.createElement("div", {
               className: [
-                  selected ? "text-blue-700 border-blue-700 bg-blue-50 font-bold hover:border-blue-700" : "border-black bg-white font-medium border-transparent hover:border-neutral-400 hover:bg-neutral-100",
-                  "col-span-1 p-1 rounded-xl px-2 text-center border cursor-default"
+                  selected ? " bg-[var(--card-select-bg)] font-bold " : " bg-white font-medium ",
+                  "col-span-1 p-1 rounded-xl px-2 text-center  cursor-default"
                 ].join(" "),
               onClick: onClick
             }, children);
@@ -310,15 +310,13 @@ function App$Card(Props) {
   var className = classNameOpt !== undefined ? classNameOpt : "";
   return React.createElement("div", {
               className: [
-                  "border  border-neutral-300 rounded-xl mt-2 overflow-hidden ",
+                  " rounded-xl p-2 pb-3 pt-1 mt-2 overflow-hidden bg-[var(--card)]",
                   className
                 ].join(" ")
             }, React.createElement("div", {
-                  className: "px-6"
-                }, React.createElement("div", {
-                      className: "w-full text-center py-2 font-bold border-b border-neutral-300 "
-                    }, title)), React.createElement("div", {
-                  className: "px-2 py-3"
+                  className: "w-full text-center pb-2 font-bold text-xl text-[var(--card-title)] "
+                }, title), React.createElement("div", {
+                  className: ""
                 }, children));
 }
 
@@ -383,7 +381,7 @@ function App$Scale(Props) {
     return React.createElement("div", {
                 key: String(i),
                 className: [
-                    "col-span-1 flex flex-row items-center justify-center min-w-[2rem]",
+                    "col-span-1 flex flex-row items-center justify-center min-w-[2rem] ",
                     "",
                     tmp
                   ].join(" ")
@@ -416,7 +414,7 @@ function App$Scale(Props) {
   }
   return React.createElement("div", {
               className: [
-                  "flex-1 grid",
+                  "flex-1 grid ",
                   gridCols
                 ].join(" ")
             }, tmp$1);
@@ -511,7 +509,7 @@ function App$Species(Props) {
                           }));
                   };
                   return React.createElement("div", {
-                              className: [" py-1 border border-neutral-300 rounded-xl mb-2"].join(" ")
+                              className: [" py-1 bg-[var(--species-bg)] rounded-xl mb-2"].join(" ")
                             }, speciesHidden ? React.createElement("div", {
                                     className: ["font-bold"].join(" "),
                                     onClick: onClickHeader
@@ -547,9 +545,7 @@ function App$Species(Props) {
                                               }, speciesDetails.isSymmetric ? React.createElement(Bs.BsSymmetryVertical, {}) : null), React.createElement("div", {
                                                 className: "flex-none text-sm font-medium tracking-wide "
                                               }, "SCALE " + scaleName + ""))), React.createElement("div", {
-                                        className: "border-b mx-6 pt-2 border-neutral-300"
-                                      }), React.createElement("div", {
-                                        className: ["py-1 flex flex-col divide-y"].join(" ")
+                                        className: ["my-1 mx-2 rounded-lg flex flex-col divide-y bg-white divide-[var(--species-bg)]"].join(" ")
                                       }, Belt_Array.mapWithIndex(speciesDetails.modes, (function (_i, param) {
                                               var modeId = param[0];
                                               var selected = Belt_Option.mapWithDefault(currentBits, false, (function (c) {
@@ -575,10 +571,10 @@ function App$Species(Props) {
                                                     tmp = "";
                                                     break;
                                                 case /* Mode */1 :
-                                                    tmp = selected ? "text-accent-600 " : "text-plain-700";
+                                                    tmp = selected ? "text-[var(--accent)] " : "text-plain-700";
                                                     break;
                                                 case /* NonMode */2 :
-                                                    tmp = selected ? "bg-plain-50 text-accent-600" : "bg-plain-50 text-plain-300";
+                                                    tmp = selected ? "bg-plain-50 text-[var(--accent)]" : "bg-plain-50 text-plain-300";
                                                     break;
                                                 
                                               }
@@ -691,7 +687,7 @@ function App(Props) {
                 }, React.createElement("div", {
                       className: "flex flex-row justify-between items-center w-full px-4"
                     }, React.createElement(App$PageTitle, {}), Belt_Option.isNone(currentBits) ? null : React.createElement("button", {
-                            className: "flex flex-row gap-2 py-1 px-5 rounded-full items-center\n               justify-center font-bold text-white bg-accent-600   hover:bg-accent-700",
+                            className: "flex flex-row gap-2 py-1 px-5 rounded-full items-center\n               justify-center font-bold text-white bg-[var(--accent)]",
                             onClick: (function (param) {
                                 var cChromScale = generateChromaticScale(110, 12);
                                 var newBase = Belt_Option.getWithDefault(Belt_Array.get(cChromScale, currentKey), 110);
@@ -717,9 +713,9 @@ function App(Props) {
                         }, React.createElement(make$1, {
                               data: Belt_Array.zip(graphDisplay, graphBits)
                             })), scaleNames === "" ? null : React.createElement("div", {
-                            className: "w-full text-lg text-center mt-4 font-bold text-accent-600"
+                            className: "w-full text-lg text-center mt-4 font-bold  text-[var(--accent)]"
                           }, "Scale: " + scaleNames + ""), modeNames === "" ? null : React.createElement("div", {
-                            className: "w-full text-lg text-center font-bold text-accent-600"
+                            className: "w-full text-lg text-center font-bold text-[var(--accent)]"
                           }, "Mode: " + modeNames + ""), React.createElement(App$Card, {
                           title: "Key",
                           className: "mt-4",
@@ -834,7 +830,7 @@ function App(Props) {
                                             }, React.createElement(make$3, {})));
                             })
                         }), React.createElement(App$Card, {
-                          title: "Number of notes in scale",
+                          title: "Number of notes",
                           children: React.createElement("div", {
                                 className: "flex flex-row overflow-x-scroll gap-2"
                               }, Belt_Array.map(Belt_Array.range(1, DataGeneration.Config.bits), (function (num) {

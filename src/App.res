@@ -164,10 +164,8 @@ module StepButton = {
   let make = (~selected, ~onClick, ~children) => {
     <div
       className={[
-        selected
-          ? "text-blue-700 border-blue-700 bg-blue-50 font-bold hover:border-blue-700"
-          : "border-black bg-white font-medium border-transparent hover:border-neutral-400 hover:bg-neutral-100",
-        "col-span-1 p-1 rounded-xl px-2 text-center border cursor-default",
+        selected ? " bg-[var(--card-select-bg)] font-bold " : " bg-white font-medium ",
+        "col-span-1 p-1 rounded-xl px-2 text-center  cursor-default",
       ]->join}
       onClick={onClick}>
       {children}
@@ -191,13 +189,14 @@ module Card = {
   @react.component
   let make = (~title, ~className="", ~children) => {
     <div
-      className={["border  border-neutral-300 rounded-xl mt-2 overflow-hidden ", className]->join}>
-      <div className="px-6">
-        <div className="w-full text-center py-2 font-bold border-b border-neutral-300 ">
-          {title->str}
-        </div>
+      className={[
+        " rounded-xl p-2 pb-3 pt-1 mt-2 overflow-hidden bg-[var(--card)]",
+        className,
+      ]->join}>
+      <div className="w-full text-center pb-2 font-bold text-xl text-[var(--card-title)] ">
+        {title->str}
       </div>
-      <div className={"px-2 py-3"}> {children} </div>
+      <div className={""}> {children} </div>
     </div>
   }
 }
@@ -240,7 +239,7 @@ module Scale = {
       <div
         key={i->Int.toString}
         className={[
-          "col-span-1 flex flex-row items-center justify-center min-w-[2rem]",
+          "col-span-1 flex flex-row items-center justify-center min-w-[2rem] ",
           "",
           switch kind {
           | Species => " "
@@ -251,7 +250,7 @@ module Scale = {
         {content}
       </div>
 
-    <div className={["flex-1 grid", gridCols]->join}>
+    <div className={["flex-1 grid ", gridCols]->join}>
       {switch currentStepDisplay {
       | SemitoneSteps =>
         bitString
@@ -364,7 +363,7 @@ module Species = {
           )
         }
 
-        <div className={[" py-1 border border-neutral-300 rounded-xl mb-2"]->join}>
+        <div className={[" py-1 bg-[var(--species-bg)] rounded-xl mb-2"]->join}>
           {speciesHidden
             ? <div className={["font-bold"]->join} onClick={onClickHeader}>
                 {speciesNames == ""
@@ -412,8 +411,10 @@ module Species = {
                     </div>
                   </div>
                 </div>
-                <div className="border-b mx-6 pt-2 border-neutral-300" />
-                <div className={["py-1 flex flex-col divide-y"]->join}>
+                <div
+                  className={[
+                    "my-1 mx-2 rounded-lg flex flex-col divide-y bg-white divide-[var(--species-bg)]",
+                  ]->join}>
                   {speciesDetails.modes->reactMapWithIndex((_i, (modeId, _rotationDegrees)) => {
                     let selected =
                       currentBits->Option.mapWithDefault(false, c =>
@@ -451,10 +452,10 @@ module Species = {
                               "flex flex-col py-1 sm:justify-start justify-center ",
                               selected ? "font-bold" : "",
                               switch modeKind {
-                              | Mode => selected ? "text-accent-600 " : "text-plain-700"
+                              | Mode => selected ? "text-[var(--accent)] " : "text-plain-700"
                               | NonMode =>
                                 selected
-                                  ? "bg-plain-50 text-accent-600"
+                                  ? "bg-plain-50 text-[var(--accent)]"
                                   : "bg-plain-50 text-plain-300"
                               | _ => ""
                               },
@@ -565,7 +566,7 @@ let make = () => {
           ? React.null
           : <button
               className={"flex flex-row gap-2 py-1 px-5 rounded-full items-center
-               justify-center font-bold text-white bg-accent-600   hover:bg-accent-700"}
+               justify-center font-bold text-white bg-[var(--accent)]"}
               onClick={_ => {playNotes()}}>
               <PlayIcon size={14} />
               {"Play"->str}
@@ -577,12 +578,12 @@ let make = () => {
         </div>
         {scaleNames == ""
           ? React.null
-          : <div className="w-full text-lg text-center mt-4 font-bold text-accent-600">
+          : <div className="w-full text-lg text-center mt-4 font-bold  text-[var(--accent)]">
               {`Scale: ${scaleNames}`->str}
             </div>}
         {modeNames == ""
           ? React.null
-          : <div className="w-full text-lg text-center font-bold text-accent-600">
+          : <div className="w-full text-lg text-center font-bold text-[var(--accent)]">
               {`Mode: ${modeNames}`->str}
             </div>}
         <Card title={"Key"} className="mt-4">
@@ -664,7 +665,7 @@ let make = () => {
             </div>
           }}
         />
-        <Card title={"Number of notes in scale"}>
+        <Card title={"Number of notes"}>
           <div className="flex flex-row overflow-x-scroll gap-2">
             {Array.range(1, DataGeneration.Config.bits)->reactMap(num => {
               <StepButton
