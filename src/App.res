@@ -668,12 +668,14 @@ let make = () => {
         </div>
         {scaleNames == ""
           ? React.null
-          : <div className="w-full text-lg text-center mt-4 font-bold  text-[var(--accent)]">
+          : <div
+              className="w-full tracking-tight text-center font-black  text-[var(--species-text)]">
               {`Scale: ${scaleNames}`->str}
             </div>}
         {modeNames == ""
           ? React.null
-          : <div className="w-full text-lg text-center font-bold text-[var(--accent)]">
+          : <div
+              className="w-full tracking-tight text-center font-black text-[var(--species-text)]">
               {`Mode: ${modeNames}`->str}
             </div>}
         <StepDisplay setCurrentStepDisplay currentStepDisplay />

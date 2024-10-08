@@ -795,9 +795,9 @@ function App(Props) {
                                         }));
                                 })
                             })), scaleNames === "" ? null : React.createElement("div", {
-                            className: "w-full text-lg text-center mt-4 font-bold  text-[var(--accent)]"
+                            className: "w-full tracking-tight text-center font-black  text-[var(--species-text)]"
                           }, "Scale: " + scaleNames + ""), modeNames === "" ? null : React.createElement("div", {
-                            className: "w-full text-lg text-center font-bold text-[var(--accent)]"
+                            className: "w-full tracking-tight text-center font-black text-[var(--species-text)]"
                           }, "Mode: " + modeNames + ""), React.createElement(App$StepDisplay, {
                           currentStepDisplay: currentStepDisplay,
                           setCurrentStepDisplay: match$3[1]

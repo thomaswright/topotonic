@@ -3,6 +3,7 @@
 @tailwind utilities;
 
 :root {
+  --red: #9f2222;
   --pink: #ffaf8d;
   --light: #ffaf8d;
   --blue: #0083b1;
@@ -17,7 +18,7 @@
   --species-bg: var(--light);
   --species-open-bg: var(--light);
   --species-scales: var(--pink);
-  --species-text: #9f2222;
+  --species-text: var(--red);
   --scale-highlight: transparent;
 
   --accent: var(--blue);
