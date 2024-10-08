@@ -366,7 +366,7 @@ module Species = {
 
         <div
           className={[
-            " py-1 rounded-xl mb-2 cursor-pointer ",
+            " rounded-xl mb-2 cursor-pointer ",
             speciesHidden ? "bg-[var(--species-bg)] " : "bg-[var(--species-open-bg)] ",
           ]->join}>
           {speciesHidden
@@ -384,7 +384,7 @@ module Species = {
                         {speciesNames->str}
                       </div>
                     </div>}
-                <div className="flex flex-row">
+                <div className="flex flex-row bg-[var(--species-scales)] rounded-xl py-1">
                   <Scale
                     selected={false}
                     currentKey={currentKey}
@@ -416,71 +416,73 @@ module Species = {
                     </div>
                   </div>
                 </div>
-                <div
-                  className={[
-                    "my-1 mx-2 rounded-lg flex flex-col divide-y bg-white divide-[var(--species-open-bg)]",
-                  ]->join}>
-                  {speciesDetails.modes->reactMapWithIndex((_i, (modeId, _rotationDegrees)) => {
-                    let selected =
-                      currentBits->Option.mapWithDefault(false, c =>
-                        c->BitOps.intArrayToString == modeId
-                      )
-
-                    let modeKind =
-                      modeId->BitOps.stringToStringArray->DataGeneration.startsWith1
-                        ? Mode
-                        : NonMode
-
-                    let modeNames =
-                      speciesNameData
-                      ->Array.keepMap(((s, _, modes)) => {
-                        modes->Array.getBy(
-                          ((mId, _)) => {
-                            modeId == s->scaleRepToMode(mId)
-                          },
+                <div className="p-2 pt-0 bg-[var(--species-scales)] rounded-xl">
+                  <div
+                    className={[
+                      "rounded-lg flex flex-col divide-y bg-white divide-[var(--species-open-bg)]",
+                    ]->join}>
+                    {speciesDetails.modes->reactMapWithIndex((_i, (modeId, _rotationDegrees)) => {
+                      let selected =
+                        currentBits->Option.mapWithDefault(false, c =>
+                          c->BitOps.intArrayToString == modeId
                         )
-                      })
-                      ->Array.get(0)
-                      ->Option.mapWithDefault([], ((_, modeNames)) =>
-                        modeNames->Array.map(((_, name)) => name)
-                      )
-                      ->Js.Array2.joinWith(", ")
 
-                    {
-                      modeKind == NonMode && !showNonModes
-                        ? React.null
-                        : <div
-                            onClick={_ =>
-                              setCurrentBits(_ => modeId->BitOps.stringToIntArray->Some)}
-                            key={modeId}
-                            className={[
-                              "flex flex-col py-1 sm:justify-start justify-center ",
-                              selected ? "font-bold" : "",
-                              switch modeKind {
-                              | Mode => selected ? "text-[var(--accent)] " : "text-plain-700"
-                              | NonMode =>
-                                selected
-                                  ? "bg-plain-50 text-[var(--accent)]"
-                                  : "bg-plain-50 text-plain-300"
-                              | _ => ""
-                              },
-                            ]->join}>
-                            {modeNames == ""
-                              ? React.null
-                              : <div
-                                  className={"flex flex-row items-center text-xs px-3 py-0.5 justify-center flex-1"}>
-                                  {modeNames->str}
-                                </div>}
-                            <Scale
-                              selected={selected}
-                              currentKey={currentKey}
-                              currentStepDisplay={currentStepDisplay}
-                              bitString={modeId}
-                              kind={modeKind}
-                            />
-                          </div>
-                    }
-                  })}
+                      let modeKind =
+                        modeId->BitOps.stringToStringArray->DataGeneration.startsWith1
+                          ? Mode
+                          : NonMode
+
+                      let modeNames =
+                        speciesNameData
+                        ->Array.keepMap(((s, _, modes)) => {
+                          modes->Array.getBy(
+                            ((mId, _)) => {
+                              modeId == s->scaleRepToMode(mId)
+                            },
+                          )
+                        })
+                        ->Array.get(0)
+                        ->Option.mapWithDefault([], ((_, modeNames)) =>
+                          modeNames->Array.map(((_, name)) => name)
+                        )
+                        ->Js.Array2.joinWith(", ")
+
+                      {
+                        modeKind == NonMode && !showNonModes
+                          ? React.null
+                          : <div
+                              onClick={_ =>
+                                setCurrentBits(_ => modeId->BitOps.stringToIntArray->Some)}
+                              key={modeId}
+                              className={[
+                                "flex flex-col py-1 sm:justify-start justify-center ",
+                                selected ? "font-bold" : "",
+                                switch modeKind {
+                                | Mode => selected ? "text-[var(--accent)] " : "text-plain-700"
+                                | NonMode =>
+                                  selected
+                                    ? "bg-plain-50 text-[var(--accent)]"
+                                    : "bg-plain-50 text-plain-300"
+                                | _ => ""
+                                },
+                              ]->join}>
+                              {modeNames == ""
+                                ? React.null
+                                : <div
+                                    className={"flex flex-row items-center text-xs px-3 py-0.5 justify-center flex-1"}>
+                                    {modeNames->str}
+                                  </div>}
+                              <Scale
+                                selected={selected}
+                                currentKey={currentKey}
+                                currentStepDisplay={currentStepDisplay}
+                                bitString={modeId}
+                                kind={modeKind}
+                              />
+                            </div>
+                      }
+                    })}
+                  </div>
                 </div>
               </div>}
         </div>

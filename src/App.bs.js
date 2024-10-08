@@ -504,7 +504,7 @@ function App$Species(Props) {
                   };
                   return React.createElement("div", {
                               className: [
-                                  " py-1 rounded-xl mb-2 cursor-pointer ",
+                                  " rounded-xl mb-2 cursor-pointer ",
                                   speciesHidden ? "bg-[var(--species-bg)] " : "bg-[var(--species-open-bg)] "
                                 ].join(" ")
                             }, speciesHidden ? React.createElement("div", {
@@ -519,7 +519,7 @@ function App$Species(Props) {
                                         }, React.createElement("div", {
                                               className: "text-lg flex-none overflow-x-hidden text-ellipsis whitespace-nowrap px-1"
                                             }, speciesNames)), React.createElement("div", {
-                                        className: "flex flex-row"
+                                        className: "flex flex-row bg-[var(--species-scales)] rounded-xl py-1"
                                       }, React.createElement(App$Scale, {
                                             bitString: speciesId,
                                             currentStepDisplay: currentStepDisplay,
@@ -542,61 +542,63 @@ function App$Species(Props) {
                                               }, speciesDetails.isSymmetric ? React.createElement(Bs.BsSymmetryVertical, {}) : null), React.createElement("div", {
                                                 className: "flex-none text-sm font-medium tracking-wide "
                                               }, "SCALE " + scaleName + ""))), React.createElement("div", {
-                                        className: ["my-1 mx-2 rounded-lg flex flex-col divide-y bg-white divide-[var(--species-open-bg)]"].join(" ")
-                                      }, Belt_Array.mapWithIndex(speciesDetails.modes, (function (_i, param) {
-                                              var modeId = param[0];
-                                              var selected = Belt_Option.mapWithDefault(currentBits, false, (function (c) {
-                                                      return DataGeneration.BitOps.intArrayToString(c) === modeId;
-                                                    }));
-                                              var modeKind = DataGeneration.startsWith1(DataGeneration.BitOps.stringToStringArray(modeId)) ? /* Mode */1 : /* NonMode */2;
-                                              var modeNames = Belt_Option.mapWithDefault(Belt_Array.get(Belt_Array.keepMap(speciesNameData, (function (param) {
-                                                                var s = param[0];
-                                                                return Belt_Array.getBy(param[2], (function (param) {
-                                                                              return modeId === scaleRepToMode(s, param[0]);
-                                                                            }));
-                                                              })), 0), [], (function (param) {
-                                                        return Belt_Array.map(param[1], (function (param) {
-                                                                      return param[1];
-                                                                    }));
-                                                      })).join(", ");
-                                              if (modeKind === /* NonMode */2 && !showNonModes) {
-                                                return null;
-                                              }
-                                              var tmp;
-                                              switch (modeKind) {
-                                                case /* Species */0 :
-                                                    tmp = "";
-                                                    break;
-                                                case /* Mode */1 :
-                                                    tmp = selected ? "text-[var(--accent)] " : "text-plain-700";
-                                                    break;
-                                                case /* NonMode */2 :
-                                                    tmp = selected ? "bg-plain-50 text-[var(--accent)]" : "bg-plain-50 text-plain-300";
-                                                    break;
-                                                
-                                              }
-                                              return React.createElement("div", {
-                                                          key: modeId,
-                                                          className: [
-                                                              "flex flex-col py-1 sm:justify-start justify-center ",
-                                                              selected ? "font-bold" : "",
-                                                              tmp
-                                                            ].join(" "),
-                                                          onClick: (function (param) {
-                                                              Curry._1(setCurrentBits, (function (param) {
-                                                                      return DataGeneration.BitOps.stringToIntArray(modeId);
-                                                                    }));
-                                                            })
-                                                        }, modeNames === "" ? null : React.createElement("div", {
-                                                                className: "flex flex-row items-center text-xs px-3 py-0.5 justify-center flex-1"
-                                                              }, modeNames), React.createElement(App$Scale, {
-                                                              bitString: modeId,
-                                                              currentStepDisplay: currentStepDisplay,
-                                                              currentKey: currentKey,
-                                                              kind: modeKind,
-                                                              selected: selected
-                                                            }));
-                                            })))));
+                                        className: "p-2 pt-0 bg-[var(--species-scales)] rounded-xl"
+                                      }, React.createElement("div", {
+                                            className: ["rounded-lg flex flex-col divide-y bg-white divide-[var(--species-open-bg)]"].join(" ")
+                                          }, Belt_Array.mapWithIndex(speciesDetails.modes, (function (_i, param) {
+                                                  var modeId = param[0];
+                                                  var selected = Belt_Option.mapWithDefault(currentBits, false, (function (c) {
+                                                          return DataGeneration.BitOps.intArrayToString(c) === modeId;
+                                                        }));
+                                                  var modeKind = DataGeneration.startsWith1(DataGeneration.BitOps.stringToStringArray(modeId)) ? /* Mode */1 : /* NonMode */2;
+                                                  var modeNames = Belt_Option.mapWithDefault(Belt_Array.get(Belt_Array.keepMap(speciesNameData, (function (param) {
+                                                                    var s = param[0];
+                                                                    return Belt_Array.getBy(param[2], (function (param) {
+                                                                                  return modeId === scaleRepToMode(s, param[0]);
+                                                                                }));
+                                                                  })), 0), [], (function (param) {
+                                                            return Belt_Array.map(param[1], (function (param) {
+                                                                          return param[1];
+                                                                        }));
+                                                          })).join(", ");
+                                                  if (modeKind === /* NonMode */2 && !showNonModes) {
+                                                    return null;
+                                                  }
+                                                  var tmp;
+                                                  switch (modeKind) {
+                                                    case /* Species */0 :
+                                                        tmp = "";
+                                                        break;
+                                                    case /* Mode */1 :
+                                                        tmp = selected ? "text-[var(--accent)] " : "text-plain-700";
+                                                        break;
+                                                    case /* NonMode */2 :
+                                                        tmp = selected ? "bg-plain-50 text-[var(--accent)]" : "bg-plain-50 text-plain-300";
+                                                        break;
+                                                    
+                                                  }
+                                                  return React.createElement("div", {
+                                                              key: modeId,
+                                                              className: [
+                                                                  "flex flex-col py-1 sm:justify-start justify-center ",
+                                                                  selected ? "font-bold" : "",
+                                                                  tmp
+                                                                ].join(" "),
+                                                              onClick: (function (param) {
+                                                                  Curry._1(setCurrentBits, (function (param) {
+                                                                          return DataGeneration.BitOps.stringToIntArray(modeId);
+                                                                        }));
+                                                                })
+                                                            }, modeNames === "" ? null : React.createElement("div", {
+                                                                    className: "flex flex-row items-center text-xs px-3 py-0.5 justify-center flex-1"
+                                                                  }, modeNames), React.createElement(App$Scale, {
+                                                                  bitString: modeId,
+                                                                  currentStepDisplay: currentStepDisplay,
+                                                                  currentKey: currentKey,
+                                                                  kind: modeKind,
+                                                                  selected: selected
+                                                                }));
+                                                }))))));
                 })
             });
 }
