@@ -21,7 +21,11 @@ module Logo = {
 
 module SVG = {
   @module("./SVG.jsx") @react.component
-  external make: (~data: array<(string, int)>, ~currentKey: int) => React.element = "SVG"
+  external make: (
+    ~data: array<(string, int)>,
+    ~currentKey: int,
+    ~onKeyChange: int => unit,
+  ) => React.element = "SVG"
 }
 
 module Symmetry = {
@@ -176,11 +180,8 @@ module StepButton = {
 module PageTitle = {
   @react.component
   let make = () => {
-    <div className={"font-sans  flex flex-row py-2 "}>
-      <Logo size={32} />
-      <div className={" -ml-2"}>
-        <div className={" text-[rgb(25,0,175)] font-bold text-3xl"}> {"opotonic"->str} </div>
-      </div>
+    <div className={"font-sans text-[var(--logo)] font-black text-4xl tracking-tighter"}>
+      {"Topotonic"->str}
     </div>
   }
 }
@@ -487,6 +488,22 @@ module Species = {
     />
   }
 }
+// module SelectKey = {
+//   @react.component
+//   let make = () => {
+//     <Card title={"Key"} className="mt-4">
+//       <div className={"grid grid-cols-4 gap-2 w-full "}>
+//         {IntervalRefs.pitchKeys->reactMapWithIndex((i, v) => {
+//           let selected = i == currentKey
+
+//           <StepButton key={v} selected={selected} onClick={_ => setCurrentKey(_ => i)}>
+//             {v->str}
+//           </StepButton>
+//         })}
+//       </div>
+//     </Card>
+//   }
+// }
 
 @react.component
 let make = () => {
@@ -578,7 +595,11 @@ let make = () => {
       </div>
       <div className=" sm:max-h-min  max-w-[500px] w-full">
         <div className={"pt-2 w-full self-center"}>
-          <SVG data={Array.zip(graphDisplay, graphBits)} currentKey={currentKey} />
+          <SVG
+            data={Array.zip(graphDisplay, graphBits)}
+            currentKey={currentKey}
+            onKeyChange={newKey => setCurrentKey(_ => newKey)}
+          />
         </div>
         {scaleNames == ""
           ? React.null
@@ -590,17 +611,6 @@ let make = () => {
           : <div className="w-full text-lg text-center font-bold text-[var(--accent)]">
               {`Mode: ${modeNames}`->str}
             </div>}
-        <Card title={"Key"} className="mt-4">
-          <div className={"grid grid-cols-4 gap-2 w-full "}>
-            {IntervalRefs.pitchKeys->reactMapWithIndex((i, v) => {
-              let selected = i == currentKey
-
-              <StepButton key={v} selected={selected} onClick={_ => setCurrentKey(_ => i)}>
-                {v->str}
-              </StepButton>
-            })}
-          </div>
-        </Card>
         <Card title={"Step Display"}>
           <StepButton
             selected={currentStepDisplay == Key} onClick={_ => setCurrentStepDisplay(_ => Key)}>
@@ -643,6 +653,26 @@ let make = () => {
             </StepButton>
           </div>
         </Card>
+        <Card title={"Number of notes"}>
+          <div className="grid grid-cols-6 overflow-x-scroll gap-2">
+            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]->reactMap(num => {
+              <StepButton
+                selected={selectedGenus->Option.mapWithDefault(false, ((i, _)) => num == i)}
+                onClick={_ =>
+                  setSelectedGenus(_ =>
+                    result
+                    ->Map.Int.keysToArray
+                    ->Array.get(num)
+                    ->Option.flatMap(
+                      genusId =>
+                        result->Map.Int.get(genusId)->Option.map(species => (genusId, species)),
+                    )
+                  )}>
+                {num->Int.toString->str}
+              </StepButton>
+            })}
+          </div>
+        </Card>
       </div>
     </div>
     <div className="flex-1 sm:flex-1 h-full overflow-scroll xs:px-2">
@@ -669,26 +699,6 @@ let make = () => {
             </div>
           }}
         />
-        <Card title={"Number of notes"}>
-          <div className="flex flex-row overflow-x-scroll gap-2">
-            {Array.range(1, DataGeneration.Config.bits)->reactMap(num => {
-              <StepButton
-                selected={selectedGenus->Option.mapWithDefault(false, ((i, _)) => num == i)}
-                onClick={_ =>
-                  setSelectedGenus(_ =>
-                    result
-                    ->Map.Int.keysToArray
-                    ->Array.get(num)
-                    ->Option.flatMap(
-                      genusId =>
-                        result->Map.Int.get(genusId)->Option.map(species => (genusId, species)),
-                    )
-                  )}>
-                {num->Int.toString->str}
-              </StepButton>
-            })}
-          </div>
-        </Card>
         {selectedGenus->Option.mapWithDefault(React.null, ((genusId, species)) => {
           <div className={"mb-1"}>
             <div className="flex flex-row items-center py-4 font-medium text-lg ">

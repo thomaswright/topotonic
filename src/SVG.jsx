@@ -64,11 +64,22 @@ function getTextAnchors12(deg) {
   }
 }
 
-const RadialText = ({ x, y, radius, deg, text, selected, currentKey }) => {
+const RadialText = ({
+  x,
+  y,
+  radius,
+  deg,
+  text,
+  selected,
+  currentKey,
+  onClick,
+}) => {
   // let [dominantBaseline, textAnchor] = getTextAnchors12(deg - currentKey * 30);
   let angle = deg - 90 - currentKey * 30;
   return (
     <g
+      onClick={onClick}
+      className=" cursor-pointer"
       style={{
         transition: "transform 1s ease-in-out",
         transform: `
@@ -84,7 +95,7 @@ const RadialText = ({ x, y, radius, deg, text, selected, currentKey }) => {
         textAnchor={"middle"}
         fontSize={5}
         fill={selected ? "var(--accent)" : tailwindColors[plainColor][800]}
-        className={selected ? "font-bold" : "font-medium"}
+        className={selected ? "font-black" : "font-medium"}
       >
         {text}
       </text>
@@ -128,7 +139,7 @@ function cycleArray(arr, m) {
   return arr.slice(-shift).concat(arr.slice(0, -shift));
 }
 
-export const SVG = ({ data, currentKey = 0 }) => {
+export const SVG = ({ data, currentKey = 0, onKeyChange }) => {
   // console.log({ data });
   let order = data.length;
   let boxSize = 100;
@@ -141,7 +152,6 @@ export const SVG = ({ data, currentKey = 0 }) => {
   };
 
   let radius = boxSize / 3.5;
-  console.log(data);
   let cycledData = cycleArray(data, currentKey);
 
   return (
@@ -175,7 +185,7 @@ export const SVG = ({ data, currentKey = 0 }) => {
                 start={0}
                 end={radius * 1.1}
                 deg={i * orderDegree}
-                strokeWidth={1}
+                strokeWidth={2}
                 color={"var(--accent)"}
               />
             ) : null}
@@ -195,6 +205,7 @@ export const SVG = ({ data, currentKey = 0 }) => {
                 radius={radius * 1.2}
                 deg={i * orderDegree}
                 text={label}
+                onClick={(_) => onKeyChange(i)}
               />
             </React.Fragment>
           );

@@ -4,13 +4,14 @@
 
 :root {
   background-color: hsl(37, 100%, 92%);
+  --logo: hsl(208, 100%, 35%);
   --card: hsl(37, 100%, 82%);
   --card-title: #000;
   --card-select-bg: hsl(37, 87%, 55%);
   --species-bg: hsl(37, 87%, 55%);
   --species-open-bg: hsl(37, 87%, 55%);
 
-  --accent: hsl(190.9, 100%, 25.9%);
+  --accent: hsl(208, 100%, 35%);
 }
 
 body {

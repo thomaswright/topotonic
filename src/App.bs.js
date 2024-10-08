@@ -289,14 +289,8 @@ var StepButton = {
 
 function App$PageTitle(Props) {
   return React.createElement("div", {
-              className: "font-sans  flex flex-row py-2 "
-            }, React.createElement(make, {
-                  size: 32
-                }), React.createElement("div", {
-                  className: " -ml-2"
-                }, React.createElement("div", {
-                      className: " text-[rgb(25,0,175)] font-bold text-3xl"
-                    }, "opotonic")));
+              className: "font-sans text-[var(--logo)] font-black text-4xl tracking-tighter"
+            }, "Topotonic");
 }
 
 var PageTitle = {
@@ -715,30 +709,17 @@ function App(Props) {
                           className: "pt-2 w-full self-center"
                         }, React.createElement(make$1, {
                               data: Belt_Array.zip(graphDisplay, graphBits),
-                              currentKey: currentKey
+                              currentKey: currentKey,
+                              onKeyChange: (function (newKey) {
+                                  Curry._1(setCurrentKey, (function (param) {
+                                          return newKey;
+                                        }));
+                                })
                             })), scaleNames === "" ? null : React.createElement("div", {
                             className: "w-full text-lg text-center mt-4 font-bold  text-[var(--accent)]"
                           }, "Scale: " + scaleNames + ""), modeNames === "" ? null : React.createElement("div", {
                             className: "w-full text-lg text-center font-bold text-[var(--accent)]"
                           }, "Mode: " + modeNames + ""), React.createElement(App$Card, {
-                          title: "Key",
-                          className: "mt-4",
-                          children: React.createElement("div", {
-                                className: "grid grid-cols-4 gap-2 w-full "
-                              }, Belt_Array.mapWithIndex(pitchKeys, (function (i, v) {
-                                      var selected = i === currentKey;
-                                      return React.createElement(App$StepButton, {
-                                                  selected: selected,
-                                                  onClick: (function (param) {
-                                                      Curry._1(setCurrentKey, (function (param) {
-                                                              return i;
-                                                            }));
-                                                    }),
-                                                  children: v,
-                                                  key: v
-                                                });
-                                    })))
-                        }), React.createElement(App$Card, {
                           title: "Step Display",
                           children: null
                         }, React.createElement(App$StepButton, {
@@ -803,7 +784,44 @@ function App(Props) {
                                             }));
                                     }),
                                   children: "Binary"
-                                }))))), React.createElement("div", {
+                                }))), React.createElement(App$Card, {
+                          title: "Number of notes",
+                          children: React.createElement("div", {
+                                className: "grid grid-cols-6 overflow-x-scroll gap-2"
+                              }, Belt_Array.map([
+                                    1,
+                                    2,
+                                    3,
+                                    4,
+                                    5,
+                                    6,
+                                    7,
+                                    8,
+                                    9,
+                                    10,
+                                    11,
+                                    12
+                                  ], (function (num) {
+                                      return React.createElement(App$StepButton, {
+                                                  selected: Belt_Option.mapWithDefault(selectedGenus, false, (function (param) {
+                                                          return num === param[0];
+                                                        })),
+                                                  onClick: (function (param) {
+                                                      Curry._1(setSelectedGenus, (function (param) {
+                                                              return Belt_Option.flatMap(Belt_Array.get(Belt_MapInt.keysToArray(DataGeneration.result), num), (function (genusId) {
+                                                                            return Belt_Option.map(Belt_MapInt.get(DataGeneration.result, genusId), (function (species) {
+                                                                                          return [
+                                                                                                  genusId,
+                                                                                                  species
+                                                                                                ];
+                                                                                        }));
+                                                                          }));
+                                                            }));
+                                                    }),
+                                                  children: String(num)
+                                                });
+                                    })))
+                        }))), React.createElement("div", {
                   className: "flex-1 sm:flex-1 h-full overflow-scroll xs:px-2"
                 }, React.createElement("div", {
                       className: "sm:max-w-[500px] pt-2"
@@ -833,30 +851,6 @@ function App(Props) {
                                               className: [collapsedState ? "hidden" : ""].join(" ")
                                             }, React.createElement(make$3, {})));
                             })
-                        }), React.createElement(App$Card, {
-                          title: "Number of notes",
-                          children: React.createElement("div", {
-                                className: "flex flex-row overflow-x-scroll gap-2"
-                              }, Belt_Array.map(Belt_Array.range(1, DataGeneration.Config.bits), (function (num) {
-                                      return React.createElement(App$StepButton, {
-                                                  selected: Belt_Option.mapWithDefault(selectedGenus, false, (function (param) {
-                                                          return num === param[0];
-                                                        })),
-                                                  onClick: (function (param) {
-                                                      Curry._1(setSelectedGenus, (function (param) {
-                                                              return Belt_Option.flatMap(Belt_Array.get(Belt_MapInt.keysToArray(DataGeneration.result), num), (function (genusId) {
-                                                                            return Belt_Option.map(Belt_MapInt.get(DataGeneration.result, genusId), (function (species) {
-                                                                                          return [
-                                                                                                  genusId,
-                                                                                                  species
-                                                                                                ];
-                                                                                        }));
-                                                                          }));
-                                                            }));
-                                                    }),
-                                                  children: String(num)
-                                                });
-                                    })))
                         }), Belt_Option.mapWithDefault(selectedGenus, null, (function (param) {
                             var species = param[1];
                             var genusId = param[0];
