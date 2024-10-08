@@ -507,6 +507,51 @@ module Species = {
 //   }
 // }
 
+module StepDisplay = {
+  @react.component
+  let make = (~currentStepDisplay, ~setCurrentStepDisplay) => {
+    <Card title={"Step Display"}>
+      <StepButton
+        selected={currentStepDisplay == Key} onClick={_ => setCurrentStepDisplay(_ => Key)}>
+        {"Key"->str}
+      </StepButton>
+      <div className="grid grid-cols-3 gap-2 w-full pb-2 pt-2">
+        <StepButton
+          selected={currentStepDisplay == MinMaj} onClick={_ => setCurrentStepDisplay(_ => MinMaj)}>
+          {"Min-Maj"->str}
+        </StepButton>
+        <StepButton
+          selected={currentStepDisplay == DimAug} onClick={_ => setCurrentStepDisplay(_ => DimAug)}>
+          {"Dim-Aug"->str}
+        </StepButton>
+        <StepButton
+          selected={currentStepDisplay == Semitone}
+          onClick={_ => setCurrentStepDisplay(_ => Semitone)}>
+          {"Semitone"->str}
+        </StepButton>
+      </div>
+      <div className="grid grid-cols-2 gap-2 w-full pb-2">
+        <StepButton
+          selected={currentStepDisplay == SemitoneSteps}
+          onClick={_ => setCurrentStepDisplay(_ => SemitoneSteps)}>
+          {"Semitone Steps"->str}
+        </StepButton>
+        <StepButton
+          selected={currentStepDisplay == HalfnoteSteps}
+          onClick={_ => setCurrentStepDisplay(_ => HalfnoteSteps)}>
+          {"Halfnote Steps"->str}
+        </StepButton>
+      </div>
+      <div className={" "}>
+        <StepButton
+          selected={currentStepDisplay == Binary} onClick={_ => setCurrentStepDisplay(_ => Binary)}>
+          {"Binary"->str}
+        </StepButton>
+      </div>
+    </Card>
+  }
+}
+
 @react.component
 let make = () => {
   let (currentBits, setCurrentBits) = React.useState(_ => None)
@@ -621,48 +666,7 @@ let make = () => {
           : <div className="w-full text-lg text-center font-bold text-[var(--accent)]">
               {`Mode: ${modeNames}`->str}
             </div>}
-        <Card title={"Step Display"}>
-          <StepButton
-            selected={currentStepDisplay == Key} onClick={_ => setCurrentStepDisplay(_ => Key)}>
-            {"Key"->str}
-          </StepButton>
-          <div className="grid grid-cols-3 gap-2 w-full pb-2 pt-2">
-            <StepButton
-              selected={currentStepDisplay == MinMaj}
-              onClick={_ => setCurrentStepDisplay(_ => MinMaj)}>
-              {"Min-Maj"->str}
-            </StepButton>
-            <StepButton
-              selected={currentStepDisplay == DimAug}
-              onClick={_ => setCurrentStepDisplay(_ => DimAug)}>
-              {"Dim-Aug"->str}
-            </StepButton>
-            <StepButton
-              selected={currentStepDisplay == Semitone}
-              onClick={_ => setCurrentStepDisplay(_ => Semitone)}>
-              {"Semitone"->str}
-            </StepButton>
-          </div>
-          <div className="grid grid-cols-2 gap-2 w-full pb-2">
-            <StepButton
-              selected={currentStepDisplay == SemitoneSteps}
-              onClick={_ => setCurrentStepDisplay(_ => SemitoneSteps)}>
-              {"Semitone Steps"->str}
-            </StepButton>
-            <StepButton
-              selected={currentStepDisplay == HalfnoteSteps}
-              onClick={_ => setCurrentStepDisplay(_ => HalfnoteSteps)}>
-              {"Halfnote Steps"->str}
-            </StepButton>
-          </div>
-          <div className={" "}>
-            <StepButton
-              selected={currentStepDisplay == Binary}
-              onClick={_ => setCurrentStepDisplay(_ => Binary)}>
-              {"Binary"->str}
-            </StepButton>
-          </div>
-        </Card>
+        <StepDisplay setCurrentStepDisplay currentStepDisplay />
         <Card title={"Number of notes"}>
           <div className="grid grid-cols-6 overflow-x-scroll gap-2">
             {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]->reactMap(num => {
@@ -684,7 +688,7 @@ let make = () => {
               <div className={"my-2 flex flex-row justify-between items-center"}>
                 <button
                   onClick={_ => setCollapsedState(s => !s)}
-                  className={`px-3 py-1 font-bold border border-neutral-300 rounded-lg 
+                  className={`px-3 py-1 font-bold rounded-lg  bg-[var(--card)]
               flex flex-row justify-center items-center gap-1`}>
                   {"About Topotonic"->str}
                   {collapsedState ? <ChevronDown /> : <ChevronUp />}

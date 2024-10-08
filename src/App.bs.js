@@ -605,6 +605,81 @@ var Species = {
   make: App$Species
 };
 
+function App$StepDisplay(Props) {
+  var currentStepDisplay = Props.currentStepDisplay;
+  var setCurrentStepDisplay = Props.setCurrentStepDisplay;
+  return React.createElement(App$Card, {
+              title: "Step Display",
+              children: null
+            }, React.createElement(App$StepButton, {
+                  selected: currentStepDisplay === /* Key */0,
+                  onClick: (function (param) {
+                      Curry._1(setCurrentStepDisplay, (function (param) {
+                              return /* Key */0;
+                            }));
+                    }),
+                  children: "Key"
+                }), React.createElement("div", {
+                  className: "grid grid-cols-3 gap-2 w-full pb-2 pt-2"
+                }, React.createElement(App$StepButton, {
+                      selected: currentStepDisplay === /* MinMaj */1,
+                      onClick: (function (param) {
+                          Curry._1(setCurrentStepDisplay, (function (param) {
+                                  return /* MinMaj */1;
+                                }));
+                        }),
+                      children: "Min-Maj"
+                    }), React.createElement(App$StepButton, {
+                      selected: currentStepDisplay === /* DimAug */2,
+                      onClick: (function (param) {
+                          Curry._1(setCurrentStepDisplay, (function (param) {
+                                  return /* DimAug */2;
+                                }));
+                        }),
+                      children: "Dim-Aug"
+                    }), React.createElement(App$StepButton, {
+                      selected: currentStepDisplay === /* Semitone */3,
+                      onClick: (function (param) {
+                          Curry._1(setCurrentStepDisplay, (function (param) {
+                                  return /* Semitone */3;
+                                }));
+                        }),
+                      children: "Semitone"
+                    })), React.createElement("div", {
+                  className: "grid grid-cols-2 gap-2 w-full pb-2"
+                }, React.createElement(App$StepButton, {
+                      selected: currentStepDisplay === /* SemitoneSteps */4,
+                      onClick: (function (param) {
+                          Curry._1(setCurrentStepDisplay, (function (param) {
+                                  return /* SemitoneSteps */4;
+                                }));
+                        }),
+                      children: "Semitone Steps"
+                    }), React.createElement(App$StepButton, {
+                      selected: currentStepDisplay === /* HalfnoteSteps */5,
+                      onClick: (function (param) {
+                          Curry._1(setCurrentStepDisplay, (function (param) {
+                                  return /* HalfnoteSteps */5;
+                                }));
+                        }),
+                      children: "Halfnote Steps"
+                    })), React.createElement("div", {
+                  className: " "
+                }, React.createElement(App$StepButton, {
+                      selected: currentStepDisplay === /* Binary */6,
+                      onClick: (function (param) {
+                          Curry._1(setCurrentStepDisplay, (function (param) {
+                                  return /* Binary */6;
+                                }));
+                        }),
+                      children: "Binary"
+                    })));
+}
+
+var StepDisplay = {
+  make: App$StepDisplay
+};
+
 function App(Props) {
   var match = React.useState(function () {
         
@@ -624,7 +699,6 @@ function App(Props) {
   var match$3 = React.useState(function () {
         return /* Key */0;
       });
-  var setCurrentStepDisplay = match$3[1];
   var currentStepDisplay = match$3[0];
   var match$4 = React.useState(function () {
         return false;
@@ -729,72 +803,10 @@ function App(Props) {
                             className: "w-full text-lg text-center mt-4 font-bold  text-[var(--accent)]"
                           }, "Scale: " + scaleNames + ""), modeNames === "" ? null : React.createElement("div", {
                             className: "w-full text-lg text-center font-bold text-[var(--accent)]"
-                          }, "Mode: " + modeNames + ""), React.createElement(App$Card, {
-                          title: "Step Display",
-                          children: null
-                        }, React.createElement(App$StepButton, {
-                              selected: currentStepDisplay === /* Key */0,
-                              onClick: (function (param) {
-                                  Curry._1(setCurrentStepDisplay, (function (param) {
-                                          return /* Key */0;
-                                        }));
-                                }),
-                              children: "Key"
-                            }), React.createElement("div", {
-                              className: "grid grid-cols-3 gap-2 w-full pb-2 pt-2"
-                            }, React.createElement(App$StepButton, {
-                                  selected: currentStepDisplay === /* MinMaj */1,
-                                  onClick: (function (param) {
-                                      Curry._1(setCurrentStepDisplay, (function (param) {
-                                              return /* MinMaj */1;
-                                            }));
-                                    }),
-                                  children: "Min-Maj"
-                                }), React.createElement(App$StepButton, {
-                                  selected: currentStepDisplay === /* DimAug */2,
-                                  onClick: (function (param) {
-                                      Curry._1(setCurrentStepDisplay, (function (param) {
-                                              return /* DimAug */2;
-                                            }));
-                                    }),
-                                  children: "Dim-Aug"
-                                }), React.createElement(App$StepButton, {
-                                  selected: currentStepDisplay === /* Semitone */3,
-                                  onClick: (function (param) {
-                                      Curry._1(setCurrentStepDisplay, (function (param) {
-                                              return /* Semitone */3;
-                                            }));
-                                    }),
-                                  children: "Semitone"
-                                })), React.createElement("div", {
-                              className: "grid grid-cols-2 gap-2 w-full pb-2"
-                            }, React.createElement(App$StepButton, {
-                                  selected: currentStepDisplay === /* SemitoneSteps */4,
-                                  onClick: (function (param) {
-                                      Curry._1(setCurrentStepDisplay, (function (param) {
-                                              return /* SemitoneSteps */4;
-                                            }));
-                                    }),
-                                  children: "Semitone Steps"
-                                }), React.createElement(App$StepButton, {
-                                  selected: currentStepDisplay === /* HalfnoteSteps */5,
-                                  onClick: (function (param) {
-                                      Curry._1(setCurrentStepDisplay, (function (param) {
-                                              return /* HalfnoteSteps */5;
-                                            }));
-                                    }),
-                                  children: "Halfnote Steps"
-                                })), React.createElement("div", {
-                              className: " "
-                            }, React.createElement(App$StepButton, {
-                                  selected: currentStepDisplay === /* Binary */6,
-                                  onClick: (function (param) {
-                                      Curry._1(setCurrentStepDisplay, (function (param) {
-                                              return /* Binary */6;
-                                            }));
-                                    }),
-                                  children: "Binary"
-                                }))), React.createElement(App$Card, {
+                          }, "Mode: " + modeNames + ""), React.createElement(App$StepDisplay, {
+                          currentStepDisplay: currentStepDisplay,
+                          setCurrentStepDisplay: match$3[1]
+                        }), React.createElement(App$Card, {
                           title: "Number of notes",
                           children: React.createElement("div", {
                                 className: "grid grid-cols-6 overflow-x-scroll gap-2"
@@ -833,7 +845,7 @@ function App(Props) {
                               return React.createElement("div", undefined, React.createElement("div", {
                                               className: "my-2 flex flex-row justify-between items-center"
                                             }, React.createElement("button", {
-                                                  className: "px-3 py-1 font-bold border border-neutral-300 rounded-lg \n              flex flex-row justify-center items-center gap-1",
+                                                  className: "px-3 py-1 font-bold rounded-lg  bg-[var(--card)]\n              flex flex-row justify-center items-center gap-1",
                                                   onClick: (function (param) {
                                                       Curry._1(setCollapsedState, (function (s) {
                                                               return !s;
@@ -919,6 +931,7 @@ export {
   triggerAttackRelease ,
   Scale ,
   Species ,
+  StepDisplay ,
   make$4 as make,
   $$default ,
   $$default as default,
