@@ -94,7 +94,7 @@ const RadialText = ({
         dominantBaseline={"middle"}
         textAnchor={"middle"}
         fontSize={5}
-        fill={selected ? "var(--accent)" : tailwindColors[plainColor][800]}
+        fill={selected ? "var(--accent)" : "currentColor"}
         className={selected ? "font-black" : "font-medium"}
       >
         {text}
@@ -162,7 +162,7 @@ export const SVG = ({ data, currentKey = 0, onKeyChange }) => {
         strokeWidth={0.5}
         r={radius}
         fill="none"
-        stroke={tailwindColors[plainColor][800]}
+        stroke={"currentColor"}
       />
       {data.map(([label, bit], i) => {
         const selected = bit === 1;
@@ -176,7 +176,7 @@ export const SVG = ({ data, currentKey = 0, onKeyChange }) => {
               end={radius * 1.1}
               deg={i * orderDegree}
               strokeWidth={0.5}
-              color={tailwindColors[plainColor][800]}
+              color={"currentColor"}
             />
             {selected ? (
               <RadialLine

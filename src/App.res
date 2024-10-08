@@ -196,9 +196,7 @@ module Card = {
         " rounded-xl p-2 pb-3 pt-1 mt-2 overflow-hidden bg-[var(--card)]",
         className,
       ]->join}>
-      <div className="w-full text-center pb-2 font-bold text-xl text-[var(--card-title)] ">
-        {title->str}
-      </div>
+      <div className="w-full text-center pb-2 font-bold text-xl "> {title->str} </div>
       <div className={""}> {children} </div>
     </div>
   }

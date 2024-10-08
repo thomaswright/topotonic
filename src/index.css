@@ -5,10 +5,12 @@
 :root {
   --pink: #ffaf8d;
   --blue: #0083b1;
+
   background-color: #ffefda;
+  color: #280d00;
+
   --logo: var(--blue);
   --card: #ffdcb5;
-  --card-title: #000;
   --card-select-bg: var(--pink);
   --species-bg: var(--pink);
   --species-open-bg: var(--pink);

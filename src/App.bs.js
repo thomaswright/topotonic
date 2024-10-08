@@ -308,7 +308,7 @@ function App$Card(Props) {
                   className
                 ].join(" ")
             }, React.createElement("div", {
-                  className: "w-full text-center pb-2 font-bold text-xl text-[var(--card-title)] "
+                  className: "w-full text-center pb-2 font-bold text-xl "
                 }, title), React.createElement("div", {
                   className: ""
                 }, children));
