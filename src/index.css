@@ -3,15 +3,17 @@
 @tailwind utilities;
 
 :root {
-  background-color: hsl(37, 100%, 92%);
-  --logo: hsl(208, 100%, 35%);
-  --card: hsl(37, 100%, 82%);
+  --pink: #ffaf8d;
+  --blue: #0083b1;
+  background-color: #ffefda;
+  --logo: var(--blue);
+  --card: #ffdcb5;
   --card-title: #000;
-  --card-select-bg: hsl(37, 87%, 55%);
-  --species-bg: hsl(37, 87%, 55%);
-  --species-open-bg: hsl(37, 87%, 55%);
+  --card-select-bg: var(--pink);
+  --species-bg: var(--pink);
+  --species-open-bg: var(--pink);
 
-  --accent: hsl(208, 100%, 35%);
+  --accent: var(--blue);
 }
 
 body {

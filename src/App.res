@@ -83,20 +83,22 @@ let getGridCols = x =>
   }
 
 module IntervalRefs = {
-  let pitchKeys = [
-    `C`,
-    `C♯ D♭`,
-    `D`,
-    `D♯ E♭`,
-    `E`,
-    `F`,
-    `F♯ G♭`,
-    `G`,
-    `G♯ A♭`,
-    `A`,
-    `A♯ B♭`,
-    `B`,
-  ]
+  //   let pitchKeys = [
+  //   `C`,
+  //   `C♯ D♭`,
+  //   `D`,
+  //   `D♯ E♭`,
+  //   `E`,
+  //   `F`,
+  //   `F♯ G♭`,
+  //   `G`,
+  //   `G♯ A♭`,
+  //   `A`,
+  //   `A♯ B♭`,
+  //   `B`,
+  // ]
+
+  let pitchKeys = [`C`, `C♯ `, `D`, `E♭`, `E`, `F`, `F♯ `, `G`, `A♭`, `A`, `B♭`, `B`]
 
   let pitchKeysShort = [`C`, `C♯`, `D`, `D♯`, `E`, `F`, `F♯`, `G`, `G♯`, `A`, `A♯`, `B`]
   let semitones = [`0`, `1`, `2`, `3`, `4`, `5`, `6`, `7`, `8`, `9`, `10`, `11`]
@@ -366,7 +368,7 @@ module Species = {
 
         <div
           className={[
-            " py-1 rounded-xl mb-2",
+            " py-1 rounded-xl mb-2 cursor-pointer ",
             speciesHidden ? "bg-[var(--species-bg)] " : "bg-[var(--species-open-bg)] ",
           ]->join}>
           {speciesHidden
@@ -508,12 +510,20 @@ module Species = {
 @react.component
 let make = () => {
   let (currentBits, setCurrentBits) = React.useState(_ => None)
-  let (selectedGenus, setSelectedGenus) = React.useState(_ => None)
-
+  let (selectedNoteNum: option<int>, setSelectedNoteNum) = React.useState(_ => Some(7))
   let (currentKey: int, setCurrentKey) = React.useState(_ => 0)
   let (currentStepDisplay: stepDisplay, setCurrentStepDisplay) = React.useState(_ => Key)
-
   let (showNonModes, setShowNonModes) = React.useState(_ => false)
+
+  let selectedGenus =
+    selectedNoteNum->Option.flatMap(selectedNoteNum =>
+      result
+      ->Map.Int.keysToArray
+      ->Array.get(selectedNoteNum)
+      ->Option.flatMap(genusId =>
+        result->Map.Int.get(genusId)->Option.map(species => (genusId, species))
+      )
+    )
 
   let graphDisplay = {
     switch currentStepDisplay {
@@ -620,17 +630,17 @@ let make = () => {
             <StepButton
               selected={currentStepDisplay == MinMaj}
               onClick={_ => setCurrentStepDisplay(_ => MinMaj)}>
-              {"Min-Maj Int."->str}
+              {"Min-Maj"->str}
             </StepButton>
             <StepButton
               selected={currentStepDisplay == DimAug}
               onClick={_ => setCurrentStepDisplay(_ => DimAug)}>
-              {"Dim-Aug Int."->str}
+              {"Dim-Aug"->str}
             </StepButton>
             <StepButton
               selected={currentStepDisplay == Semitone}
               onClick={_ => setCurrentStepDisplay(_ => Semitone)}>
-              {"Semitone Int."->str}
+              {"Semitone"->str}
             </StepButton>
           </div>
           <div className="grid grid-cols-2 gap-2 w-full pb-2">
@@ -657,17 +667,8 @@ let make = () => {
           <div className="grid grid-cols-6 overflow-x-scroll gap-2">
             {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]->reactMap(num => {
               <StepButton
-                selected={selectedGenus->Option.mapWithDefault(false, ((i, _)) => num == i)}
-                onClick={_ =>
-                  setSelectedGenus(_ =>
-                    result
-                    ->Map.Int.keysToArray
-                    ->Array.get(num)
-                    ->Option.flatMap(
-                      genusId =>
-                        result->Map.Int.get(genusId)->Option.map(species => (genusId, species)),
-                    )
-                  )}>
+                selected={selectedNoteNum->Option.mapWithDefault(false, i => num == i)}
+                onClick={_ => setSelectedNoteNum(_ => Some(num))}>
                 {num->Int.toString->str}
               </StepButton>
             })}

@@ -192,25 +192,23 @@ export const SVG = ({ data, currentKey = 0, onKeyChange }) => {
           </React.Fragment>
         );
       })}
-      {["C", "Cs", "D", "Ef", "E", "F", "Fs", "G", "Ab", "A", "Bb", "B"].map(
-        (label, i) => {
-          let selected = cycledData[i][1] == 1;
-          return (
-            <React.Fragment key={label + "notes"}>
-              <RadialText
-                currentKey={currentKey}
-                selected={selected}
-                x={center.x}
-                y={center.y}
-                radius={radius * 1.2}
-                deg={i * orderDegree}
-                text={label}
-                onClick={(_) => onKeyChange(i)}
-              />
-            </React.Fragment>
-          );
-        }
-      )}
+      {cycledData.map(([label, bit], i) => {
+        let selected = bit == 1;
+        return (
+          <React.Fragment key={label + "notes"}>
+            <RadialText
+              currentKey={currentKey}
+              selected={selected}
+              x={center.x}
+              y={center.y}
+              radius={radius * 1.2}
+              deg={i * orderDegree}
+              text={label}
+              onClick={(_) => onKeyChange(i)}
+            />
+          </React.Fragment>
+        );
+      })}
     </svg>
   );
 };

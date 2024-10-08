@@ -102,16 +102,16 @@ function getGridCols(x) {
 
 var pitchKeys = [
   "C",
-  "C♯ D♭",
+  "C♯ ",
   "D",
-  "D♯ E♭",
+  "E♭",
   "E",
   "F",
-  "F♯ G♭",
+  "F♯ ",
   "G",
-  "G♯ A♭",
+  "A♭",
   "A",
-  "A♯ B♭",
+  "B♭",
   "B"
 ];
 
@@ -504,7 +504,7 @@ function App$Species(Props) {
                   };
                   return React.createElement("div", {
                               className: [
-                                  " py-1 rounded-xl mb-2",
+                                  " py-1 rounded-xl mb-2 cursor-pointer ",
                                   speciesHidden ? "bg-[var(--species-bg)] " : "bg-[var(--species-open-bg)] "
                                 ].join(" ")
                             }, speciesHidden ? React.createElement("div", {
@@ -612,10 +612,10 @@ function App(Props) {
   var setCurrentBits = match[1];
   var currentBits = match[0];
   var match$1 = React.useState(function () {
-        
+        return 7;
       });
-  var setSelectedGenus = match$1[1];
-  var selectedGenus = match$1[0];
+  var setSelectedNoteNum = match$1[1];
+  var selectedNoteNum = match$1[0];
   var match$2 = React.useState(function () {
         return 0;
       });
@@ -631,6 +631,16 @@ function App(Props) {
       });
   var setShowNonModes = match$4[1];
   var showNonModes = match$4[0];
+  var selectedGenus = Belt_Option.flatMap(selectedNoteNum, (function (selectedNoteNum) {
+          return Belt_Option.flatMap(Belt_Array.get(Belt_MapInt.keysToArray(DataGeneration.result), selectedNoteNum), (function (genusId) {
+                        return Belt_Option.map(Belt_MapInt.get(DataGeneration.result, genusId), (function (species) {
+                                      return [
+                                              genusId,
+                                              species
+                                            ];
+                                    }));
+                      }));
+        }));
   var graphDisplay;
   switch (currentStepDisplay) {
     case /* Key */0 :
@@ -739,7 +749,7 @@ function App(Props) {
                                               return /* MinMaj */1;
                                             }));
                                     }),
-                                  children: "Min-Maj Int."
+                                  children: "Min-Maj"
                                 }), React.createElement(App$StepButton, {
                                   selected: currentStepDisplay === /* DimAug */2,
                                   onClick: (function (param) {
@@ -747,7 +757,7 @@ function App(Props) {
                                               return /* DimAug */2;
                                             }));
                                     }),
-                                  children: "Dim-Aug Int."
+                                  children: "Dim-Aug"
                                 }), React.createElement(App$StepButton, {
                                   selected: currentStepDisplay === /* Semitone */3,
                                   onClick: (function (param) {
@@ -755,7 +765,7 @@ function App(Props) {
                                               return /* Semitone */3;
                                             }));
                                     }),
-                                  children: "Semitone Int."
+                                  children: "Semitone"
                                 })), React.createElement("div", {
                               className: "grid grid-cols-2 gap-2 w-full pb-2"
                             }, React.createElement(App$StepButton, {
@@ -803,19 +813,12 @@ function App(Props) {
                                     12
                                   ], (function (num) {
                                       return React.createElement(App$StepButton, {
-                                                  selected: Belt_Option.mapWithDefault(selectedGenus, false, (function (param) {
-                                                          return num === param[0];
+                                                  selected: Belt_Option.mapWithDefault(selectedNoteNum, false, (function (i) {
+                                                          return num === i;
                                                         })),
                                                   onClick: (function (param) {
-                                                      Curry._1(setSelectedGenus, (function (param) {
-                                                              return Belt_Option.flatMap(Belt_Array.get(Belt_MapInt.keysToArray(DataGeneration.result), num), (function (genusId) {
-                                                                            return Belt_Option.map(Belt_MapInt.get(DataGeneration.result, genusId), (function (species) {
-                                                                                          return [
-                                                                                                  genusId,
-                                                                                                  species
-                                                                                                ];
-                                                                                        }));
-                                                                          }));
+                                                      Curry._1(setSelectedNoteNum, (function (param) {
+                                                              return num;
                                                             }));
                                                     }),
                                                   children: String(num)
