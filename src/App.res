@@ -240,7 +240,7 @@ module Scale = {
       <div
         key={i->Int.toString}
         className={[
-          "col-span-1 flex flex-row items-center justify-center min-w-[2rem]",
+          "w-6 flex flex-row items-center justify-center ",
           "",
           switch kind {
           | Species => " "
@@ -251,7 +251,7 @@ module Scale = {
         {content}
       </div>
 
-    <div className={["flex-1 grid ", gridCols]->join}>
+    <div className={["flex-none flex-row flex justify-center w-full"]->join}>
       {switch currentStepDisplay {
       | SemitoneSteps =>
         bitString
@@ -364,27 +364,41 @@ module Species = {
           )
         }
 
+        let speciesNamesComp =
+          <div
+            className={[
+              " text-[var(--species-text)]  flex-1 text-ellipsis overflow-hidden  whitespace-nowrap ",
+              anySelected ? "font-black" : "",
+            ]->join}>
+            {speciesNames->str}
+          </div>
+
         <div
           className={[
-            " rounded-xl mb-2 cursor-pointer ",
+            " rounded-xl mb-2 cursor-pointer font-bold",
             speciesHidden ? "bg-[var(--species-bg)] " : "bg-[var(--species-open-bg)] ",
           ]->join}>
           {speciesHidden
-            ? <div className={["font-bold"]->join} onClick={onClickHeader}>
-                {speciesNames == ""
-                  ? speciesModeNames != ""
-                      ? <div
-                          className="text-sm px-3 text-center text-ellipsis overflow-hidden whitespace-nowrap">
-                          {("Modes: " ++ speciesModeNames)->str}
-                        </div>
-                      : React.null
-                  : <div className="flex flex-row justify-center items-center pb-1">
-                      <div
-                        className="text-lg flex-none overflow-x-hidden text-ellipsis whitespace-nowrap px-1">
-                        {speciesNames->str}
-                      </div>
-                    </div>}
-                <div className="flex flex-row bg-[var(--species-scales)] rounded-xl py-1">
+            ? <div className={[""]->join} onClick={onClickHeader}>
+                {if speciesNames != "" {
+                  <div
+                    className={[
+                      " flex flex-row justify-start tracking-tight  items-center pt-1 px-3",
+                    ]->join}>
+                    {speciesNamesComp}
+                  </div>
+                } else if speciesModeNames != "" {
+                  <div className=" flex flex-row justify-start items-center  pt-1 px-3">
+                    <div
+                      className="text-[var(--species-text)]  flex-1 text-ellipsis overflow-hidden whitespace-nowrap">
+                      {("Modes: " ++ speciesModeNames)->str}
+                    </div>
+                  </div>
+                } else {
+                  React.null
+                }}
+                <div
+                  className="flex flex-row bg-[var(--species-scales)] rounded-xl py-1 font-medium">
                   <Scale
                     selected={false}
                     currentKey={currentKey}
@@ -399,21 +413,16 @@ module Species = {
               </div>
             : <div>
                 <div
-                  className=""
                   onClick={_ => {
                     setSpeciesHidden(_ => true)
-                  }}>
-                  <div
-                    className={"text-lg flex-none font-bold flex flex-row items-center justify-center"}>
-                    {speciesNames->str}
-                  </div>
+                  }}
+                  className=" flex flex-row justify-start items-center px-3 pt-1">
+                  {speciesNamesComp}
                   <div className={"flex flex-row items-center justify-center gap-2"}>
                     <div className="flex-none">
                       {speciesDetails.isSymmetric ? <Symmetry /> : React.null}
                     </div>
-                    <div className="flex-none text-sm font-medium tracking-wide ">
-                      {`SCALE ${scaleName}`->str}
-                    </div>
+                    <div className="flex-none text-sm tracking-wide "> {`#${scaleName}`->str} </div>
                   </div>
                 </div>
                 <div className="p-2 pt-0 bg-[var(--species-scales)] rounded-xl">
@@ -445,7 +454,7 @@ module Species = {
                         ->Option.mapWithDefault([], ((_, modeNames)) =>
                           modeNames->Array.map(((_, name)) => name)
                         )
-                        ->Js.Array2.joinWith(", ")
+                        ->Js.Array2.joinWith(" • ")
 
                       {
                         modeKind == NonMode && !showNonModes
@@ -456,22 +465,12 @@ module Species = {
                               key={modeId}
                               className={[
                                 "flex flex-col py-1 sm:justify-start justify-center ",
-                                selected ? "font-bold" : "",
-                                switch modeKind {
-                                | Mode => selected ? "text-[var(--accent)] " : "text-plain-700"
-                                | NonMode =>
-                                  selected
-                                    ? "bg-plain-50 text-[var(--accent)]"
-                                    : "bg-plain-50 text-plain-300"
-                                | _ => ""
-                                },
+                                selected
+                                  ? "text-[var(--accent)] bg-[var(--scale-highlight)] font-black"
+                                  : modeKind == NonMode
+                                  ? "text-neutral-400 font-medium "
+                                  : "  font-medium",
                               ]->join}>
-                              {modeNames == ""
-                                ? React.null
-                                : <div
-                                    className={"flex flex-row items-center text-xs px-3 py-0.5 justify-center flex-1"}>
-                                    {modeNames->str}
-                                  </div>}
                               <Scale
                                 selected={selected}
                                 currentKey={currentKey}
@@ -479,6 +478,17 @@ module Species = {
                                 bitString={modeId}
                                 kind={modeKind}
                               />
+                              {modeNames == ""
+                                ? React.null
+                                : <div
+                                    className={[
+                                      "flex flex-row tracking-tight items-center text-xs px-3 py-0.5 flex-1",
+                                      selected
+                                        ? " text-[var(--species-text)] "
+                                        : "   text-[var(--species-text)]",
+                                    ]->join}>
+                                    {modeNames->str}
+                                  </div>}
                             </div>
                       }
                     })}

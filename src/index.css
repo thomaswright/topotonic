@@ -17,6 +17,8 @@
   --species-bg: var(--light);
   --species-open-bg: var(--light);
   --species-scales: var(--pink);
+  --species-text: #9f2222;
+  --scale-highlight: transparent;
 
   --accent: var(--blue);
 }

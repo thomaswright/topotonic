@@ -359,7 +359,7 @@ function App$Scale(Props) {
   } else {
     tmp = 12;
   }
-  var gridCols = getGridCols(tmp);
+  getGridCols(tmp);
   var container = function (i, content) {
     var tmp;
     switch (kind) {
@@ -375,7 +375,7 @@ function App$Scale(Props) {
     return React.createElement("div", {
                 key: String(i),
                 className: [
-                    "col-span-1 flex flex-row items-center justify-center min-w-[2rem]",
+                    "w-6 flex flex-row items-center justify-center ",
                     "",
                     tmp
                   ].join(" ")
@@ -407,10 +407,7 @@ function App$Scale(Props) {
           }));
   }
   return React.createElement("div", {
-              className: [
-                  "flex-1 grid ",
-                  gridCols
-                ].join(" ")
+              className: ["flex-none flex-row flex justify-center w-full"].join(" ")
             }, tmp$1);
 }
 
@@ -502,24 +499,30 @@ function App$Species(Props) {
                                   }));
                           }));
                   };
+                  var speciesNamesComp = React.createElement("div", {
+                        className: [
+                            " text-[var(--species-text)]  flex-1 text-ellipsis overflow-hidden  whitespace-nowrap ",
+                            anySelected ? "font-black" : ""
+                          ].join(" ")
+                      }, speciesNames);
                   return React.createElement("div", {
                               className: [
-                                  " rounded-xl mb-2 cursor-pointer ",
+                                  " rounded-xl mb-2 cursor-pointer font-bold",
                                   speciesHidden ? "bg-[var(--species-bg)] " : "bg-[var(--species-open-bg)] "
                                 ].join(" ")
                             }, speciesHidden ? React.createElement("div", {
-                                    className: ["font-bold"].join(" "),
+                                    className: [""].join(" "),
                                     onClick: onClickHeader
-                                  }, speciesNames === "" ? (
+                                  }, speciesNames !== "" ? React.createElement("div", {
+                                          className: [" flex flex-row justify-start tracking-tight  items-center pt-1 px-3"].join(" ")
+                                        }, speciesNamesComp) : (
                                       speciesModeNames !== "" ? React.createElement("div", {
-                                              className: "text-sm px-3 text-center text-ellipsis overflow-hidden whitespace-nowrap"
-                                            }, "Modes: " + speciesModeNames) : null
-                                    ) : React.createElement("div", {
-                                          className: "flex flex-row justify-center items-center pb-1"
-                                        }, React.createElement("div", {
-                                              className: "text-lg flex-none overflow-x-hidden text-ellipsis whitespace-nowrap px-1"
-                                            }, speciesNames)), React.createElement("div", {
-                                        className: "flex flex-row bg-[var(--species-scales)] rounded-xl py-1"
+                                              className: " flex flex-row justify-start items-center  pt-1 px-3"
+                                            }, React.createElement("div", {
+                                                  className: "text-[var(--species-text)]  flex-1 text-ellipsis overflow-hidden whitespace-nowrap"
+                                                }, "Modes: " + speciesModeNames)) : null
+                                    ), React.createElement("div", {
+                                        className: "flex flex-row bg-[var(--species-scales)] rounded-xl py-1 font-medium"
                                       }, React.createElement(App$Scale, {
                                             bitString: speciesId,
                                             currentStepDisplay: currentStepDisplay,
@@ -527,21 +530,19 @@ function App$Species(Props) {
                                             kind: /* Species */0,
                                             selected: false
                                           }))) : React.createElement("div", undefined, React.createElement("div", {
-                                        className: "",
+                                        className: " flex flex-row justify-start items-center px-3 pt-1",
                                         onClick: (function (param) {
                                             Curry._1(setSpeciesHidden, (function (param) {
                                                     return true;
                                                   }));
                                           })
-                                      }, React.createElement("div", {
-                                            className: "text-lg flex-none font-bold flex flex-row items-center justify-center"
-                                          }, speciesNames), React.createElement("div", {
+                                      }, speciesNamesComp, React.createElement("div", {
                                             className: "flex flex-row items-center justify-center gap-2"
                                           }, React.createElement("div", {
                                                 className: "flex-none"
                                               }, speciesDetails.isSymmetric ? React.createElement(Bs.BsSymmetryVertical, {}) : null), React.createElement("div", {
-                                                className: "flex-none text-sm font-medium tracking-wide "
-                                              }, "SCALE " + scaleName + ""))), React.createElement("div", {
+                                                className: "flex-none text-sm tracking-wide "
+                                              }, "#" + scaleName + ""))), React.createElement("div", {
                                         className: "p-2 pt-0 bg-[var(--species-scales)] rounded-xl"
                                       }, React.createElement("div", {
                                             className: ["rounded-lg flex flex-col divide-y bg-white divide-[var(--species-open-bg)]"].join(" ")
@@ -560,44 +561,36 @@ function App$Species(Props) {
                                                             return Belt_Array.map(param[1], (function (param) {
                                                                           return param[1];
                                                                         }));
-                                                          })).join(", ");
+                                                          })).join(" • ");
                                                   if (modeKind === /* NonMode */2 && !showNonModes) {
                                                     return null;
+                                                  } else {
+                                                    return React.createElement("div", {
+                                                                key: modeId,
+                                                                className: [
+                                                                    "flex flex-col py-1 sm:justify-start justify-center ",
+                                                                    selected ? "text-[var(--accent)] bg-[var(--scale-highlight)] font-black" : (
+                                                                        modeKind === /* NonMode */2 ? "text-neutral-400 font-medium " : "  font-medium"
+                                                                      )
+                                                                  ].join(" "),
+                                                                onClick: (function (param) {
+                                                                    Curry._1(setCurrentBits, (function (param) {
+                                                                            return DataGeneration.BitOps.stringToIntArray(modeId);
+                                                                          }));
+                                                                  })
+                                                              }, React.createElement(App$Scale, {
+                                                                    bitString: modeId,
+                                                                    currentStepDisplay: currentStepDisplay,
+                                                                    currentKey: currentKey,
+                                                                    kind: modeKind,
+                                                                    selected: selected
+                                                                  }), modeNames === "" ? null : React.createElement("div", {
+                                                                      className: [
+                                                                          "flex flex-row tracking-tight items-center text-xs px-3 py-0.5 flex-1",
+                                                                          selected ? " text-[var(--species-text)] " : "   text-[var(--species-text)]"
+                                                                        ].join(" ")
+                                                                    }, modeNames));
                                                   }
-                                                  var tmp;
-                                                  switch (modeKind) {
-                                                    case /* Species */0 :
-                                                        tmp = "";
-                                                        break;
-                                                    case /* Mode */1 :
-                                                        tmp = selected ? "text-[var(--accent)] " : "text-plain-700";
-                                                        break;
-                                                    case /* NonMode */2 :
-                                                        tmp = selected ? "bg-plain-50 text-[var(--accent)]" : "bg-plain-50 text-plain-300";
-                                                        break;
-                                                    
-                                                  }
-                                                  return React.createElement("div", {
-                                                              key: modeId,
-                                                              className: [
-                                                                  "flex flex-col py-1 sm:justify-start justify-center ",
-                                                                  selected ? "font-bold" : "",
-                                                                  tmp
-                                                                ].join(" "),
-                                                              onClick: (function (param) {
-                                                                  Curry._1(setCurrentBits, (function (param) {
-                                                                          return DataGeneration.BitOps.stringToIntArray(modeId);
-                                                                        }));
-                                                                })
-                                                            }, modeNames === "" ? null : React.createElement("div", {
-                                                                    className: "flex flex-row items-center text-xs px-3 py-0.5 justify-center flex-1"
-                                                                  }, modeNames), React.createElement(App$Scale, {
-                                                                  bitString: modeId,
-                                                                  currentStepDisplay: currentStepDisplay,
-                                                                  currentKey: currentKey,
-                                                                  kind: modeKind,
-                                                                  selected: selected
-                                                                }));
                                                 }))))));
                 })
             });
