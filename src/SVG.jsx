@@ -1,6 +1,6 @@
 import React from "react";
 import tailwindColors from "tailwindcss/colors";
-
+import { useAutoAnimate } from "@formkit/auto-animate/react";
 const accentColor = "red";
 const plainColor = "slate";
 
@@ -64,23 +64,30 @@ function getTextAnchors12(deg) {
   }
 }
 
-const RadialText = ({ x, y, radius, deg, text, selected }) => {
-  let [dominantBaseline, textAnchor] = getTextAnchors12(deg);
+const RadialText = ({ x, y, radius, deg, text, selected, currentKey }) => {
+  // let [dominantBaseline, textAnchor] = getTextAnchors12(deg - currentKey * 30);
+  let angle = deg - 90 - currentKey * 30;
   return (
-    <g transform={`translate(${x} ${y}) `}>
-      <g transform={`rotate(${deg - 90}) translate(${radius} ${0}) `}>
-        <g transform={`rotate(${-(deg - 90)})  `}>
-          <text
-            dominantBaseline={dominantBaseline}
-            textAnchor={textAnchor}
-            fontSize={5}
-            fill={selected ? "var(--accent)" : tailwindColors[plainColor][800]}
-            className={selected ? "font-bold" : "font-medium"}
-          >
-            {text}
-          </text>
-        </g>
-      </g>
+    <g
+      style={{
+        transition: "transform 1s ease-in-out",
+        transform: `
+          translate(${x}px, ${y}px)
+          rotate(${angle}deg)
+          translate(${radius + 2}px, ${0}px)
+          rotate(${-angle}deg)
+          `,
+      }}
+    >
+      <text
+        dominantBaseline={"middle"}
+        textAnchor={"middle"}
+        fontSize={5}
+        fill={selected ? "var(--accent)" : tailwindColors[plainColor][800]}
+        className={selected ? "font-bold" : "font-medium"}
+      >
+        {text}
+      </text>
     </g>
   );
 };
@@ -115,7 +122,13 @@ const range = (start, end) => {
   return recurse([], start, end);
 };
 
-export const SVG = ({ data }) => {
+function cycleArray(arr, m) {
+  const n = arr.length;
+  const shift = ((m % n) + n) % n;
+  return arr.slice(-shift).concat(arr.slice(0, -shift));
+}
+
+export const SVG = ({ data, currentKey = 0 }) => {
   // console.log({ data });
   let order = data.length;
   let boxSize = 100;
@@ -128,6 +141,8 @@ export const SVG = ({ data }) => {
   };
 
   let radius = boxSize / 3.5;
+  console.log(data);
+  let cycledData = cycleArray(data, currentKey);
 
   return (
     <svg viewBox="0 0 100 80" xmlns="http://www.w3.org/2000/svg">
@@ -141,8 +156,9 @@ export const SVG = ({ data }) => {
       />
       {data.map(([label, bit], i) => {
         const selected = bit === 1;
+
         return (
-          <g key={i}>
+          <React.Fragment key={label + "lines"}>
             <RadialLine
               x={center.x}
               y={center.y}
@@ -151,14 +167,6 @@ export const SVG = ({ data }) => {
               deg={i * orderDegree}
               strokeWidth={0.5}
               color={tailwindColors[plainColor][800]}
-            />
-            <RadialText
-              selected={selected}
-              x={center.x}
-              y={center.y}
-              radius={radius * 1.2}
-              deg={i * orderDegree}
-              text={label}
             />
             {selected ? (
               <RadialLine
@@ -171,9 +179,27 @@ export const SVG = ({ data }) => {
                 color={"var(--accent)"}
               />
             ) : null}
-          </g>
+          </React.Fragment>
         );
       })}
+      {["C", "Cs", "D", "Ef", "E", "F", "Fs", "G", "Ab", "A", "Bb", "B"].map(
+        (label, i) => {
+          let selected = cycledData[i][1] == 1;
+          return (
+            <React.Fragment key={label + "notes"}>
+              <RadialText
+                currentKey={currentKey}
+                selected={selected}
+                x={center.x}
+                y={center.y}
+                radius={radius * 1.2}
+                deg={i * orderDegree}
+                text={label}
+              />
+            </React.Fragment>
+          );
+        }
+      )}
     </svg>
   );
 };

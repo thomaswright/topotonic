@@ -21,7 +21,7 @@ module Logo = {
 
 module SVG = {
   @module("./SVG.jsx") @react.component
-  external make: (~data: array<(string, int)>) => React.element = "SVG"
+  external make: (~data: array<(string, int)>, ~currentKey: int) => React.element = "SVG"
 }
 
 module Symmetry = {
@@ -239,7 +239,7 @@ module Scale = {
       <div
         key={i->Int.toString}
         className={[
-          "col-span-1 flex flex-row items-center justify-center min-w-[2rem] ",
+          "col-span-1 flex flex-row items-center justify-center min-w-[2rem]",
           "",
           switch kind {
           | Species => " "
@@ -363,7 +363,11 @@ module Species = {
           )
         }
 
-        <div className={[" py-1 bg-[var(--species-bg)] rounded-xl mb-2"]->join}>
+        <div
+          className={[
+            " py-1 rounded-xl mb-2",
+            speciesHidden ? "bg-[var(--species-bg)] " : "bg-[var(--species-open-bg)] ",
+          ]->join}>
           {speciesHidden
             ? <div className={["font-bold"]->join} onClick={onClickHeader}>
                 {speciesNames == ""
@@ -413,7 +417,7 @@ module Species = {
                 </div>
                 <div
                   className={[
-                    "my-1 mx-2 rounded-lg flex flex-col divide-y bg-white divide-[var(--species-bg)]",
+                    "my-1 mx-2 rounded-lg flex flex-col divide-y bg-white divide-[var(--species-open-bg)]",
                   ]->join}>
                   {speciesDetails.modes->reactMapWithIndex((_i, (modeId, _rotationDegrees)) => {
                     let selected =
@@ -574,7 +578,7 @@ let make = () => {
       </div>
       <div className=" sm:max-h-min  max-w-[500px] w-full">
         <div className={"pt-2 w-full self-center"}>
-          <SVG data={Array.zip(graphDisplay, graphBits)} />
+          <SVG data={Array.zip(graphDisplay, graphBits)} currentKey={currentKey} />
         </div>
         {scaleNames == ""
           ? React.null

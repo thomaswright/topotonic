@@ -381,7 +381,7 @@ function App$Scale(Props) {
     return React.createElement("div", {
                 key: String(i),
                 className: [
-                    "col-span-1 flex flex-row items-center justify-center min-w-[2rem] ",
+                    "col-span-1 flex flex-row items-center justify-center min-w-[2rem]",
                     "",
                     tmp
                   ].join(" ")
@@ -509,7 +509,10 @@ function App$Species(Props) {
                           }));
                   };
                   return React.createElement("div", {
-                              className: [" py-1 bg-[var(--species-bg)] rounded-xl mb-2"].join(" ")
+                              className: [
+                                  " py-1 rounded-xl mb-2",
+                                  speciesHidden ? "bg-[var(--species-bg)] " : "bg-[var(--species-open-bg)] "
+                                ].join(" ")
                             }, speciesHidden ? React.createElement("div", {
                                     className: ["font-bold"].join(" "),
                                     onClick: onClickHeader
@@ -545,7 +548,7 @@ function App$Species(Props) {
                                               }, speciesDetails.isSymmetric ? React.createElement(Bs.BsSymmetryVertical, {}) : null), React.createElement("div", {
                                                 className: "flex-none text-sm font-medium tracking-wide "
                                               }, "SCALE " + scaleName + ""))), React.createElement("div", {
-                                        className: ["my-1 mx-2 rounded-lg flex flex-col divide-y bg-white divide-[var(--species-bg)]"].join(" ")
+                                        className: ["my-1 mx-2 rounded-lg flex flex-col divide-y bg-white divide-[var(--species-open-bg)]"].join(" ")
                                       }, Belt_Array.mapWithIndex(speciesDetails.modes, (function (_i, param) {
                                               var modeId = param[0];
                                               var selected = Belt_Option.mapWithDefault(currentBits, false, (function (c) {
@@ -711,7 +714,8 @@ function App(Props) {
                     }, React.createElement("div", {
                           className: "pt-2 w-full self-center"
                         }, React.createElement(make$1, {
-                              data: Belt_Array.zip(graphDisplay, graphBits)
+                              data: Belt_Array.zip(graphDisplay, graphBits),
+                              currentKey: currentKey
                             })), scaleNames === "" ? null : React.createElement("div", {
                             className: "w-full text-lg text-center mt-4 font-bold  text-[var(--accent)]"
                           }, "Scale: " + scaleNames + ""), modeNames === "" ? null : React.createElement("div", {

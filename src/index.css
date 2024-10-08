@@ -8,7 +8,9 @@
   --card-title: #000;
   --card-select-bg: hsl(37, 87%, 55%);
   --species-bg: hsl(37, 87%, 55%);
-  --accent: hsl(0, 100%, 40%);
+  --species-open-bg: hsl(37, 87%, 55%);
+
+  --accent: hsl(190.9, 100%, 25.9%);
 }
 
 body {
