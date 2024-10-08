@@ -718,11 +718,11 @@ let make = () => {
         />
         {selectedGenus->Option.mapWithDefault(React.null, ((genusId, species)) => {
           <div className={"mb-1"}>
-            <div className="flex flex-row items-center py-4 font-medium text-lg ">
-              {`There are ${species
+            <div className="flex flex-row items-center py-2 font-medium justify-center ">
+              {`${genusId->Int.toString} notes: ${species
                 ->Map.String.toArray
                 ->Array.length
-                ->Int.toString} possible scales of ${genusId->Int.toString} notes`->str}
+                ->Int.toString} possible scales`->str}
             </div>
             <div className={[""]->join}>
               {species

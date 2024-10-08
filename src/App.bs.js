@@ -867,8 +867,8 @@ function App(Props) {
                             return React.createElement("div", {
                                         className: "mb-1"
                                       }, React.createElement("div", {
-                                            className: "flex flex-row items-center py-4 font-medium text-lg "
-                                          }, "There are " + String(Belt_MapString.toArray(species).length) + " possible scales of " + String(genusId) + " notes"), React.createElement("div", {
+                                            className: "flex flex-row items-center py-2 font-medium justify-center "
+                                          }, "" + String(genusId) + " notes: " + String(Belt_MapString.toArray(species).length) + " possible scales"), React.createElement("div", {
                                             className: [""].join(" ")
                                           }, Belt_Array.map(Belt_MapString.toArray(species), (function (param) {
                                                   var speciesId = param[0];
