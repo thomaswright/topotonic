@@ -29,9 +29,9 @@ module SVG = {
 }
 
 module Symmetry = {
-  @module("react-icons/bs") @react.component
+  @module("react-icons/go") @react.component
   external make: (~size: int=?, ~color: string=?, ~className: string=?) => React.element =
-    "BsSymmetryVertical"
+    "GoMirror"
 }
 
 module ChevronDown = {
@@ -196,7 +196,7 @@ module Card = {
         " rounded-xl p-2 pb-3 pt-1 mt-2 overflow-hidden bg-[var(--card)]",
         className,
       ]->join}>
-      <div className="w-full text-center pb-2 font-bold text-xl "> {title->str} </div>
+      <div className="w-full text-center pb-2 font-bold text-lg "> {title->str} </div>
       <div className={""}> {children} </div>
     </div>
   }
@@ -238,26 +238,17 @@ module Scale = {
 
     let container = (i, content) =>
       <div
-        key={i->Int.toString}
-        className={[
-          "w-6 flex flex-row items-center justify-center ",
-          "",
-          switch kind {
-          | Species => " "
-          | Mode => ""
-          | NonMode => ""
-          },
-        ]->join}>
-        {content}
+        key={i->Int.toString} className={["w-6 flex flex-row items-center justify-center "]->join}>
+        {content->str}
       </div>
 
-    <div className={["flex-none flex-row flex justify-center w-full"]->join}>
+    <div className={["flex-none flex-row flex justify-center w-full gap-0.5"]->join}>
       {switch currentStepDisplay {
       | SemitoneSteps =>
         bitString
         ->bitsToSemitoneSteps
         ->Array.mapWithIndex((i, step) => {
-          container(i, step->Int.toString->str)
+          container(i, step->Int.toString)
         })
         ->React.array
 
@@ -265,7 +256,7 @@ module Scale = {
         bitString
         ->bitsToHalfnoteSteps
         ->Array.mapWithIndex((i, step) => {
-          container(i, step->str)
+          container(i, step)
         })
         ->React.array
 
@@ -273,7 +264,7 @@ module Scale = {
         bitString
         ->BitOps.stringToStringArray
         ->Array.mapWithIndex((i, bit) => {
-          container(i, bitToDisplaySymbol(bit, i, currentKey, currentStepDisplay, bitString)->str)
+          container(i, bitToDisplaySymbol(bit, i, currentKey, currentStepDisplay, bitString))
         })
         ->React.array
       }}
@@ -313,10 +304,10 @@ module Species = {
           name
         })
         ->Array.keep(x => x != "")
-        ->Js.Array2.joinWith(", ")
+        ->Js.Array2.joinWith(" • ")
       })
       ->Array.keep(x => x != "")
-      ->Js.Array2.joinWith(", ")
+      ->Js.Array2.joinWith(" • ")
 
     let speciesModeNames =
       speciesNameData
@@ -326,7 +317,7 @@ module Species = {
         ->Array.concatMany
       })
       ->Array.concatMany
-      ->Js.Array2.joinWith(", ")
+      ->Js.Array2.joinWith(" • ")
 
     let numModes =
       speciesDetails.modes
@@ -607,7 +598,7 @@ let make = () => {
     })
     ->Array.get(0)
     ->Option.mapWithDefault([], ((_, modeNames)) => modeNames->Array.map(((_, name)) => name))
-    ->Js.Array2.joinWith(", ")
+    ->Js.Array2.joinWith(" • ")
 
   let scaleNames =
     Data.namedSpecies
@@ -622,7 +613,7 @@ let make = () => {
       isMatch ? sNames->Array.map(((_tradition, name)) => name)->Some : None
     })
     ->Array.concatMany
-    ->Js.Array2.joinWith(", ")
+    ->Js.Array2.joinWith(" • ")
 
   let playNotes = () => {
     let cBaseFreq = 110

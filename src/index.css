@@ -4,19 +4,18 @@
 
 :root {
   --red: #9f2222;
-  --pink: #ffaf8d;
-  --light: #ffaf8d;
-  --blue: #0083b1;
-  --mid: #ffdcb5;
+  --pink: #ffd4b6;
+  --blue: #00b9d1;
+  --mid: #fff2df;
 
-  background-color: #ffefda;
+  background-color: #fffbf4;
   color: #280d00;
 
   --logo: var(--blue);
   --card: var(--mid);
   --card-select-bg: var(--pink);
-  --species-bg: var(--light);
-  --species-open-bg: var(--light);
+  --species-bg: var(--pink);
+  --species-open-bg: var(--pink);
   --species-scales: var(--pink);
   --species-text: var(--red);
   --scale-highlight: transparent;

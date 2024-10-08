@@ -13,8 +13,8 @@ import * as Belt_Option from "rescript/lib/es6/belt_Option.js";
 import * as SwitchJsx from "./Switch.jsx";
 import * as Belt_MapString from "rescript/lib/es6/belt_MapString.js";
 import * as DataGeneration from "./DataGeneration.bs.js";
-import * as Bs from "react-icons/bs";
 import * as Fa from "react-icons/fa";
+import * as Go from "react-icons/go";
 import NotePlayerJs from "./NotePlayer.js";
 
 function join(__x) {
@@ -308,7 +308,7 @@ function App$Card(Props) {
                   className
                 ].join(" ")
             }, React.createElement("div", {
-                  className: "w-full text-center pb-2 font-bold text-xl "
+                  className: "w-full text-center pb-2 font-bold text-lg "
                 }, title), React.createElement("div", {
                   className: ""
                 }, children));
@@ -341,7 +341,6 @@ function App$Scale(Props) {
   var bitString = Props.bitString;
   var currentStepDisplay = Props.currentStepDisplay;
   var currentKey = Props.currentKey;
-  var kind = Props.kind;
   var tmp;
   if (currentStepDisplay >= 4) {
     switch (currentStepDisplay) {
@@ -361,24 +360,9 @@ function App$Scale(Props) {
   }
   getGridCols(tmp);
   var container = function (i, content) {
-    var tmp;
-    switch (kind) {
-      case /* Species */0 :
-          tmp = " ";
-          break;
-      case /* Mode */1 :
-      case /* NonMode */2 :
-          tmp = "";
-          break;
-      
-    }
     return React.createElement("div", {
                 key: String(i),
-                className: [
-                    "w-6 flex flex-row items-center justify-center ",
-                    "",
-                    tmp
-                  ].join(" ")
+                className: ["w-6 flex flex-row items-center justify-center "].join(" ")
               }, content);
   };
   var tmp$1;
@@ -407,7 +391,7 @@ function App$Scale(Props) {
           }));
   }
   return React.createElement("div", {
-              className: ["flex-none flex-row flex justify-center w-full"].join(" ")
+              className: ["flex-none flex-row flex justify-center w-full gap-0.5"].join(" ")
             }, tmp$1);
 }
 
@@ -449,17 +433,17 @@ function App$Species(Props) {
                                     return param[1];
                                   })), (function (x) {
                                 return x !== "";
-                              })).join(", ");
+                              })).join(" • ");
               })), (function (x) {
             return x !== "";
-          })).join(", ");
+          })).join(" • ");
   var speciesModeNames = Belt_Array.concatMany(Belt_Array.map(speciesNameData, (function (param) {
                 return Belt_Array.concatMany(Belt_Array.map(param[2], (function (param) {
                                   return Belt_Array.map(param[1], (function (param) {
                                                 return param[1];
                                               }));
                                 })));
-              }))).join(", ");
+              }))).join(" • ");
   var numModes = Belt_Array.keep(speciesDetails.modes, (function (param) {
           return DataGeneration.startsWith1(DataGeneration.BitOps.stringToStringArray(param[0]));
         })).length;
@@ -540,7 +524,7 @@ function App$Species(Props) {
                                             className: "flex flex-row items-center justify-center gap-2"
                                           }, React.createElement("div", {
                                                 className: "flex-none"
-                                              }, speciesDetails.isSymmetric ? React.createElement(Bs.BsSymmetryVertical, {}) : null), React.createElement("div", {
+                                              }, speciesDetails.isSymmetric ? React.createElement(Go.GoMirror, {}) : null), React.createElement("div", {
                                                 className: "flex-none text-sm tracking-wide "
                                               }, "#" + scaleName + ""))), React.createElement("div", {
                                         className: "p-2 pt-0 bg-[var(--species-scales)] rounded-xl"
@@ -743,7 +727,7 @@ function App(Props) {
             return Belt_Array.map(param[1], (function (param) {
                           return param[1];
                         }));
-          })).join(", ");
+          })).join(" • ");
   var scaleNames = Belt_Array.concatMany(Belt_Array.keepMap(Data.namedSpecies, (function (param) {
                 var sId = param[0];
                 var isMatch = DataGeneration.any(DataGeneration.getRotations(graphBits), (function (x) {
@@ -755,7 +739,7 @@ function App(Props) {
                               }));
                 }
                 
-              }))).join(", ");
+              }))).join(" • ");
   return React.createElement("div", {
               className: "flex sm:flex-row flex-col h-screen w-screen "
             }, React.createElement("div", {
