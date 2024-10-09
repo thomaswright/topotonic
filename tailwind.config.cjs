@@ -10,6 +10,9 @@ module.exports = {
   content: ["./src/**/*.{js,jsx,tsx,ts}"],
   theme: {
     extend: {
+      gridTemplateColumns: {
+        main: "2fr 3fr",
+      },
       colors: {
         primary,
         secondary,

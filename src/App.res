@@ -634,7 +634,7 @@ let make = () => {
     })
   }
 
-  <div className={"flex sm:flex-row flex-col h-screen w-screen "}>
+  <div className={"flex  flex-col sm:grid grid-cols-main sm:flex-row h-screen w-screen max-w-3xl"}>
     <div
       className="flex-1 flex flex-col w-screen sm:w-auto sm:max-w-[350px] p-2  overflow-y-scroll items-center">
       <div className="flex flex-row justify-between items-center w-full px-4">
@@ -683,7 +683,7 @@ let make = () => {
         </Card>
       </div>
     </div>
-    <div className="flex-1 sm:flex-1 h-full overflow-scroll xs:px-2">
+    <div className="flex-1 sm:flex-1  h-full overflow-scroll xs:px-2">
       <div className="sm:max-w-[500px] pt-2">
         <Collapsed
           render={(collapsedState, setCollapsedState) => {

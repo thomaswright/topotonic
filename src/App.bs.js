@@ -741,7 +741,7 @@ function App(Props) {
                 
               }))).join(" • ");
   return React.createElement("div", {
-              className: "flex sm:flex-row flex-col h-screen w-screen "
+              className: "flex  flex-col sm:grid grid-cols-main sm:flex-row h-screen w-screen max-w-3xl"
             }, React.createElement("div", {
                   className: "flex-1 flex flex-col w-screen sm:w-auto sm:max-w-[350px] p-2  overflow-y-scroll items-center"
                 }, React.createElement("div", {
@@ -816,7 +816,7 @@ function App(Props) {
                                                 });
                                     })))
                         }))), React.createElement("div", {
-                  className: "flex-1 sm:flex-1 h-full overflow-scroll xs:px-2"
+                  className: "flex-1 sm:flex-1  h-full overflow-scroll xs:px-2"
                 }, React.createElement("div", {
                       className: "sm:max-w-[500px] pt-2"
                     }, React.createElement(App$Collapsed, {
