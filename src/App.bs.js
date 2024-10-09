@@ -46,6 +46,10 @@ function getMaxRotation(prim) {
   return RotationJs.getMaxRotation(prim);
 }
 
+function rotateRightByOnes(prim0, prim1) {
+  return RotationJs.rotateRightByOnes(prim0, prim1);
+}
+
 var make = IconsJsx.Logo;
 
 var Logo = {
@@ -431,7 +435,7 @@ var Scale = {
 };
 
 function stepsToRotation(steps) {
-  return Belt_Option.getWithDefault(Belt_Int.fromString(Belt_Array.joinWith(Belt_Array.reduce(steps.split(""), [], (function (a, step) {
+  return Belt_Option.getWithDefault(parseInt(Belt_Array.joinWith(Belt_Array.reduce(steps.split(""), [], (function (a, step) {
                             return Belt_Array.concat(a, Belt_Array.concat([1], Belt_Option.mapWithDefault(Belt_Int.fromString(step), [], (function (step) {
                                                   if (step > 1) {
                                                     return Belt_Array.make(step - 1 | 0, 0);
@@ -441,7 +445,7 @@ function stepsToRotation(steps) {
                                                 }))));
                           })), "", (function (x) {
                         return String(x);
-                      }))), 0);
+                      })), 2), 0);
 }
 
 function App$Species(Props) {
@@ -471,7 +475,7 @@ function App$Species(Props) {
   }
   Belt_Array.range(1, scaleLength);
   var speciesNameData = Belt_Array.keep(Data.namedSpecies, (function (param) {
-          return stepsToRotation(param[0]) === speciesId;
+          return RotationJs.getMinRotation(stepsToRotation(param[0])) === speciesId;
         }));
   var speciesNames = Belt_Array.keep(Belt_Array.map(speciesNameData, (function (param) {
                 return Belt_Array.keep(Belt_Array.map(param[1], (function (param) {
@@ -492,13 +496,7 @@ function App$Species(Props) {
   return React.createElement(App$Collapsed, {
               render: (function (speciesHidden, setSpeciesHidden) {
                   var anySelected = RotationJs.areInSameRotationClass(Belt_Option.getWithDefault(rotation, 0), speciesId);
-                  var scaleName = Belt_Array.joinWith(RotationJs.intToBoolArray(speciesId), "", (function (v) {
-                          if (v) {
-                            return "1";
-                          } else {
-                            return "0";
-                          }
-                        }));
+                  var scaleName = String(speciesId);
                   var speciesMax = RotationJs.getMaxRotation(speciesId);
                   var onClickHeader = function (param) {
                     Belt_Option.mapWithDefault(rotation, (Curry._1(setSpeciesHidden, (function (param) {
@@ -574,7 +572,16 @@ function App$Species(Props) {
                                                           return c === modeId;
                                                         }));
                                                   var modeKind = RotationJs.intToBoolArray(modeId)[0] ? /* Mode */1 : /* NonMode */2;
-                                                  var modeNames = "";
+                                                  var modeNames = Belt_Option.mapWithDefault(Belt_Array.get(Belt_Array.keepMap(speciesNameData, (function (param) {
+                                                                    var s = param[0];
+                                                                    return Belt_Array.getBy(param[2], (function (param) {
+                                                                                  return modeId === RotationJs.rotateRightByOnes(stepsToRotation(s), param[0] + 1 | 0);
+                                                                                }));
+                                                                  })), 0), [], (function (param) {
+                                                            return Belt_Array.map(param[1], (function (param) {
+                                                                          return param[1];
+                                                                        }));
+                                                          })).join(" • ");
                                                   if (modeKind === /* NonMode */2 && !showNonModes) {
                                                     return null;
                                                   } else {
@@ -755,7 +762,7 @@ function App(Props) {
             }, React.createElement("div", {
                   className: "flex-1 flex flex-col w-screen sm:w-auto sm:max-w-[350px] p-2  overflow-y-scroll items-center"
                 }, React.createElement("div", {
-                      className: "flex flex-row justify-between items-center w-full px-4"
+                      className: "flex flex-row justify-between items-center w-full pl-3 pr-1"
                     }, React.createElement(App$PageTitle, {}), Belt_Option.isNone(rotation) ? null : React.createElement("button", {
                             className: "flex flex-row gap-2 py-1 px-5 rounded-full items-center\n               justify-center font-bold text-white bg-[var(--accent)]",
                             onClick: (function (param) {
@@ -876,6 +883,7 @@ export {
   areInSameRotationClass ,
   getMinRotation ,
   getMaxRotation ,
+  rotateRightByOnes ,
   Logo ,
   SVG ,
   Symmetry ,

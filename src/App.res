@@ -21,6 +21,7 @@ let reactMapWithIndex = (a, f) => a->Array.mapWithIndex(f)->React.array
 external areInSameRotationClass: (int, int) => bool = "areInSameRotationClass"
 @module("./rotation.js") external getMinRotation: int => int = "getMinRotation"
 @module("./rotation.js") external getMaxRotation: int => int = "getMaxRotation"
+@module("./rotation.js") external rotateRightByOnes: (int, int) => int = "rotateRightByOnes"
 
 module Logo = {
   @module("./Icons.jsx") @react.component
@@ -283,6 +284,9 @@ module Scale = {
     </div>
   }
 }
+
+@val external parseInt: (string, int) => option<int> = "parseInt"
+
 // Todo: replace this mess
 let stepsToRotation = steps => {
   steps
@@ -305,7 +309,7 @@ let stepsToRotation = steps => {
     )
   })
   ->Array.joinWith("", x => x->Int.toString)
-  ->Int.fromString
+  ->parseInt(2)
   ->Option.getWithDefault(0)
 }
 
@@ -331,7 +335,7 @@ module Species = {
     let _scaleRange = Array.range(1, scaleLength)
 
     let speciesNameData = Data.namedSpecies->Array.keep(((s, _, _)) => {
-      s->stepsToRotation == speciesId
+      s->stepsToRotation->getMinRotation == speciesId
     })
 
     let speciesNames =
@@ -380,7 +384,7 @@ module Species = {
         // let _speciesIdModeSelected =
         //   currentBits->Option.mapWithDefault(false, c => c->BitOps.intArrayToString == speciesId)
 
-        let scaleName = speciesId->intToBoolArray->Array.joinWith("", v => v ? "1" : "0")
+        let scaleName = speciesId->Int.toString
         let speciesMax = speciesId->getMaxRotation
 
         let onClickHeader = _ => {
@@ -404,6 +408,7 @@ module Species = {
             ]->join}>
             {speciesNames->str}
           </div>
+
         <div
           className={[
             " rounded-xl mb-2 cursor-pointer font-bold",
@@ -464,20 +469,20 @@ module Species = {
 
                     let modeKind = modeId->intToBoolArray->Array.getUnsafe(0) ? Mode : NonMode
 
-                    let modeNames = ""
-                    // speciesNameData
-                    // ->Array.keepMap(((s, _, modes)) => {
-                    //   modes->Array.getBy(
-                    //     ((mId, _)) => {
-                    //       modeId == s->scaleRepToMode(mId)
-                    //     },
-                    //   )
-                    // })
-                    // ->Array.get(0)
-                    // ->Option.mapWithDefault([], ((_, modeNames)) =>
-                    //   modeNames->Array.map(((_, name)) => name)
-                    // )
-                    // ->Js.Array2.joinWith(" • ")
+                    let modeNames =
+                      speciesNameData
+                      ->Array.keepMap(((s, _, modes)) => {
+                        modes->Array.getBy(
+                          ((mId, _)) => {
+                            modeId == s->stepsToRotation->rotateRightByOnes(mId + 1)
+                          },
+                        )
+                      })
+                      ->Array.get(0)
+                      ->Option.mapWithDefault([], ((_, modeNames)) =>
+                        modeNames->Array.map(((_, name)) => name)
+                      )
+                      ->Js.Array2.joinWith(" • ")
 
                     {
                       modeKind == NonMode && !showNonModes
@@ -670,7 +675,7 @@ let make = () => {
   <div className={"flex  flex-col sm:grid grid-cols-main sm:flex-row h-screen w-screen max-w-3xl"}>
     <div
       className="flex-1 flex flex-col w-screen sm:w-auto sm:max-w-[350px] p-2  overflow-y-scroll items-center">
-      <div className="flex flex-row justify-between items-center w-full px-4">
+      <div className="flex flex-row justify-between items-center w-full pl-3 pr-1">
         <PageTitle />
         {rotation->Option.isNone
           ? React.null

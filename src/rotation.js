@@ -1,4 +1,27 @@
-function rotateLeft(num, bits, places) {
+export function rotateRightByOnes(binaryInt, n) {
+  let binaryStr = binaryInt.toString(2);
+
+  let positions = [];
+  for (let i = 0; i < binaryStr.length; i++) {
+    if (binaryStr[i] === "1") {
+      positions.push(i);
+    }
+  }
+  if (n === 0) {
+    return binaryInt;
+  } else if (n < 0 || n > positions.length) {
+    throw new Error("Invalid value for n");
+  }
+
+  let rotateIndex = positions[n - 1];
+
+  let rotatedStr =
+    binaryStr.slice(rotateIndex) + binaryStr.slice(0, rotateIndex);
+
+  return parseInt(rotatedStr, 2);
+}
+
+export function rotateLeft(num, bits, places) {
   return ((num << places) | (num >>> (bits - places))) & ((1 << bits) - 1);
 }
 
