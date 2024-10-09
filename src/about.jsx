@@ -1,4 +1,6 @@
 import React from "react";
+import * as Dialog from "@radix-ui/react-dialog";
+import { Cross2Icon } from "@radix-ui/react-icons";
 
 const About = () => {
   return (
@@ -36,7 +38,37 @@ const About = () => {
   );
 };
 
-export default About;
+const AboutDialog = () => (
+  <Dialog.Root>
+    <Dialog.Trigger asChild>
+      <button className="inline-flex h-[35px] items-center justify-center rounded bg-[var(--mid)] px-[15px] font-medium leading-none focus:outline-none">
+        About
+      </button>
+    </Dialog.Trigger>
+    <Dialog.Portal>
+      <Dialog.Overlay className="fixed inset-0 data-[state=open]:animate-overlayShow" />
+      <Dialog.Content
+        className="shadow-xl bg-[var(--mid)] fixed left-1/2 top-1/2 max-h-[85vh] w-[90vw] max-w-[450px] -translate-x-1/2 -translate-y-1/2 rounded-md bg-white p-[25px] 
+         focus:outline-none data-[state=open]:animate-contentShow"
+      >
+        <Dialog.Title className="m-0 text-[17px] font-black">
+          About Topotonic
+        </Dialog.Title>
+        <About />
+        <Dialog.Close asChild>
+          <button
+            className="absolute right-2.5 top-2.5 inline-flex size-[25px] appearance-none items-center justify-center rounded-full  focus:outline-none"
+            aria-label="Close"
+          >
+            <Cross2Icon />
+          </button>
+        </Dialog.Close>
+      </Dialog.Content>
+    </Dialog.Portal>
+  </Dialog.Root>
+);
+
+export default AboutDialog;
 
 {
   /* <li>

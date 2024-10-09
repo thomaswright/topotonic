@@ -815,37 +815,24 @@ function App(Props) {
                                                   children: String(num)
                                                 });
                                     })))
-                        }))), React.createElement("div", {
+                        }), React.createElement("div", {
+                          className: "my-2 flex flex-row justify-between items-center"
+                        }, React.createElement(make$3, {}), React.createElement("div", {
+                              className: "flex flex-row gap-2"
+                            }, React.createElement("div", {
+                                  className: "text-sm"
+                                }, "Show Non-Modes"), React.createElement(make$2, {
+                                  checked: showNonModes,
+                                  onCheckedChange: (function (param) {
+                                      Curry._1(setShowNonModes, (function (v) {
+                                              return !v;
+                                            }));
+                                    })
+                                }))))), React.createElement("div", {
                   className: "flex-1 sm:flex-1  h-full overflow-scroll xs:px-2"
                 }, React.createElement("div", {
                       className: "sm:max-w-[500px] pt-2"
-                    }, React.createElement(App$Collapsed, {
-                          render: (function (collapsedState, setCollapsedState) {
-                              return React.createElement("div", undefined, React.createElement("div", {
-                                              className: "my-2 flex flex-row justify-between items-center"
-                                            }, React.createElement("button", {
-                                                  className: "px-3 py-1 font-bold rounded-lg  bg-[var(--card)]\n              flex flex-row justify-center items-center gap-1",
-                                                  onClick: (function (param) {
-                                                      Curry._1(setCollapsedState, (function (s) {
-                                                              return !s;
-                                                            }));
-                                                    })
-                                                }, "About Topotonic", collapsedState ? React.createElement(Fa.FaChevronDown, {}) : React.createElement(Fa.FaChevronUp, {})), React.createElement("div", {
-                                                  className: "flex flex-row gap-2"
-                                                }, React.createElement("div", {
-                                                      className: "text-sm"
-                                                    }, "Show Non-Modes"), React.createElement(make$2, {
-                                                      checked: showNonModes,
-                                                      onCheckedChange: (function (param) {
-                                                          Curry._1(setShowNonModes, (function (v) {
-                                                                  return !v;
-                                                                }));
-                                                        })
-                                                    }))), React.createElement("div", {
-                                              className: [collapsedState ? "hidden" : ""].join(" ")
-                                            }, React.createElement(make$3, {})));
-                            })
-                        }), Belt_Option.mapWithDefault(selectedGenus, null, (function (param) {
+                    }, Belt_Option.mapWithDefault(selectedGenus, null, (function (param) {
                             var species = param[1];
                             var genusId = param[0];
                             return React.createElement("div", {

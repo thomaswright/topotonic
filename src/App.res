@@ -681,32 +681,17 @@ let make = () => {
             })}
           </div>
         </Card>
+        <div className="my-2 flex flex-row justify-between items-center">
+          <About />
+          <div className="flex flex-row gap-2">
+            <div className="text-sm"> {"Show Non-Modes"->str} </div>
+            <Switch checked={showNonModes} onCheckedChange={() => setShowNonModes(v => !v)} />
+          </div>
+        </div>
       </div>
     </div>
     <div className="flex-1 sm:flex-1  h-full overflow-scroll xs:px-2">
       <div className="sm:max-w-[500px] pt-2">
-        <Collapsed
-          render={(collapsedState, setCollapsedState) => {
-            <div>
-              <div className={"my-2 flex flex-row justify-between items-center"}>
-                <button
-                  onClick={_ => setCollapsedState(s => !s)}
-                  className={`px-3 py-1 font-bold rounded-lg  bg-[var(--card)]
-              flex flex-row justify-center items-center gap-1`}>
-                  {"About Topotonic"->str}
-                  {collapsedState ? <ChevronDown /> : <ChevronUp />}
-                </button>
-                <div className="flex flex-row gap-2">
-                  <div className="text-sm"> {"Show Non-Modes"->str} </div>
-                  <Switch checked={showNonModes} onCheckedChange={() => setShowNonModes(v => !v)} />
-                </div>
-              </div>
-              <div className={[collapsedState ? "hidden" : ""]->join}>
-                <About />
-              </div>
-            </div>
-          }}
-        />
         {selectedGenus->Option.mapWithDefault(React.null, ((genusId, species)) => {
           <div className={"mb-1"}>
             <div className="flex flex-row items-center py-2 font-medium justify-center ">
