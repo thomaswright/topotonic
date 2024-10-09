@@ -6,13 +6,20 @@ type stepDisplay = Key | MinMaj | DimAug | Semitone | SemitoneSteps | HalfnoteSt
 
 type kind = Species | Mode | NonMode
 
-let result = DataGeneration.result
+// let result = DataGeneration.result
+
 let join = Js.Array2.joinWith(_, " ")
 let str = React.string
 let reactMap = (a, f) => a->Array.map(f)->React.array
 let reactMapWithIndex = (a, f) => a->Array.mapWithIndex(f)->React.array
 
-module BitOps = DataGeneration.BitOps
+// module BitOps = DataGeneration.BitOps
+
+@module("./rotation.js") external rotationGroups: array<(int, array<int>)> = "rotationGroups"
+@module("./rotation.js") external intToBoolArray: int => array<bool> = "intToBoolArray"
+@module("./rotation.js")
+external areInSameRotationClass: (int, int) => bool = "areInSameRotationClass"
+@module("./rotation.js") external getMinRotation: int => int = "getMinRotation"
 
 module Logo = {
   @module("./Icons.jsx") @react.component
@@ -22,7 +29,7 @@ module Logo = {
 module SVG = {
   @module("./SVG.jsx") @react.component
   external make: (
-    ~data: array<(string, int)>,
+    ~data: array<(string, bool)>,
     ~currentKey: int,
     ~onKeyChange: int => unit,
   ) => React.element = "SVG"
@@ -122,8 +129,10 @@ let stepsToBits = x => {
   })
 }
 
-let bitsToSemitoneSteps = x => {
+let rotationToSemitoneSteps = x => {
   x
+  ->intToBoolArray
+  ->Array.joinWith("", v => v ? "1" : "0")
   ->Js.String2.split("1")
   ->Array.map(a => {
     a->Js.String2.length + 1
@@ -131,8 +140,10 @@ let bitsToSemitoneSteps = x => {
   ->Belt.Array.sliceToEnd(1)
 }
 
-let bitsToHalfnoteSteps = x => {
+let rotationToHalfnoteSteps = x => {
   x
+  ->intToBoolArray
+  ->Array.joinWith("", v => v ? "1" : "0")
   ->Js.String2.split("1")
   ->Array.map(a => {
     switch a->Js.String2.length + 1 {
@@ -144,7 +155,7 @@ let bitsToHalfnoteSteps = x => {
   ->Belt.Array.sliceToEnd(1)
 }
 
-let bitToDisplaySymbol = (bit, index, currentKey, currentStepDisplay, bitString) => {
+let bitToDisplaySymbol = (bit, index, currentKey, currentStepDisplay, rotation) => {
   let a = switch currentStepDisplay {
   | Key => IntervalRefs.pitchKeysShort->DataGeneration.rotate(currentKey)
   | DimAug => IntervalRefs.dimAugs
@@ -152,18 +163,18 @@ let bitToDisplaySymbol = (bit, index, currentKey, currentStepDisplay, bitString)
   | MinMaj => IntervalRefs.mMPs
   | SemitoneSteps => IntervalRefs.semitones
   | HalfnoteSteps => IntervalRefs.semitones
-  | Binary => bitString->BitOps.stringToStringArray
+  | Binary => rotation->intToBoolArray->Array.map(v => v ? "1" : "0")
   }
-  bit == "0" ? `•` : a->Array.get(index)->Option.getWithDefault("")
+  !bit ? `•` : a->Array.get(index)->Option.getWithDefault("")
 }
 
-let scaleRepToMode = (s, rot) =>
-  s
-  ->BitOps.stringToIntArray
-  ->DataGeneration.rotate(rot)
-  ->stepsToBits
-  ->BitOps.stringToIntArray
-  ->BitOps.intArrayToString
+// let scaleRepToMode = (s, rot) =>
+//   s
+//   ->BitOps.stringToIntArray
+//   ->DataGeneration.rotate(rot)
+//   ->stepsToBits
+//   ->BitOps.stringToIntArray
+//   ->BitOps.intArrayToString
 
 module StepButton = {
   @react.component
@@ -229,10 +240,10 @@ type notePlayer = {
 
 module Scale = {
   @react.component
-  let make = (~bitString, ~currentStepDisplay, ~currentKey, ~kind: kind, ~selected as _: bool) => {
+  let make = (~rotation, ~currentStepDisplay, ~currentKey, ~kind: kind, ~selected as _: bool) => {
     let gridCols = switch currentStepDisplay {
-    | SemitoneSteps => bitString->bitsToSemitoneSteps->Array.length
-    | HalfnoteSteps => bitString->bitsToHalfnoteSteps->Array.length
+    | SemitoneSteps => rotation->rotationToSemitoneSteps->Array.length
+    | HalfnoteSteps => rotation->rotationToHalfnoteSteps->Array.length
     | _ => 12
     }->getGridCols
 
@@ -245,55 +256,81 @@ module Scale = {
     <div className={["flex-none flex-row flex justify-center w-full gap-0.5"]->join}>
       {switch currentStepDisplay {
       | SemitoneSteps =>
-        bitString
-        ->bitsToSemitoneSteps
+        rotation
+        ->rotationToSemitoneSteps
         ->Array.mapWithIndex((i, step) => {
           container(i, step->Int.toString)
         })
         ->React.array
 
       | HalfnoteSteps =>
-        bitString
-        ->bitsToHalfnoteSteps
+        rotation
+        ->rotationToHalfnoteSteps
         ->Array.mapWithIndex((i, step) => {
           container(i, step)
         })
         ->React.array
 
       | _ =>
-        bitString
-        ->BitOps.stringToStringArray
+        rotation
+        ->intToBoolArray
         ->Array.mapWithIndex((i, bit) => {
-          container(i, bitToDisplaySymbol(bit, i, currentKey, currentStepDisplay, bitString))
+          container(i, bitToDisplaySymbol(bit, i, currentKey, currentStepDisplay, rotation))
         })
         ->React.array
       }}
     </div>
   }
 }
+// Todo: replace this mess
+let stepsToRotation = steps => {
+  steps
+  ->Js.String2.split("")
+  ->Array.reduce([], (a, step) => {
+    Array.concat(
+      a,
+      Array.concat(
+        [1],
+        step
+        ->Int.fromString
+        ->Option.mapWithDefault([], step => {
+          if step > 1 {
+            Array.make(step - 1, 0)
+          } else {
+            []
+          }
+        }),
+      ),
+    )
+  })
+  ->Array.joinWith("", x => x->Int.toString)
+  ->Int.fromString
+  ->Option.getWithDefault(0)
+}
 
 module Species = {
   @react.component
   let make = (
     ~genusId,
-    ~currentBits,
+    ~rotation: option<int>,
     ~currentStepDisplay,
-    ~setCurrentBits,
+    ~setRotation,
     ~currentKey: key,
-    ~speciesId: string,
-    ~speciesDetails: DataGeneration.speciesDetails,
+    ~speciesId: int,
+    // ~speciesDetails: DataGeneration.speciesDetails,
+    ~modes: array<int>,
     ~showNonModes: bool,
   ) => {
     let scaleLength = switch currentStepDisplay {
-    | SemitoneSteps => speciesId->bitsToSemitoneSteps->Array.length
-    | HalfnoteSteps => speciesId->bitsToHalfnoteSteps->Array.length
-    | _ => speciesId->BitOps.stringToStringArray->Array.length
+    | SemitoneSteps => speciesId->rotationToSemitoneSteps->Array.length
+    | HalfnoteSteps => speciesId->rotationToHalfnoteSteps->Array.length
+    | _ => 12
     }
 
     let _scaleRange = Array.range(1, scaleLength)
 
     let speciesNameData = Data.namedSpecies->Array.keep(((s, _, _)) => {
-      s->BitOps.stringToIntArray->stepsToBits == speciesId
+      s->stepsToRotation == speciesId
     })
 
     let speciesNames =
@@ -319,38 +356,40 @@ module Species = {
       ->Array.concatMany
       ->Js.Array2.joinWith(" • ")
 
-    let numModes =
-      speciesDetails.modes
-      ->Array.keep(((modeId, _)) => modeId->BitOps.stringToStringArray->DataGeneration.startsWith1)
-      ->Array.length
+    // let numModes =
+    //   speciesDetails.modes
+    //   ->Array.keep(((modeId, _)) => modeId->BitOps.stringToStringArray->DataGeneration.startsWith1)
+    //   ->Array.length
 
-    let numPitchClasses = speciesDetails.modes->Array.length
+    // let numPitchClasses = speciesDetails.modes->Array.length
 
-    let _uniqueNumModes = numModes != genusId
+    // let _uniqueNumModes = numModes != genusId
 
-    let _modesDisplay =
-      <span> {`(${numModes->Int.toString}:${numPitchClasses->Int.toString})`->str} </span>
+    // let _modesDisplay =
+    //   <span> {`(${numModes->Int.toString}:${numPitchClasses->Int.toString})`->str} </span>
 
     <Collapsed
       render={(speciesHidden, setSpeciesHidden) => {
-        let anySelected = speciesDetails.modes->DataGeneration.any(((rotation, _)) => {
-          currentBits->Option.mapWithDefault(false, c => c->BitOps.intArrayToString == rotation)
-        })
+        let anySelected = areInSameRotationClass(rotation->Option.getWithDefault(0), speciesId)
 
-        let _speciesIdModeSelected =
-          currentBits->Option.mapWithDefault(false, c => c->BitOps.intArrayToString == speciesId)
+        // speciesDetails.modes->DataGeneration.any(((rotation, _)) => {
+        //   currentBits->Option.mapWithDefault(false, c => c->BitOps.intArrayToString == rotation)
+        // })
 
-        let scaleName = speciesId->BitOps.stringToInt->Int.toString
+        // let _speciesIdModeSelected =
+        //   currentBits->Option.mapWithDefault(false, c => c->BitOps.intArrayToString == speciesId)
+
+        let scaleName = speciesId->intToBoolArray->Array.joinWith("", v => v ? "1" : "0")
 
         let onClickHeader = _ => {
-          currentBits->Option.mapWithDefault(
+          rotation->Option.mapWithDefault(
             {
               setSpeciesHidden(_ => false)
-              setCurrentBits(_ => speciesId->BitOps.stringToIntArray->Some)
+              setRotation(_ => speciesId->Some)
             },
             _ => {
               setSpeciesHidden(_ => !speciesHidden ? anySelected : !speciesHidden)
-              setCurrentBits(_ => anySelected ? None : speciesId->BitOps.stringToIntArray->Some)
+              setRotation(_ => anySelected ? None : speciesId->Some)
             },
           )
         }
@@ -393,7 +432,7 @@ module Species = {
                   <Scale
                     selected={false}
                     currentKey={currentKey}
-                    bitString={speciesId}
+                    rotation={speciesId}
                     kind={Species}
                     currentStepDisplay={currentStepDisplay}
                   />
@@ -410,9 +449,7 @@ module Species = {
                   className=" flex flex-row justify-start items-center px-3 pt-1">
                   {speciesNamesComp}
                   <div className={"flex flex-row items-center justify-center gap-2"}>
-                    <div className="flex-none">
-                      {speciesDetails.isSymmetric ? <Symmetry /> : React.null}
-                    </div>
+                    <div className="flex-none"> {false ? <Symmetry /> : React.null} </div>
                     <div className="flex-none text-sm tracking-wide "> {`#${scaleName}`->str} </div>
                   </div>
                 </div>
@@ -421,39 +458,32 @@ module Species = {
                     className={[
                       "rounded-lg flex flex-col divide-y bg-white divide-[var(--species-open-bg)]",
                     ]->join}>
-                    {speciesDetails.modes->reactMapWithIndex((_i, (modeId, _rotationDegrees)) => {
-                      let selected =
-                        currentBits->Option.mapWithDefault(false, c =>
-                          c->BitOps.intArrayToString == modeId
-                        )
+                    {modes->reactMapWithIndex((_i, modeId) => {
+                      let selected = rotation->Option.mapWithDefault(false, c => c == modeId)
 
-                      let modeKind =
-                        modeId->BitOps.stringToStringArray->DataGeneration.startsWith1
-                          ? Mode
-                          : NonMode
+                      let modeKind = modeId->intToBoolArray->Array.getUnsafe(0) ? Mode : NonMode
 
-                      let modeNames =
-                        speciesNameData
-                        ->Array.keepMap(((s, _, modes)) => {
-                          modes->Array.getBy(
-                            ((mId, _)) => {
-                              modeId == s->scaleRepToMode(mId)
-                            },
-                          )
-                        })
-                        ->Array.get(0)
-                        ->Option.mapWithDefault([], ((_, modeNames)) =>
-                          modeNames->Array.map(((_, name)) => name)
-                        )
-                        ->Js.Array2.joinWith(" • ")
+                      let modeNames = ""
+                      // speciesNameData
+                      // ->Array.keepMap(((s, _, modes)) => {
+                      //   modes->Array.getBy(
+                      //     ((mId, _)) => {
+                      //       modeId == s->scaleRepToMode(mId)
+                      //     },
+                      //   )
+                      // })
+                      // ->Array.get(0)
+                      // ->Option.mapWithDefault([], ((_, modeNames)) =>
+                      //   modeNames->Array.map(((_, name)) => name)
+                      // )
+                      // ->Js.Array2.joinWith(" • ")
 
                       {
                         modeKind == NonMode && !showNonModes
                           ? React.null
                           : <div
-                              onClick={_ =>
-                                setCurrentBits(_ => modeId->BitOps.stringToIntArray->Some)}
-                              key={modeId}
+                              onClick={_ => setRotation(_ => modeId->Some)}
+                              key={modeId->Int.toString}
                               className={[
                                 "flex flex-col py-1 sm:justify-start justify-center ",
                                 selected
@@ -466,7 +496,7 @@ module Species = {
                                 selected={selected}
                                 currentKey={currentKey}
                                 currentStepDisplay={currentStepDisplay}
-                                bitString={modeId}
+                                rotation={modeId}
                                 kind={modeKind}
                               />
                               {modeNames == ""
@@ -555,21 +585,22 @@ module StepDisplay = {
 
 @react.component
 let make = () => {
-  let (currentBits, setCurrentBits) = React.useState(_ => None)
-  let (selectedNoteNum: option<int>, setSelectedNoteNum) = React.useState(_ => Some(7))
+  // let (currentBits, setCurrentBits) = React.useState(_ => None)
+  let (rotation: option<int>, setRotation) = React.useState(_ => None)
+  let (selectedNoteNum: int, setSelectedNoteNum) = React.useState(_ => 7)
   let (currentKey: int, setCurrentKey) = React.useState(_ => 0)
   let (currentStepDisplay: stepDisplay, setCurrentStepDisplay) = React.useState(_ => Key)
   let (showNonModes, setShowNonModes) = React.useState(_ => false)
 
-  let selectedGenus =
-    selectedNoteNum->Option.flatMap(selectedNoteNum =>
-      result
-      ->Map.Int.keysToArray
-      ->Array.get(selectedNoteNum)
-      ->Option.flatMap(genusId =>
-        result->Map.Int.get(genusId)->Option.map(species => (genusId, species))
-      )
-    )
+  // let selectedGenus =
+  //   selectedNoteNum->Option.flatMap(selectedNoteNum =>
+  //     result
+  //     ->Map.Int.keysToArray
+  //     ->Array.get(selectedNoteNum)
+  //     ->Option.flatMap(genusId =>
+  //       result->Map.Int.get(genusId)->Option.map(species => (genusId, species))
+  //     )
+  //   )
 
   let graphDisplay = {
     switch currentStepDisplay {
@@ -584,31 +615,28 @@ let make = () => {
   }
 
   let graphBits =
-    currentBits->Option.mapWithDefault(
-      Array.range(0, DataGeneration.Config.bits - 1)->Array.map(_ => 0),
-      b => b,
-    )
+    rotation->Option.mapWithDefault(Array.make(12, false), (b: int) => b->intToBoolArray)
 
-  let modeNames =
-    Data.namedSpecies
-    ->Array.keepMap(((s, _, modes)) => {
-      modes->Array.getBy(((mId, _)) => {
-        graphBits->BitOps.intArrayToString == s->scaleRepToMode(mId)
-      })
-    })
-    ->Array.get(0)
-    ->Option.mapWithDefault([], ((_, modeNames)) => modeNames->Array.map(((_, name)) => name))
-    ->Js.Array2.joinWith(" • ")
+  let modeNames = ""
+  // Data.namedSpecies
+  // ->Array.keepMap(((s, _, modes)) => {
+  //   modes->Array.getBy(((mId, _)) => {
+  //     graphBits->BitOps.intArrayToString == s->scaleRepToMode(mId)
+  //   })
+  // })
+  // ->Array.get(0)
+  // ->Option.mapWithDefault([], ((_, modeNames)) => modeNames->Array.map(((_, name)) => name))
+  // ->Js.Array2.joinWith(" • ")
 
   let scaleNames =
     Data.namedSpecies
     ->Array.keepMap(((sId, sNames, _modes)) => {
-      let isMatch =
-        graphBits
-        ->DataGeneration.getRotations
-        ->DataGeneration.any(x => {
-          x->BitOps.intArrayToString == sId->BitOps.stringToIntArray->stepsToBits
-        })
+      let isMatch = sId->stepsToRotation == rotation->Option.getWithDefault(0)
+      // graphBits
+      // ->DataGeneration.getRotations
+      // ->DataGeneration.any(x => {
+      //   x->BitOps.intArrayToString == sId->BitOps.stringToIntArray->stepsToBits
+      // })
 
       isMatch ? sNames->Array.map(((_tradition, name)) => name)->Some : None
     })
@@ -625,7 +653,7 @@ let make = () => {
     let seq =
       newChromScale
       ->Array.keepWithIndex((_v, i) => {
-        graphBits->Array.get(i)->Option.mapWithDefault(false, bit => bit == 1)
+        graphBits->Array.get(i)->Option.mapWithDefault(false, bit => bit)
       })
       ->(x => x->Array.get(0)->Option.mapWithDefault(x, head => Array.concat(x, [head * 2])))
 
@@ -633,13 +661,16 @@ let make = () => {
       triggerAttackRelease(. v, "8n", i->Int.toFloat *. 0.5)
     })
   }
+  let species = rotationGroups->Array.keep(((speciesId, scales)) => {
+    speciesId->intToBoolArray->Array.keep(x => x)->Array.length == selectedNoteNum
+  })
 
   <div className={"flex  flex-col sm:grid grid-cols-main sm:flex-row h-screen w-screen max-w-3xl"}>
     <div
       className="flex-1 flex flex-col w-screen sm:w-auto sm:max-w-[350px] p-2  overflow-y-scroll items-center">
       <div className="flex flex-row justify-between items-center w-full px-4">
         <PageTitle />
-        {currentBits->Option.isNone
+        {rotation->Option.isNone
           ? React.null
           : <button
               className={"flex flex-row gap-2 py-1 px-5 rounded-full items-center
@@ -674,8 +705,7 @@ let make = () => {
           <div className="grid grid-cols-6 overflow-x-scroll gap-2">
             {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]->reactMap(num => {
               <StepButton
-                selected={selectedNoteNum->Option.mapWithDefault(false, i => num == i)}
-                onClick={_ => setSelectedNoteNum(_ => Some(num))}>
+                selected={selectedNoteNum == num} onClick={_ => setSelectedNoteNum(_ => num)}>
                 {num->Int.toString->str}
               </StepButton>
             })}
@@ -692,33 +722,29 @@ let make = () => {
     </div>
     <div className="flex-1 sm:flex-1  h-full overflow-scroll xs:px-2">
       <div className="sm:max-w-[500px] pt-2">
-        {selectedGenus->Option.mapWithDefault(React.null, ((genusId, species)) => {
-          <div className={"mb-1"}>
-            <div className="flex flex-row items-center py-2 font-medium justify-center ">
-              {`${genusId->Int.toString} notes: ${species
-                ->Map.String.toArray
-                ->Array.length
-                ->Int.toString} possible scales`->str}
-            </div>
-            <div className={[""]->join}>
-              {species
-              ->Map.String.toArray
-              ->reactMap(((speciesId, speciesDetails)) =>
-                <Species
-                  showNonModes={showNonModes}
-                  key={speciesId}
-                  genusId={genusId}
-                  currentBits={currentBits}
-                  setCurrentBits={setCurrentBits}
-                  currentKey={currentKey}
-                  currentStepDisplay={currentStepDisplay}
-                  speciesId={speciesId}
-                  speciesDetails={speciesDetails}
-                />
-              )}
-            </div>
+        <div className={"mb-1"}>
+          <div className="flex flex-row items-center py-2 font-medium justify-center ">
+            {`${selectedNoteNum->Int.toString} notes: ${species
+              ->Array.length
+              ->Int.toString} possible scales`->str}
           </div>
-        })}
+          <div className={[""]->join}>
+            {species->reactMap(((speciesId, modes)) =>
+              <Species
+                showNonModes={showNonModes}
+                key={speciesId->Int.toString}
+                genusId={selectedNoteNum}
+                rotation={rotation}
+                setRotation={setRotation}
+                currentKey={currentKey}
+                currentStepDisplay={currentStepDisplay}
+                speciesId={speciesId}
+                modes={modes}
+              // speciesDetails={speciesDetails}
+              />
+            )}
+          </div>
+        </div>
       </div>
     </div>
   </div>

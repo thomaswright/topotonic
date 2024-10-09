@@ -164,9 +164,7 @@ export const SVG = ({ data, currentKey = 0, onKeyChange }) => {
         fill="none"
         stroke={"currentColor"}
       />
-      {data.map(([label, bit], i) => {
-        const selected = bit === 1;
-
+      {data.map(([label, selected], i) => {
         return (
           <React.Fragment key={label + "lines"}>
             <RadialLine
@@ -192,8 +190,7 @@ export const SVG = ({ data, currentKey = 0, onKeyChange }) => {
           </React.Fragment>
         );
       })}
-      {cycledData.map(([label, bit], i) => {
-        let selected = bit == 1;
+      {cycledData.map(([label, selected], i) => {
         return (
           <React.Fragment key={label + "notes"}>
             <RadialText
