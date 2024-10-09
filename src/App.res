@@ -20,6 +20,7 @@ let reactMapWithIndex = (a, f) => a->Array.mapWithIndex(f)->React.array
 @module("./rotation.js")
 external areInSameRotationClass: (int, int) => bool = "areInSameRotationClass"
 @module("./rotation.js") external getMinRotation: int => int = "getMinRotation"
+@module("./rotation.js") external getMaxRotation: int => int = "getMaxRotation"
 
 module Logo = {
   @module("./Icons.jsx") @react.component
@@ -380,16 +381,17 @@ module Species = {
         //   currentBits->Option.mapWithDefault(false, c => c->BitOps.intArrayToString == speciesId)
 
         let scaleName = speciesId->intToBoolArray->Array.joinWith("", v => v ? "1" : "0")
+        let speciesMax = speciesId->getMaxRotation
 
         let onClickHeader = _ => {
           rotation->Option.mapWithDefault(
             {
               setSpeciesHidden(_ => false)
-              setRotation(_ => speciesId->Some)
+              setRotation(_ => speciesMax->Some)
             },
             _ => {
               setSpeciesHidden(_ => !speciesHidden ? anySelected : !speciesHidden)
-              setRotation(_ => anySelected ? None : speciesId->Some)
+              setRotation(_ => anySelected ? None : speciesMax->Some)
             },
           )
         }
@@ -402,120 +404,120 @@ module Species = {
             ]->join}>
             {speciesNames->str}
           </div>
-
         <div
           className={[
             " rounded-xl mb-2 cursor-pointer font-bold",
             speciesHidden ? "bg-[var(--species-bg)] " : "bg-[var(--species-open-bg)] ",
           ]->join}>
-          {speciesHidden
-            ? <div className={[""]->join} onClick={onClickHeader}>
-                {if speciesNames != "" {
-                  <div
-                    className={[
-                      " flex flex-row justify-start tracking-tight  items-center pt-1 px-3",
-                    ]->join}>
-                    {speciesNamesComp}
-                  </div>
-                } else if speciesModeNames != "" {
-                  <div className=" flex flex-row justify-start items-center  pt-1 px-3">
-                    <div
-                      className="text-[var(--species-text)]  flex-1 text-ellipsis overflow-hidden whitespace-nowrap">
-                      {("Modes: " ++ speciesModeNames)->str}
-                    </div>
-                  </div>
-                } else {
-                  React.null
-                }}
+          {if speciesHidden {
+            <div className={[""]->join} onClick={onClickHeader}>
+              {if speciesNames != "" {
                 <div
-                  className="flex flex-row bg-[var(--species-scales)] rounded-xl py-1 font-medium">
-                  <Scale
-                    selected={false}
-                    currentKey={currentKey}
-                    rotation={speciesId}
-                    kind={Species}
-                    currentStepDisplay={currentStepDisplay}
-                  />
-                  // <div className=" flex-none flex flex-row items-center justify-center w-10 px-1">
-                  //   {speciesDetails.isSymmetric ? <Symmetry /> : React.null}
-                  // </div>
+                  className={[
+                    " flex flex-row justify-start tracking-tight  items-center pt-1 px-3",
+                  ]->join}>
+                  {speciesNamesComp}
+                </div>
+              } else if speciesModeNames != "" {
+                <div className=" flex flex-row justify-start items-center  pt-1 px-3">
+                  <div
+                    className="text-[var(--species-text)]  flex-1 text-ellipsis overflow-hidden whitespace-nowrap">
+                    {("Modes: " ++ speciesModeNames)->str}
+                  </div>
+                </div>
+              } else {
+                React.null
+              }}
+              <div className="flex flex-row bg-[var(--species-scales)] rounded-xl py-1 font-medium">
+                <Scale
+                  selected={false}
+                  currentKey={currentKey}
+                  rotation={speciesMax}
+                  kind={Species}
+                  currentStepDisplay={currentStepDisplay}
+                />
+                // <div className=" flex-none flex flex-row items-center justify-center w-10 px-1">
+                //   {speciesDetails.isSymmetric ? <Symmetry /> : React.null}
+                // </div>
+              </div>
+            </div>
+          } else {
+            <div>
+              <div
+                onClick={_ => {
+                  setSpeciesHidden(_ => true)
+                }}
+                className=" flex flex-row justify-start items-center px-3 pt-1">
+                {speciesNamesComp}
+                <div className={"flex flex-row items-center justify-center gap-2"}>
+                  <div className="flex-none"> {false ? <Symmetry /> : React.null} </div>
+                  <div className="flex-none text-sm tracking-wide "> {`#${scaleName}`->str} </div>
                 </div>
               </div>
-            : <div>
+              <div className="p-2 pt-0 bg-[var(--species-scales)] rounded-xl">
                 <div
-                  onClick={_ => {
-                    setSpeciesHidden(_ => true)
-                  }}
-                  className=" flex flex-row justify-start items-center px-3 pt-1">
-                  {speciesNamesComp}
-                  <div className={"flex flex-row items-center justify-center gap-2"}>
-                    <div className="flex-none"> {false ? <Symmetry /> : React.null} </div>
-                    <div className="flex-none text-sm tracking-wide "> {`#${scaleName}`->str} </div>
-                  </div>
+                  className={[
+                    "rounded-lg flex flex-col divide-y bg-white divide-[var(--species-open-bg)]",
+                  ]->join}>
+                  {modes->reactMapWithIndex((_i, modeId) => {
+                    let selected = rotation->Option.mapWithDefault(false, c => c == modeId)
+
+                    let modeKind = modeId->intToBoolArray->Array.getUnsafe(0) ? Mode : NonMode
+
+                    let modeNames = ""
+                    // speciesNameData
+                    // ->Array.keepMap(((s, _, modes)) => {
+                    //   modes->Array.getBy(
+                    //     ((mId, _)) => {
+                    //       modeId == s->scaleRepToMode(mId)
+                    //     },
+                    //   )
+                    // })
+                    // ->Array.get(0)
+                    // ->Option.mapWithDefault([], ((_, modeNames)) =>
+                    //   modeNames->Array.map(((_, name)) => name)
+                    // )
+                    // ->Js.Array2.joinWith(" • ")
+
+                    {
+                      modeKind == NonMode && !showNonModes
+                        ? React.null
+                        : <div
+                            onClick={_ => setRotation(_ => modeId->Some)}
+                            key={modeId->Int.toString}
+                            className={[
+                              "flex flex-col py-1 sm:justify-start justify-center ",
+                              selected
+                                ? "text-[var(--accent)] bg-[var(--scale-highlight)] font-black"
+                                : modeKind == NonMode
+                                ? "text-neutral-400 font-medium "
+                                : "  font-medium",
+                            ]->join}>
+                            <Scale
+                              selected={selected}
+                              currentKey={currentKey}
+                              currentStepDisplay={currentStepDisplay}
+                              rotation={modeId}
+                              kind={modeKind}
+                            />
+                            {modeNames == ""
+                              ? React.null
+                              : <div
+                                  className={[
+                                    "flex flex-row tracking-tight items-center text-xs px-3 py-0.5 flex-1",
+                                    selected
+                                      ? " text-[var(--species-text)] "
+                                      : "   text-[var(--species-text)]",
+                                  ]->join}>
+                                  {modeNames->str}
+                                </div>}
+                          </div>
+                    }
+                  })}
                 </div>
-                <div className="p-2 pt-0 bg-[var(--species-scales)] rounded-xl">
-                  <div
-                    className={[
-                      "rounded-lg flex flex-col divide-y bg-white divide-[var(--species-open-bg)]",
-                    ]->join}>
-                    {modes->reactMapWithIndex((_i, modeId) => {
-                      let selected = rotation->Option.mapWithDefault(false, c => c == modeId)
-
-                      let modeKind = modeId->intToBoolArray->Array.getUnsafe(0) ? Mode : NonMode
-
-                      let modeNames = ""
-                      // speciesNameData
-                      // ->Array.keepMap(((s, _, modes)) => {
-                      //   modes->Array.getBy(
-                      //     ((mId, _)) => {
-                      //       modeId == s->scaleRepToMode(mId)
-                      //     },
-                      //   )
-                      // })
-                      // ->Array.get(0)
-                      // ->Option.mapWithDefault([], ((_, modeNames)) =>
-                      //   modeNames->Array.map(((_, name)) => name)
-                      // )
-                      // ->Js.Array2.joinWith(" • ")
-
-                      {
-                        modeKind == NonMode && !showNonModes
-                          ? React.null
-                          : <div
-                              onClick={_ => setRotation(_ => modeId->Some)}
-                              key={modeId->Int.toString}
-                              className={[
-                                "flex flex-col py-1 sm:justify-start justify-center ",
-                                selected
-                                  ? "text-[var(--accent)] bg-[var(--scale-highlight)] font-black"
-                                  : modeKind == NonMode
-                                  ? "text-neutral-400 font-medium "
-                                  : "  font-medium",
-                              ]->join}>
-                              <Scale
-                                selected={selected}
-                                currentKey={currentKey}
-                                currentStepDisplay={currentStepDisplay}
-                                rotation={modeId}
-                                kind={modeKind}
-                              />
-                              {modeNames == ""
-                                ? React.null
-                                : <div
-                                    className={[
-                                      "flex flex-row tracking-tight items-center text-xs px-3 py-0.5 flex-1",
-                                      selected
-                                        ? " text-[var(--species-text)] "
-                                        : "   text-[var(--species-text)]",
-                                    ]->join}>
-                                    {modeNames->str}
-                                  </div>}
-                            </div>
-                      }
-                    })}
-                  </div>
-                </div>
-              </div>}
+              </div>
+            </div>
+          }}
         </div>
       }}
     />
@@ -729,7 +731,9 @@ let make = () => {
               ->Int.toString} possible scales`->str}
           </div>
           <div className={[""]->join}>
-            {species->reactMap(((speciesId, modes)) =>
+            {species
+            ->Array.reverse
+            ->reactMap(((speciesId, modes)) =>
               <Species
                 showNonModes={showNonModes}
                 key={speciesId->Int.toString}

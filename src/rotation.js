@@ -17,6 +17,17 @@ export function getMinRotation(num, bits = 12) {
   return minRotation;
 }
 
+export function getMaxRotation(num, bits = 12) {
+  let maxRotation = num;
+  for (let i = 1; i < bits; i++) {
+    const rotated = rotateLeft(num, bits, i);
+    if (rotated > maxRotation) {
+      maxRotation = rotated;
+    }
+  }
+  return maxRotation;
+}
+
 function getAllRotations(num, bits = 12) {
   let rotations = new Set();
   let rotationsArr = [];
@@ -36,23 +47,19 @@ export function areInSameRotationClass(a, b, bits = 12) {
 }
 
 function groupByRotationClass(bits = 12) {
-  let groups = {};
-  let visited = new Set();
+  let species = new Set();
 
   for (let num = 0; num < 1 << bits; num++) {
-    if (visited.has(num)) continue;
-
     const rotations = getAllRotations(num, bits);
-    rotations.forEach((rot) => visited.add(rot));
     let minRotation = Math.min(...rotations);
 
-    if (!groups[minRotation]) {
-      groups[minRotation] = [];
-    }
-    groups[minRotation].push(num);
+    species.add(minRotation);
   }
 
-  return Object.entries(groups);
+  return Array.from(species).map((v) => [
+    v,
+    getAllRotations(getMaxRotation(v), bits),
+  ]);
 }
 
 export const rotationGroups = groupByRotationClass(12);

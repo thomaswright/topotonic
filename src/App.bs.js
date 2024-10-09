@@ -42,6 +42,10 @@ function getMinRotation(prim) {
   return RotationJs.getMinRotation(prim);
 }
 
+function getMaxRotation(prim) {
+  return RotationJs.getMaxRotation(prim);
+}
+
 var make = IconsJsx.Logo;
 
 var Logo = {
@@ -495,11 +499,12 @@ function App$Species(Props) {
                             return "0";
                           }
                         }));
+                  var speciesMax = RotationJs.getMaxRotation(speciesId);
                   var onClickHeader = function (param) {
                     Belt_Option.mapWithDefault(rotation, (Curry._1(setSpeciesHidden, (function (param) {
                                   return false;
                                 })), Curry._1(setRotation, (function (param) {
-                                  return speciesId;
+                                  return speciesMax;
                                 }))), (function (param) {
                             Curry._1(setSpeciesHidden, (function (param) {
                                     if (speciesHidden) {
@@ -512,7 +517,7 @@ function App$Species(Props) {
                                     if (anySelected) {
                                       return ;
                                     } else {
-                                      return speciesId;
+                                      return speciesMax;
                                     }
                                   }));
                           }));
@@ -542,7 +547,7 @@ function App$Species(Props) {
                                     ), React.createElement("div", {
                                         className: "flex flex-row bg-[var(--species-scales)] rounded-xl py-1 font-medium"
                                       }, React.createElement(App$Scale, {
-                                            rotation: speciesId,
+                                            rotation: speciesMax,
                                             currentStepDisplay: currentStepDisplay,
                                             currentKey: currentKey,
                                             kind: /* Species */0,
@@ -841,7 +846,7 @@ function App(Props) {
                               className: "flex flex-row items-center py-2 font-medium justify-center "
                             }, "" + String(selectedNoteNum) + " notes: " + String(species.length) + " possible scales"), React.createElement("div", {
                               className: [""].join(" ")
-                            }, Belt_Array.map(species, (function (param) {
+                            }, Belt_Array.map(Belt_Array.reverse(species), (function (param) {
                                     var speciesId = param[0];
                                     return React.createElement(App$Species, {
                                                 genusId: selectedNoteNum,
@@ -870,6 +875,7 @@ export {
   intToBoolArray ,
   areInSameRotationClass ,
   getMinRotation ,
+  getMaxRotation ,
   Logo ,
   SVG ,
   Symmetry ,
