@@ -159,8 +159,9 @@ export const SVG = ({
 
   let radius = boxSize / 3.5;
   let cycledData = cycleArray(labels, currentKey);
-  console.log(playing);
   let numNotes = selected.slice(0).filter((x) => x).length;
+  let shift = selected.slice(0, rotationOffset).filter((x) => x).length;
+
   return (
     <svg viewBox="0 0 100 80" xmlns="http://www.w3.org/2000/svg">
       <circle
@@ -185,7 +186,7 @@ export const SVG = ({
         {selected.map((s, i) => {
           let numInSeq = selected.slice(0, i).filter((x) => x).length;
 
-          let isPlaying = playing % numNotes == numInSeq;
+          let isPlaying = (playing + shift) % numNotes == numInSeq;
           return (
             <React.Fragment key={i + "lines"}>
               <RadialLine
