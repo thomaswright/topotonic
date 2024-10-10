@@ -171,7 +171,6 @@ export const SVG = ({
         cx={center.x}
         cy={center.y}
         strokeWidth={0.5}
-        strokeOpacity={0.2}
         r={radius}
         fill="none"
         stroke={"currentColor"}

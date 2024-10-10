@@ -818,7 +818,7 @@ function App(Props) {
                               }), "Play")), React.createElement("div", {
                       className: " sm:max-h-min  max-w-[500px] w-full"
                     }, React.createElement("div", {
-                          className: "pt-2 w-full self-center"
+                          className: "pt-2 w-full self-center text-[var(--dim)]"
                         }, React.createElement(make$1, {
                               playing: match$1[0],
                               labels: graphDisplay,

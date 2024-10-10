@@ -711,7 +711,7 @@ let make = () => {
             </button>}
       </div>
       <div className=" sm:max-h-min  max-w-[500px] w-full">
-        <div className={"pt-2 w-full self-center"}>
+        <div className={"pt-2 w-full self-center text-[var(--dim)]"}>
           <SVG
             playing={playing}
             rotationOffset={rotationOffset}
