@@ -674,7 +674,7 @@ let make = () => {
       ->(x => x->Array.get(0)->Option.mapWithDefault(x, head => Array.concat(x, [head * 2])))
 
     seq->Array.forEachWithIndex((i, v) => {
-      triggerAttackRelease(. v, "8n", i->Int.toFloat *. 0.5)
+      triggerAttackRelease(. v, "4n", i->Int.toFloat *. 0.5)
       Js.Global.setTimeout(() => {
         setPlaying(_ => Some(i))
       }, i * 500)->ignore

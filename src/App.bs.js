@@ -800,7 +800,7 @@ function App(Props) {
                                         return Belt_Array.concat(x, [(head << 1)]);
                                       }));
                                 Belt_Array.forEachWithIndex(seq, (function (i, v) {
-                                        triggerAttackRelease(v, "8n", i * 0.5);
+                                        triggerAttackRelease(v, "4n", i * 0.5);
                                         setTimeout((function (param) {
                                                 Curry._1(setPlaying, (function (param) {
                                                         return i;

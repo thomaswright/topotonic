@@ -5,11 +5,11 @@
 :root {
   --red: #9a0016;
   --pink: #ffcbb6;
-  --blue: #008fa2;
+  --blue: #00a0b5;
   --mid: #fff2df;
   --dim: #bc8974;
 
-  background-color: #fffbf4;
+  background-color: #fffdf8;
   color: #280d00;
 
   --logo: var(--blue);
