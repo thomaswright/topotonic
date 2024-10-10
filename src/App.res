@@ -32,6 +32,7 @@ module Logo = {
 module SVG = {
   @module("./SVG.jsx") @react.component
   external make: (
+    ~playing: option<int>,
     ~labels: array<string>,
     ~selected: array<bool>,
     ~currentKey: int,
@@ -597,6 +598,7 @@ module StepDisplay = {
 let make = () => {
   // let (currentBits, setCurrentBits) = React.useState(_ => None)
   let (rotation: option<int>, setRotation) = React.useState(_ => None)
+  let (playing, setPlaying) = React.useState(_ => None)
   let (selectedNoteNum: int, setSelectedNoteNum) = React.useState(_ => 7)
   let (currentKey: int, setCurrentKey) = React.useState(_ => 0)
   let (currentStepDisplay: stepDisplay, setCurrentStepDisplay) = React.useState(_ => Key)
@@ -673,8 +675,15 @@ let make = () => {
 
     seq->Array.forEachWithIndex((i, v) => {
       triggerAttackRelease(. v, "8n", i->Int.toFloat *. 0.5)
+      Js.Global.setTimeout(() => {
+        setPlaying(_ => Some(i))
+      }, i * 500)->ignore
     })
+    Js.Global.setTimeout(() => {
+      setPlaying(_ => None)
+    }, seq->Array.length * 500)->ignore
   }
+
   let species = rotationGroups->Array.keep(((speciesId, scales)) => {
     speciesId->intToBoolArray->Array.keep(x => x)->Array.length == selectedNoteNum
   })
@@ -704,6 +713,7 @@ let make = () => {
       <div className=" sm:max-h-min  max-w-[500px] w-full">
         <div className={"pt-2 w-full self-center"}>
           <SVG
+            playing={playing}
             rotationOffset={rotationOffset}
             labels={graphDisplay}
             selected={rotation->Option.mapWithDefault(Array.make(12, false), (b: int) =>

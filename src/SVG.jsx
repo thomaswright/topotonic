@@ -140,6 +140,7 @@ function cycleArray(arr, m) {
 }
 
 export const SVG = ({
+  playing,
   labels,
   selected,
   currentKey = 0,
@@ -158,7 +159,8 @@ export const SVG = ({
 
   let radius = boxSize / 3.5;
   let cycledData = cycleArray(labels, currentKey);
-
+  console.log(playing);
+  let numNotes = selected.slice(0).filter((x) => x).length;
   return (
     <svg viewBox="0 0 100 80" xmlns="http://www.w3.org/2000/svg">
       <circle
@@ -180,7 +182,10 @@ export const SVG = ({
           `,
         }}
       >
-        {selected.map((selected, i) => {
+        {selected.map((s, i) => {
+          let numInSeq = selected.slice(0, i).filter((x) => x).length;
+
+          let isPlaying = playing % numNotes == numInSeq;
           return (
             <React.Fragment key={i + "lines"}>
               <RadialLine
@@ -192,7 +197,7 @@ export const SVG = ({
                 strokeWidth={0.5}
                 color={"currentColor"}
               />
-              {selected ? (
+              {s ? (
                 <RadialLine
                   x={center.x}
                   y={center.y}
@@ -200,7 +205,7 @@ export const SVG = ({
                   end={radius * 1.1}
                   deg={i * orderDegree}
                   strokeWidth={2}
-                  color={"var(--accent)"}
+                  color={isPlaying ? "var(--red)" : "var(--accent)"}
                 />
               ) : null}
             </React.Fragment>

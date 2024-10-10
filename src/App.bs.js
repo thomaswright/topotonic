@@ -706,24 +706,28 @@ function App(Props) {
   var setRotation = match[1];
   var rotation = match[0];
   var match$1 = React.useState(function () {
+        
+      });
+  var setPlaying = match$1[1];
+  var match$2 = React.useState(function () {
         return 7;
       });
-  var setSelectedNoteNum = match$1[1];
-  var selectedNoteNum = match$1[0];
-  var match$2 = React.useState(function () {
+  var setSelectedNoteNum = match$2[1];
+  var selectedNoteNum = match$2[0];
+  var match$3 = React.useState(function () {
         return 0;
       });
-  var setCurrentKey = match$2[1];
-  var currentKey = match$2[0];
-  var match$3 = React.useState(function () {
+  var setCurrentKey = match$3[1];
+  var currentKey = match$3[0];
+  var match$4 = React.useState(function () {
         return /* Key */0;
       });
-  var currentStepDisplay = match$3[0];
-  var match$4 = React.useState(function () {
+  var currentStepDisplay = match$4[0];
+  var match$5 = React.useState(function () {
         return false;
       });
-  var setShowNonModes = match$4[1];
-  var showNonModes = match$4[0];
+  var setShowNonModes = match$5[1];
+  var showNonModes = match$5[0];
   var graphDisplay;
   switch (currentStepDisplay) {
     case /* Key */0 :
@@ -797,7 +801,17 @@ function App(Props) {
                                       }));
                                 Belt_Array.forEachWithIndex(seq, (function (i, v) {
                                         triggerAttackRelease(v, "8n", i * 0.5);
+                                        setTimeout((function (param) {
+                                                Curry._1(setPlaying, (function (param) {
+                                                        return i;
+                                                      }));
+                                              }), Math.imul(i, 500));
                                       }));
+                                setTimeout((function (param) {
+                                        Curry._1(setPlaying, (function (param) {
+                                                
+                                              }));
+                                      }), Math.imul(seq.length, 500));
                               })
                           }, React.createElement(Fa.FaPlay, {
                                 size: 14
@@ -806,6 +820,7 @@ function App(Props) {
                     }, React.createElement("div", {
                           className: "pt-2 w-full self-center"
                         }, React.createElement(make$1, {
+                              playing: match$1[0],
                               labels: graphDisplay,
                               selected: Belt_Option.mapWithDefault(rotation, Belt_Array.make(12, false), (function (b) {
                                       return RotationJs.intToBoolArray(RotationJs.getMaxRotation(b));
@@ -823,7 +838,7 @@ function App(Props) {
                             className: "w-full tracking-tight text-center font-black text-[var(--species-text)]"
                           }, "Mode: " + modeNames + ""), React.createElement(App$StepDisplay, {
                           currentStepDisplay: currentStepDisplay,
-                          setCurrentStepDisplay: match$3[1]
+                          setCurrentStepDisplay: match$4[1]
                         }), React.createElement(App$Card, {
                           title: "Number of notes",
                           children: React.createElement("div", {
