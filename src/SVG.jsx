@@ -73,6 +73,7 @@ const RadialText = ({
   selected,
   currentKey,
   onClick,
+  fill,
 }) => {
   // let [dominantBaseline, textAnchor] = getTextAnchors12(deg - currentKey * 30);
   let angle = deg - 90 - currentKey * 30;
@@ -94,7 +95,7 @@ const RadialText = ({
         dominantBaseline={"middle"}
         textAnchor={"middle"}
         fontSize={5}
-        fill={selected ? "var(--accent)" : "currentColor"}
+        fill={fill}
         className={selected ? "font-black" : "font-medium"}
       >
         {text}
@@ -236,12 +237,22 @@ export const SVG = ({
       </g>
 
       {cycledData.map((label, i) => {
+        let newIndex = (i + rotationOffset + (12 - currentKey)) % order;
+        let numInSeq = selected.slice(0, newIndex).filter((x) => x).length;
+        let isPlaying = (playing + shift) % numNotes == numInSeq;
+        let s = selected[newIndex];
+
         return (
           <React.Fragment key={label + "notes"}>
             <RadialText
               currentKey={currentKey}
-              selected={
-                selected[(i + rotationOffset + (12 - currentKey)) % order]
+              selected={s}
+              fill={
+                s
+                  ? isPlaying
+                    ? "var(--red)"
+                    : "var(--accent)"
+                  : "currentColor"
               }
               x={center.x}
               y={center.y}
