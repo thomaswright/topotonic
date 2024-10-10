@@ -50,6 +50,10 @@ function rotateRightByOnes(prim0, prim1) {
   return RotationJs.rotateRightByOnes(prim0, prim1);
 }
 
+function getAllRotations(prim) {
+  return RotationJs.getAllRotations(prim);
+}
+
 var make = IconsJsx.Logo;
 
 var Logo = {
@@ -140,14 +144,14 @@ var pitchKeysShort = [
   "C",
   "C♯",
   "D",
-  "D♯",
+  "E♭",
   "E",
   "F",
   "F♯",
   "G",
-  "G♯",
+  "A♭",
   "A",
-  "A♯",
+  "B♭",
   "B"
 ];
 
@@ -740,11 +744,20 @@ function App(Props) {
     
   }
   var graphBits = Belt_Option.mapWithDefault(rotation, Belt_Array.make(12, false), (function (b) {
-          return RotationJs.intToBoolArray(b);
+          return RotationJs.intToBoolArray(RotationJs.getMaxRotation(b));
         }));
-  var modeNames = "";
+  var modeNames = Belt_Option.mapWithDefault(Belt_Array.get(Belt_Array.keepMap(Data.namedSpecies, (function (param) {
+                    var s = param[0];
+                    return Belt_Array.getBy(param[2], (function (param) {
+                                  return Belt_Option.getWithDefault(rotation, 0) === RotationJs.rotateRightByOnes(stepsToRotation(s), param[0] + 1 | 0);
+                                }));
+                  })), 0), [], (function (param) {
+            return Belt_Array.map(param[1], (function (param) {
+                          return param[1];
+                        }));
+          })).join(" • ");
   var scaleNames = Belt_Array.concatMany(Belt_Array.keepMap(Data.namedSpecies, (function (param) {
-                var isMatch = stepsToRotation(param[0]) === Belt_Option.getWithDefault(rotation, 0);
+                var isMatch = RotationJs.getMinRotation(stepsToRotation(param[0])) === RotationJs.getMinRotation(Belt_Option.getWithDefault(rotation, 0));
                 if (isMatch) {
                   return Belt_Array.map(param[1], (function (param) {
                                 return param[1];
@@ -757,6 +770,11 @@ function App(Props) {
                         return x;
                       })).length === selectedNoteNum;
         }));
+  var rotationOffset = Belt_Option.getWithDefault(Belt_Option.flatMap(rotation, (function (r) {
+              return Belt_Array.getIndexBy(RotationJs.getAllRotations(RotationJs.getMaxRotation(r)), (function (v) {
+                            return v === r;
+                          }));
+            })), 0);
   return React.createElement("div", {
               className: "flex  flex-col sm:grid grid-cols-main sm:flex-row h-screen w-screen max-w-3xl"
             }, React.createElement("div", {
@@ -788,13 +806,15 @@ function App(Props) {
                     }, React.createElement("div", {
                           className: "pt-2 w-full self-center"
                         }, React.createElement(make$1, {
-                              data: Belt_Array.zip(graphDisplay, graphBits),
+                              labels: graphDisplay,
+                              selected: graphBits,
                               currentKey: currentKey,
                               onKeyChange: (function (newKey) {
                                   Curry._1(setCurrentKey, (function (param) {
                                           return newKey;
                                         }));
-                                })
+                                }),
+                              rotationOffset: rotationOffset
                             })), scaleNames === "" ? null : React.createElement("div", {
                             className: "w-full tracking-tight text-center font-black  text-[var(--species-text)]"
                           }, "Scale: " + scaleNames + ""), modeNames === "" ? null : React.createElement("div", {
@@ -884,6 +904,7 @@ export {
   getMinRotation ,
   getMaxRotation ,
   rotateRightByOnes ,
+  getAllRotations ,
   Logo ,
   SVG ,
   Symmetry ,

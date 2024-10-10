@@ -22,6 +22,7 @@ external areInSameRotationClass: (int, int) => bool = "areInSameRotationClass"
 @module("./rotation.js") external getMinRotation: int => int = "getMinRotation"
 @module("./rotation.js") external getMaxRotation: int => int = "getMaxRotation"
 @module("./rotation.js") external rotateRightByOnes: (int, int) => int = "rotateRightByOnes"
+@module("./rotation.js") external getAllRotations: int => array<int> = "getAllRotations"
 
 module Logo = {
   @module("./Icons.jsx") @react.component
@@ -31,9 +32,11 @@ module Logo = {
 module SVG = {
   @module("./SVG.jsx") @react.component
   external make: (
-    ~data: array<(string, bool)>,
+    ~labels: array<string>,
+    ~selected: array<bool>,
     ~currentKey: int,
     ~onKeyChange: int => unit,
+    ~rotationOffset: int,
   ) => React.element = "SVG"
 }
 
@@ -109,7 +112,7 @@ module IntervalRefs = {
 
   let pitchKeys = [`C`, `C♯ `, `D`, `E♭`, `E`, `F`, `F♯ `, `G`, `A♭`, `A`, `B♭`, `B`]
 
-  let pitchKeysShort = [`C`, `C♯`, `D`, `D♯`, `E`, `F`, `F♯`, `G`, `G♯`, `A`, `A♯`, `B`]
+  let pitchKeysShort = [`C`, `C♯`, `D`, `E♭`, `E`, `F`, `F♯`, `G`, `A♭`, `A`, `B♭`, `B`]
   let semitones = [`0`, `1`, `2`, `3`, `4`, `5`, `6`, `7`, `8`, `9`, `10`, `11`]
   let mMPs = [`P1`, `m2`, `M2`, `m3`, `M3`, `P4`, `TT`, `P5`, `m6`, `M6`, `m7`, `M7`]
   // TODO: replace TT with d5/A4 when we have proper scaling
@@ -598,7 +601,6 @@ let make = () => {
   let (currentKey: int, setCurrentKey) = React.useState(_ => 0)
   let (currentStepDisplay: stepDisplay, setCurrentStepDisplay) = React.useState(_ => Key)
   let (showNonModes, setShowNonModes) = React.useState(_ => false)
-
   // let selectedGenus =
   //   selectedNoteNum->Option.flatMap(selectedNoteNum =>
   //     result
@@ -622,23 +624,26 @@ let make = () => {
   }
 
   let graphBits =
-    rotation->Option.mapWithDefault(Array.make(12, false), (b: int) => b->intToBoolArray)
+    rotation->Option.mapWithDefault(Array.make(12, false), (b: int) =>
+      b->getMaxRotation->intToBoolArray
+    )
 
-  let modeNames = ""
-  // Data.namedSpecies
-  // ->Array.keepMap(((s, _, modes)) => {
-  //   modes->Array.getBy(((mId, _)) => {
-  //     graphBits->BitOps.intArrayToString == s->scaleRepToMode(mId)
-  //   })
-  // })
-  // ->Array.get(0)
-  // ->Option.mapWithDefault([], ((_, modeNames)) => modeNames->Array.map(((_, name)) => name))
-  // ->Js.Array2.joinWith(" • ")
+  let modeNames =
+    Data.namedSpecies
+    ->Array.keepMap(((s, _, modes)) => {
+      modes->Array.getBy(((mId, _)) => {
+        rotation->Option.getWithDefault(0) == s->stepsToRotation->rotateRightByOnes(mId + 1)
+      })
+    })
+    ->Array.get(0)
+    ->Option.mapWithDefault([], ((_, modeNames)) => modeNames->Array.map(((_, name)) => name))
+    ->Js.Array2.joinWith(" • ")
 
   let scaleNames =
     Data.namedSpecies
     ->Array.keepMap(((sId, sNames, _modes)) => {
-      let isMatch = sId->stepsToRotation == rotation->Option.getWithDefault(0)
+      let isMatch =
+        sId->stepsToRotation->getMinRotation == rotation->Option.getWithDefault(0)->getMinRotation
       // graphBits
       // ->DataGeneration.getRotations
       // ->DataGeneration.any(x => {
@@ -672,6 +677,13 @@ let make = () => {
     speciesId->intToBoolArray->Array.keep(x => x)->Array.length == selectedNoteNum
   })
 
+  let rotationOffset =
+    rotation
+    ->Option.flatMap(r => {
+      r->getMaxRotation->getAllRotations->Array.getIndexBy(v => v == r)
+    })
+    ->Option.getWithDefault(0)
+
   <div className={"flex  flex-col sm:grid grid-cols-main sm:flex-row h-screen w-screen max-w-3xl"}>
     <div
       className="flex-1 flex flex-col w-screen sm:w-auto sm:max-w-[350px] p-2  overflow-y-scroll items-center">
@@ -690,7 +702,9 @@ let make = () => {
       <div className=" sm:max-h-min  max-w-[500px] w-full">
         <div className={"pt-2 w-full self-center"}>
           <SVG
-            data={Array.zip(graphDisplay, graphBits)}
+            rotationOffset={rotationOffset}
+            labels={graphDisplay}
+            selected={graphBits}
             currentKey={currentKey}
             onKeyChange={newKey => setCurrentKey(_ => newKey)}
           />

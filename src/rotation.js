@@ -51,7 +51,7 @@ export function getMaxRotation(num, bits = 12) {
   return maxRotation;
 }
 
-function getAllRotations(num, bits = 12) {
+export function getAllRotations(num, bits = 12) {
   let rotations = new Set();
   let rotationsArr = [];
   for (let i = 0; i < bits; i++) {

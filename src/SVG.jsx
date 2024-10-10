@@ -139,9 +139,14 @@ function cycleArray(arr, m) {
   return arr.slice(-shift).concat(arr.slice(0, -shift));
 }
 
-export const SVG = ({ data, currentKey = 0, onKeyChange }) => {
-  // console.log({ data });
-  let order = data.length;
+export const SVG = ({
+  labels,
+  selected,
+  currentKey = 0,
+  onKeyChange,
+  rotationOffset,
+}) => {
+  let order = labels.length;
   let boxSize = 100;
   let orderDegree = 360 / order;
   let translate = 10;
@@ -152,7 +157,7 @@ export const SVG = ({ data, currentKey = 0, onKeyChange }) => {
   };
 
   let radius = boxSize / 3.5;
-  let cycledData = cycleArray(data, currentKey);
+  let cycledData = cycleArray(labels, currentKey);
 
   return (
     <svg viewBox="0 0 100 80" xmlns="http://www.w3.org/2000/svg">
@@ -164,38 +169,53 @@ export const SVG = ({ data, currentKey = 0, onKeyChange }) => {
         fill="none"
         stroke={"currentColor"}
       />
-      {data.map(([label, selected], i) => {
-        return (
-          <React.Fragment key={label + "lines"}>
-            <RadialLine
-              x={center.x}
-              y={center.y}
-              start={radius * 0.9}
-              end={radius * 1.1}
-              deg={i * orderDegree}
-              strokeWidth={0.5}
-              color={"currentColor"}
-            />
-            {selected ? (
+      <g
+        style={{
+          transition: "transform 1s ease-in-out",
+          transform: `
+          translate(${center.x}px, ${center.y}px)
+          rotate(-${rotationOffset * 30}deg)
+          translate(-${center.x}px, -${center.y}px)
+
+          `,
+        }}
+      >
+        {selected.map((selected, i) => {
+          return (
+            <React.Fragment key={i + "lines"}>
               <RadialLine
                 x={center.x}
                 y={center.y}
-                start={0}
+                start={radius * 0.9}
                 end={radius * 1.1}
                 deg={i * orderDegree}
-                strokeWidth={2}
-                color={"var(--accent)"}
+                strokeWidth={0.5}
+                color={"currentColor"}
               />
-            ) : null}
-          </React.Fragment>
-        );
-      })}
-      {cycledData.map(([label, selected], i) => {
+              {selected ? (
+                <RadialLine
+                  x={center.x}
+                  y={center.y}
+                  start={0}
+                  end={radius * 1.1}
+                  deg={i * orderDegree}
+                  strokeWidth={2}
+                  color={"var(--accent)"}
+                />
+              ) : null}
+            </React.Fragment>
+          );
+        })}
+      </g>
+
+      {cycledData.map((label, i) => {
         return (
           <React.Fragment key={label + "notes"}>
             <RadialText
               currentKey={currentKey}
-              selected={selected}
+              selected={
+                selected[(i + rotationOffset + (12 - currentKey)) % order]
+              }
               x={center.x}
               y={center.y}
               radius={radius * 1.2}
