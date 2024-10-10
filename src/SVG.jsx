@@ -111,16 +111,19 @@ const RadialLine = ({
   deg,
   color = "black",
   strokeWidth = 1,
+  radius = 0,
 }) => {
   return (
     <g transform={`translate(${x} ${y}) rotate(${deg - 90})`}>
-      <line
-        x1={start}
-        x2={end}
-        y1={0}
-        y2={0}
-        stroke={color}
-        strokeWidth={strokeWidth}
+      <rect
+        rx={radius}
+        ry={radius}
+        x={start}
+        y={-strokeWidth / 2}
+        width={end - start}
+        height={strokeWidth}
+        fill={color}
+        // strokeWidth={strokeWidth}
       />
     </g>
   );
@@ -168,10 +171,12 @@ export const SVG = ({
         cx={center.x}
         cy={center.y}
         strokeWidth={0.5}
+        strokeOpacity={0.2}
         r={radius}
         fill="none"
         stroke={"currentColor"}
       />
+
       <g
         style={{
           transition: "transform 1s ease-in-out",
@@ -192,10 +197,11 @@ export const SVG = ({
               <RadialLine
                 x={center.x}
                 y={center.y}
-                start={radius * 0.9}
-                end={radius * 1.1}
+                start={radius - 1}
+                end={radius + 1}
                 deg={i * orderDegree}
-                strokeWidth={0.5}
+                strokeWidth={2}
+                radius={1}
                 color={"currentColor"}
               />
               {s ? (
@@ -206,6 +212,7 @@ export const SVG = ({
                   end={radius * 1.1}
                   deg={i * orderDegree}
                   strokeWidth={2}
+                  radius={1}
                   color={isPlaying ? "var(--red)" : "var(--accent)"}
                 />
               ) : null}
@@ -232,6 +239,15 @@ export const SVG = ({
           </React.Fragment>
         );
       })}
+
+      {/* <circle
+        cx={center.x}
+        cy={center.y}
+        strokeWidth={0.5}
+        r={radius * 0.1}
+        stroke="none"
+        fill={"var(--accent)"}
+      /> */}
     </svg>
   );
 };
