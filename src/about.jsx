@@ -4,7 +4,7 @@ import { Cross2Icon } from "@radix-ui/react-icons";
 
 const About = () => {
   return (
-    <div id="about">
+    <div id="about" className="overflow-y-scroll flex-1">
       <p>
         Topotonic lists all the scales, all the scale modes, and all the
         (additional) pitch classes possible for a 12 tone system along with
@@ -21,10 +21,10 @@ const About = () => {
         example, the pentatonic scale in binary is 101010010100, which is 2708
         in decimal.
       </p>
-      <p>
+      {/* <p>
         A symmetry icon means the scale has bilateral symmetry for at least one
         pitch class (though not necessarily a mode).
-      </p>
+      </p> */}
       <p>
         Scales are reduced with regards to symmetry. For example, the first
         scale of 4 notes (#2340) has D4 dihedral symmetry and so is reduced to
@@ -51,10 +51,13 @@ const AboutDialog = () => (
         className="shadow-xl bg-[var(--mid)] fixed left-1/2 top-1/2 max-h-[85vh] w-[90vw] max-w-[450px] -translate-x-1/2 -translate-y-1/2 rounded-md bg-white p-[25px] 
          focus:outline-none data-[state=open]:animate-contentShow"
       >
-        <Dialog.Title className="m-0 text-[17px] font-black">
-          About Topotonic
-        </Dialog.Title>
-        <About />
+        <div className="flex flex-col max-h-[70vh]">
+          <Dialog.Title className="m-0 text-lg font-black ">
+            About Topotonic
+          </Dialog.Title>
+          <About />
+        </div>
+
         <Dialog.Close asChild>
           <button
             className="absolute right-2.5 top-2.5 inline-flex size-[25px] appearance-none items-center justify-center rounded-full  focus:outline-none"
