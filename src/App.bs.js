@@ -380,6 +380,8 @@ function App$Scale(Props) {
   var rotation = Props.rotation;
   var currentStepDisplay = Props.currentStepDisplay;
   var currentKey = Props.currentKey;
+  var playing = Props.playing;
+  var selected = Props.selected;
   var tmp;
   if (currentStepDisplay >= 4) {
     switch (currentStepDisplay) {
@@ -398,10 +400,13 @@ function App$Scale(Props) {
     tmp = 12;
   }
   getGridCols(tmp);
-  var container = function (i, content) {
+  var container = function (i, isPlaying, content) {
     return React.createElement("div", {
                 key: String(i),
-                className: ["w-6 flex flex-row items-center justify-center "].join(" ")
+                className: [
+                    "w-6 flex flex-row items-center justify-center ",
+                    isPlaying ? "text-[var(--red)]" : ""
+                  ].join(" ")
               }, content);
   };
   var tmp$1;
@@ -410,11 +415,19 @@ function App$Scale(Props) {
     switch (currentStepDisplay) {
       case /* SemitoneSteps */4 :
           tmp$1 = Belt_Array.mapWithIndex(rotationToSemitoneSteps(rotation), (function (i, step) {
-                  return container(i, String(step));
+                  var isPlaying = selected && Belt_Option.mapWithDefault(playing, false, (function (playing) {
+                          return playing === i;
+                        }));
+                  return container(i, isPlaying, String(step));
                 }));
           break;
       case /* HalfnoteSteps */5 :
-          tmp$1 = Belt_Array.mapWithIndex(rotationToHalfnoteSteps(rotation), container);
+          tmp$1 = Belt_Array.mapWithIndex(rotationToHalfnoteSteps(rotation), (function (i, step) {
+                  var isPlaying = selected && Belt_Option.mapWithDefault(playing, false, (function (playing) {
+                          return playing === i;
+                        }));
+                  return container(i, isPlaying, step);
+                }));
           break;
       case /* Binary */6 :
           exit = 1;
@@ -426,7 +439,13 @@ function App$Scale(Props) {
   }
   if (exit === 1) {
     tmp$1 = Belt_Array.mapWithIndex(RotationJs.intToBoolArray(rotation), (function (i, bit) {
-            return container(i, bitToDisplaySymbol(bit, i, currentKey, currentStepDisplay, rotation));
+            var isPlaying = selected && bit && Belt_Option.mapWithDefault(playing, false, (function (playing) {
+                    var numInSeq = Belt_Array.keep(RotationJs.intToBoolArray(rotation).slice(0, i), (function (x) {
+                            return x;
+                          })).length;
+                    return playing === numInSeq;
+                  }));
+            return container(i, isPlaying, bitToDisplaySymbol(bit, i, currentKey, currentStepDisplay, rotation));
           }));
   }
   return React.createElement("div", {
@@ -453,6 +472,7 @@ function stepsToRotation(steps) {
 }
 
 function App$Species(Props) {
+  var playing = Props.playing;
   var rotation = Props.rotation;
   var currentStepDisplay = Props.currentStepDisplay;
   var setRotation = Props.setRotation;
@@ -553,6 +573,7 @@ function App$Species(Props) {
                                             currentStepDisplay: currentStepDisplay,
                                             currentKey: currentKey,
                                             kind: /* Species */0,
+                                            playing: playing,
                                             selected: false
                                           }))) : React.createElement("div", undefined, React.createElement("div", {
                                         className: " flex flex-row justify-start items-center px-3 pt-1",
@@ -607,6 +628,7 @@ function App$Species(Props) {
                                                                     currentStepDisplay: currentStepDisplay,
                                                                     currentKey: currentKey,
                                                                     kind: modeKind,
+                                                                    playing: playing,
                                                                     selected: selected
                                                                   }), modeNames === "" ? null : React.createElement("div", {
                                                                       className: [
@@ -709,6 +731,7 @@ function App(Props) {
         
       });
   var setPlaying = match$1[1];
+  var playing = match$1[0];
   var match$2 = React.useState(function () {
         return 7;
       });
@@ -820,7 +843,7 @@ function App(Props) {
                     }, React.createElement("div", {
                           className: "pt-2 w-full self-center text-[var(--dim)]"
                         }, React.createElement(make$1, {
-                              playing: match$1[0],
+                              playing: playing,
                               labels: graphDisplay,
                               selected: Belt_Option.mapWithDefault(rotation, Belt_Array.make(12, false), (function (b) {
                                       return RotationJs.intToBoolArray(RotationJs.getMaxRotation(b));
@@ -894,6 +917,7 @@ function App(Props) {
                                     var speciesId = param[0];
                                     return React.createElement(App$Species, {
                                                 genusId: selectedNoteNum,
+                                                playing: playing,
                                                 rotation: rotation,
                                                 currentStepDisplay: currentStepDisplay,
                                                 setRotation: setRotation,

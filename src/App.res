@@ -246,18 +246,30 @@ type notePlayer = {
 
 module Scale = {
   @react.component
-  let make = (~rotation, ~currentStepDisplay, ~currentKey, ~kind: kind, ~selected as _: bool) => {
+  let make = (
+    ~rotation,
+    ~currentStepDisplay,
+    ~currentKey,
+    ~kind: kind,
+    ~playing: option<int>,
+    ~selected: bool,
+  ) => {
     let gridCols = switch currentStepDisplay {
     | SemitoneSteps => rotation->rotationToSemitoneSteps->Array.length
     | HalfnoteSteps => rotation->rotationToHalfnoteSteps->Array.length
     | _ => 12
     }->getGridCols
 
-    let container = (i, content) =>
+    let container = (i, isPlaying, content) => {
       <div
-        key={i->Int.toString} className={["w-6 flex flex-row items-center justify-center "]->join}>
+        key={i->Int.toString}
+        className={[
+          "w-6 flex flex-row items-center justify-center ",
+          isPlaying ? "text-[var(--red)]" : "",
+        ]->join}>
         {content->str}
       </div>
+    }
 
     <div className={["flex-none flex-row flex justify-center w-full gap-0.5"]->join}>
       {switch currentStepDisplay {
@@ -265,7 +277,12 @@ module Scale = {
         rotation
         ->rotationToSemitoneSteps
         ->Array.mapWithIndex((i, step) => {
-          container(i, step->Int.toString)
+          let isPlaying =
+            selected &&
+            playing->Option.mapWithDefault(false, playing => {
+              playing == i
+            })
+          container(i, isPlaying, step->Int.toString)
         })
         ->React.array
 
@@ -273,7 +290,13 @@ module Scale = {
         rotation
         ->rotationToHalfnoteSteps
         ->Array.mapWithIndex((i, step) => {
-          container(i, step)
+          let isPlaying =
+            selected &&
+            playing->Option.mapWithDefault(false, playing => {
+              playing == i
+            })
+
+          container(i, isPlaying, step)
         })
         ->React.array
 
@@ -281,7 +304,25 @@ module Scale = {
         rotation
         ->intToBoolArray
         ->Array.mapWithIndex((i, bit) => {
-          container(i, bitToDisplaySymbol(bit, i, currentKey, currentStepDisplay, rotation))
+          let isPlaying =
+            selected &&
+            bit &&
+            playing->Option.mapWithDefault(false, playing => {
+              let numInSeq =
+                rotation
+                ->intToBoolArray
+                ->Js.Array2.slice(~start=0, ~end_=i)
+                ->Array.keep(x => x)
+                ->Array.length
+
+              playing == numInSeq
+            })
+
+          container(
+            i,
+            isPlaying,
+            bitToDisplaySymbol(bit, i, currentKey, currentStepDisplay, rotation),
+          )
         })
         ->React.array
       }}
@@ -321,6 +362,7 @@ module Species = {
   @react.component
   let make = (
     ~genusId,
+    ~playing: option<int>,
     ~rotation: option<int>,
     ~currentStepDisplay,
     ~setRotation,
@@ -439,6 +481,7 @@ module Species = {
               }}
               <div className="flex flex-row bg-[var(--species-scales)] rounded-xl py-1 font-medium">
                 <Scale
+                  playing
                   selected={false}
                   currentKey={currentKey}
                   rotation={speciesMax}
@@ -503,6 +546,7 @@ module Species = {
                                 : "  font-medium",
                             ]->join}>
                             <Scale
+                              playing
                               selected={selected}
                               currentKey={currentKey}
                               currentStepDisplay={currentStepDisplay}
@@ -768,6 +812,7 @@ let make = () => {
             ->Array.reverse
             ->reactMap(((speciesId, modes)) =>
               <Species
+                playing
                 showNonModes={showNonModes}
                 key={speciesId->Int.toString}
                 genusId={selectedNoteNum}
