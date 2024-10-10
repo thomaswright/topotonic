@@ -188,9 +188,6 @@ export const SVG = ({
         }}
       >
         {selected.map((s, i) => {
-          let numInSeq = selected.slice(0, i).filter((x) => x).length;
-
-          let isPlaying = (playing + shift) % numNotes == numInSeq;
           return (
             <React.Fragment key={i + "lines"}>
               <RadialLine
@@ -212,11 +209,29 @@ export const SVG = ({
                   deg={i * orderDegree}
                   strokeWidth={2}
                   radius={1}
-                  color={isPlaying ? "var(--red)" : "var(--accent)"}
+                  color={"var(--accent)"}
                 />
               ) : null}
             </React.Fragment>
           );
+        })}
+        {selected.map((s, i) => {
+          let numInSeq = selected.slice(0, i).filter((x) => x).length;
+
+          let isPlaying = (playing + shift) % numNotes == numInSeq;
+          return s && isPlaying ? (
+            <RadialLine
+              key={i + "playing"}
+              x={center.x}
+              y={center.y}
+              start={0}
+              end={radius * 1.1}
+              deg={i * orderDegree}
+              strokeWidth={2}
+              radius={1}
+              color={"var(--red)"}
+            />
+          ) : null;
         })}
       </g>
 
@@ -238,15 +253,6 @@ export const SVG = ({
           </React.Fragment>
         );
       })}
-
-      {/* <circle
-        cx={center.x}
-        cy={center.y}
-        strokeWidth={0.5}
-        r={radius * 0.1}
-        stroke="none"
-        fill={"var(--accent)"}
-      /> */}
     </svg>
   );
 };

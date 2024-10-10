@@ -500,7 +500,7 @@ function App$Species(Props) {
   return React.createElement(App$Collapsed, {
               render: (function (speciesHidden, setSpeciesHidden) {
                   var anySelected = RotationJs.areInSameRotationClass(Belt_Option.getWithDefault(rotation, 0), speciesId);
-                  var scaleName = String(speciesId);
+                  var scaleName = String(RotationJs.getMaxRotation(speciesId));
                   var speciesMax = RotationJs.getMaxRotation(speciesId);
                   var onClickHeader = function (param) {
                     Belt_Option.mapWithDefault(rotation, (Curry._1(setSpeciesHidden, (function (param) {

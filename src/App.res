@@ -388,7 +388,7 @@ module Species = {
         // let _speciesIdModeSelected =
         //   currentBits->Option.mapWithDefault(false, c => c->BitOps.intArrayToString == speciesId)
 
-        let scaleName = speciesId->Int.toString
+        let scaleName = speciesId->getMaxRotation->Int.toString
         let speciesMax = speciesId->getMaxRotation
 
         let onClickHeader = _ => {
