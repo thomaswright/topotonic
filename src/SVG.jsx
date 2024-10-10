@@ -205,7 +205,7 @@ export const SVG = ({
                 <RadialLine
                   x={center.x}
                   y={center.y}
-                  start={0}
+                  start={-1}
                   end={radius * 1.1}
                   deg={i * orderDegree}
                   strokeWidth={2}
@@ -225,7 +225,7 @@ export const SVG = ({
               key={i + "playing"}
               x={center.x}
               y={center.y}
-              start={0}
+              start={-1}
               end={radius * 1.1}
               deg={i * orderDegree}
               strokeWidth={2}
