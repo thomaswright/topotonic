@@ -6,11 +6,6 @@ type stepDisplay = Key | MinMaj | DimAug | Semitone | SemitoneSteps | HalfnoteSt
 
 type kind = Species | Mode | NonMode
 
-let join = Js.Array2.joinWith(_, " ")
-let str = React.string
-let reactMap = (a, f) => a->Array.map(f)->React.array
-let reactMapWithIndex = (a, f) => a->Array.mapWithIndex(f)->React.array
-
 @module("./rotation.js") external rotationGroups: array<(int, array<int>)> = "rotationGroups"
 @module("./rotation.js") external intToBoolArray: int => array<bool> = "intToBoolArray"
 @module("./rotation.js")
@@ -73,6 +68,28 @@ module Collapsed = {
   }
 }
 
+module About = {
+  @module("./about.jsx") @react.component
+  external make: unit => React.element = "default"
+}
+
+// Must be uncurried.
+// Will throw a "this is undefined" error otherwise.
+type notePlayer = {
+  playNote: (. int, int) => unit,
+  setVolume: (. float) => unit,
+  playNotesSequentially: (. array<(int, int)>, int) => unit,
+}
+
+@module("./NotePlayer.js") @new external makeNotePlayer: unit => notePlayer = "default"
+
+@module("./Tone.js") external triggerAttackRelease: (. int, string, float) => unit = "default"
+@val external parseInt: (string, int) => option<int> = "parseInt"
+
+let join = Js.Array2.joinWith(_, " ")
+let reactMap = (a, f) => a->Array.map(f)->React.array
+let reactMapWithIndex = (a, f) => a->Array.mapWithIndex(f)->React.array
+
 let getGridCols = x =>
   switch x {
   | 0 => "grid-cols-0"
@@ -98,6 +115,14 @@ module IntervalRefs = {
   let mMPs = [`P1`, `m2`, `M2`, `m3`, `M3`, `P4`, `TT`, `P5`, `m6`, `M6`, `m7`, `M7`]
   // TODO: replace TT with d5/A4 when we have proper scaling
   let dimAugs = [`d2`, `A1`, `d3`, `A2`, `d4`, `A3`, `TT`, `d6`, `A5`, `d7`, `A6`, `d8`]
+}
+
+let generateChromaticScale = (startFrequency, numNotes) => {
+  let semitoneRatio = 2. ** (1. /. 12.)
+
+  Array.range(0, numNotes)->Array.map(v => {
+    (startFrequency->Float.fromInt *. semitoneRatio ** v->Float.fromInt)->Int.fromFloat
+  })
 }
 
 let stepsToBits = x => {
@@ -172,7 +197,7 @@ module PageTitle = {
   @react.component
   let make = () => {
     <div className={"font-sans text-[var(--logo)] font-black text-4xl tracking-tighter"}>
-      {"Topotonic"->str}
+      {"Topotonic"->React.string}
     </div>
   }
 }
@@ -185,36 +210,11 @@ module Card = {
         " rounded-xl p-2 pb-3 pt-1 mt-2 overflow-hidden bg-[var(--card)]",
         className,
       ]->join}>
-      <div className="w-full text-center pb-2 font-bold text-lg "> {title->str} </div>
+      <div className="w-full text-center pb-2 font-bold text-lg "> {title->React.string} </div>
       <div className={""}> {children} </div>
     </div>
   }
 }
-
-module About = {
-  @module("./about.jsx") @react.component
-  external make: unit => React.element = "default"
-}
-
-let generateChromaticScale = (startFrequency, numNotes) => {
-  let semitoneRatio = 2. ** (1. /. 12.)
-
-  Array.range(0, numNotes)->Array.map(v => {
-    (startFrequency->Float.fromInt *. semitoneRatio ** v->Float.fromInt)->Int.fromFloat
-  })
-}
-
-// Must be uncurried.
-// Will throw a "this is undefined" error otherwise.
-type notePlayer = {
-  playNote: (. int, int) => unit,
-  setVolume: (. float) => unit,
-  playNotesSequentially: (. array<(int, int)>, int) => unit,
-}
-
-@module("./NotePlayer.js") @new external makeNotePlayer: unit => notePlayer = "default"
-
-@module("./Tone.js") external triggerAttackRelease: (. int, string, float) => unit = "default"
 
 module Scale = {
   @react.component
@@ -232,7 +232,7 @@ module Scale = {
           "w-6 flex flex-row items-center justify-center ",
           isPlaying ? "text-[var(--red)]" : "",
         ]->join}>
-        {content->str}
+        {content->React.string}
       </div>
     }
 
@@ -294,8 +294,6 @@ module Scale = {
     </div>
   }
 }
-
-@val external parseInt: (string, int) => option<int> = "parseInt"
 
 // Todo: replace this mess
 let stepsToRotation = steps => {
@@ -396,7 +394,7 @@ module Species = {
               " text-[var(--species-text)]  flex-1 text-ellipsis overflow-hidden  whitespace-nowrap ",
               anySelected ? "font-black" : "",
             ]->join}>
-            {speciesNames->str}
+            {speciesNames->React.string}
           </div>
 
         <div
@@ -417,7 +415,7 @@ module Species = {
                 <div className=" flex flex-row justify-start items-center  pt-1 px-3">
                   <div
                     className="text-[var(--species-text)]  flex-1 text-ellipsis overflow-hidden whitespace-nowrap">
-                    {("Modes: " ++ speciesModeNames)->str}
+                    {("Modes: " ++ speciesModeNames)->React.string}
                   </div>
                 </div>
               } else {
@@ -446,7 +444,9 @@ module Species = {
                 {speciesNamesComp}
                 <div className={"flex flex-row items-center justify-center gap-2"}>
                   <div className="flex-none"> {false ? <Symmetry /> : React.null} </div>
-                  <div className="flex-none text-sm tracking-wide "> {`#${scaleName}`->str} </div>
+                  <div className="flex-none text-sm tracking-wide ">
+                    {`#${scaleName}`->React.string}
+                  </div>
                 </div>
               </div>
               <div className="p-2 pt-0 bg-[var(--species-scales)] rounded-xl">
@@ -504,7 +504,7 @@ module Species = {
                                       ? " text-[var(--species-text)] "
                                       : "   text-[var(--species-text)]",
                                   ]->join}>
-                                  {modeNames->str}
+                                  {modeNames->React.string}
                                 </div>}
                           </div>
                     }
@@ -525,39 +525,39 @@ module StepDisplay = {
     <Card title={"Step Display"}>
       <StepButton
         selected={currentStepDisplay == Key} onClick={_ => setCurrentStepDisplay(_ => Key)}>
-        {"Key"->str}
+        {"Key"->React.string}
       </StepButton>
       <div className="grid grid-cols-3 gap-2 w-full pb-2 pt-2">
         <StepButton
           selected={currentStepDisplay == MinMaj} onClick={_ => setCurrentStepDisplay(_ => MinMaj)}>
-          {"Min-Maj"->str}
+          {"Min-Maj"->React.string}
         </StepButton>
         <StepButton
           selected={currentStepDisplay == DimAug} onClick={_ => setCurrentStepDisplay(_ => DimAug)}>
-          {"Dim-Aug"->str}
+          {"Dim-Aug"->React.string}
         </StepButton>
         <StepButton
           selected={currentStepDisplay == Semitone}
           onClick={_ => setCurrentStepDisplay(_ => Semitone)}>
-          {"Semitone"->str}
+          {"Semitone"->React.string}
         </StepButton>
       </div>
       <div className="grid grid-cols-2 gap-2 w-full pb-2">
         <StepButton
           selected={currentStepDisplay == SemitoneSteps}
           onClick={_ => setCurrentStepDisplay(_ => SemitoneSteps)}>
-          {"Semitone Steps"->str}
+          {"Semitone Steps"->React.string}
         </StepButton>
         <StepButton
           selected={currentStepDisplay == HalfnoteSteps}
           onClick={_ => setCurrentStepDisplay(_ => HalfnoteSteps)}>
-          {"Halfnote Steps"->str}
+          {"Halfnote Steps"->React.string}
         </StepButton>
       </div>
       <div className={" "}>
         <StepButton
           selected={currentStepDisplay == Binary} onClick={_ => setCurrentStepDisplay(_ => Binary)}>
-          {"Binary"->str}
+          {"Binary"->React.string}
         </StepButton>
       </div>
     </Card>
@@ -657,7 +657,7 @@ let make = () => {
                justify-center font-bold text-white bg-[var(--accent)]"}
               onClick={_ => {playNotes()}}>
               <PlayIcon size={14} />
-              {"Play"->str}
+              {"Play"->React.string}
             </button>}
       </div>
       <div className=" sm:max-h-min  max-w-[500px] w-full">
@@ -677,13 +677,13 @@ let make = () => {
           ? React.null
           : <div
               className="w-full tracking-tight text-center font-black  text-[var(--species-text)]">
-              {`Scale: ${scaleNames}`->str}
+              {`Scale: ${scaleNames}`->React.string}
             </div>}
         {modeNames == ""
           ? React.null
           : <div
               className="w-full tracking-tight text-center font-black text-[var(--species-text)]">
-              {`Mode: ${modeNames}`->str}
+              {`Mode: ${modeNames}`->React.string}
             </div>}
         <StepDisplay setCurrentStepDisplay currentStepDisplay />
         <Card title={"Number of notes"}>
@@ -691,7 +691,7 @@ let make = () => {
             {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]->reactMap(num => {
               <StepButton
                 selected={selectedNoteNum == num} onClick={_ => setSelectedNoteNum(_ => num)}>
-                {num->Int.toString->str}
+                {num->Int.toString->React.string}
               </StepButton>
             })}
           </div>
@@ -699,7 +699,7 @@ let make = () => {
         <div className="my-2 flex flex-row justify-between items-center">
           <About />
           <div className="flex flex-row gap-2">
-            <div className="text-sm"> {"Show Non-Modes"->str} </div>
+            <div className="text-sm"> {"Show Non-Modes"->React.string} </div>
             <Switch checked={showNonModes} onCheckedChange={() => setShowNonModes(v => !v)} />
           </div>
         </div>
@@ -711,7 +711,7 @@ let make = () => {
           <div className="flex flex-row items-center py-2 font-medium justify-center ">
             {`${selectedNoteNum->Int.toString} notes: ${species
               ->Array.length
-              ->Int.toString} possible scales`->str}
+              ->Int.toString} possible scales`->React.string}
           </div>
           <div className={[""]->join}>
             {species

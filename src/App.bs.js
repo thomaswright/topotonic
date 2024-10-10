@@ -16,18 +16,6 @@ import * as DataGeneration from "./DataGeneration.bs.js";
 import * as Fa from "react-icons/fa";
 import NotePlayerJs from "./NotePlayer.js";
 
-function join(__x) {
-  return __x.join(" ");
-}
-
-function str(prim) {
-  return prim;
-}
-
-var reactMap = Belt_Array.map;
-
-var reactMapWithIndex = Belt_Array.mapWithIndex;
-
 var rotationGroups = RotationJs.rotationGroups;
 
 function intToBoolArray(prim) {
@@ -91,6 +79,26 @@ function App$Collapsed(Props) {
 var Collapsed = {
   make: App$Collapsed
 };
+
+var make$3 = AboutJsx;
+
+var About = {
+  make: make$3
+};
+
+function makeNotePlayer(prim) {
+  return new NotePlayerJs();
+}
+
+var triggerAttackRelease = ToneJs;
+
+function join(__x) {
+  return __x.join(" ");
+}
+
+var reactMap = Belt_Array.map;
+
+var reactMapWithIndex = Belt_Array.mapWithIndex;
 
 function getGridCols(x) {
   switch (x) {
@@ -207,6 +215,13 @@ var IntervalRefs = {
   mMPs: mMPs,
   dimAugs: dimAugs
 };
+
+function generateChromaticScale(startFrequency, numNotes) {
+  var semitoneRatio = Math.pow(2, 1 / 12);
+  return Belt_Array.map(Belt_Array.range(0, numNotes), (function (v) {
+                return startFrequency * Math.pow(semitoneRatio, v) | 0;
+              }));
+}
 
 function stepsToBits(x) {
   return Belt_Array.reduce(x, "", (function (acc, value) {
@@ -356,25 +371,6 @@ function App$Card(Props) {
 var Card = {
   make: App$Card
 };
-
-var make$3 = AboutJsx;
-
-var About = {
-  make: make$3
-};
-
-function generateChromaticScale(startFrequency, numNotes) {
-  var semitoneRatio = Math.pow(2, 1 / 12);
-  return Belt_Array.map(Belt_Array.range(0, numNotes), (function (v) {
-                return startFrequency * Math.pow(semitoneRatio, v) | 0;
-              }));
-}
-
-function makeNotePlayer(prim) {
-  return new NotePlayerJs();
-}
-
-var triggerAttackRelease = ToneJs;
 
 function App$Scale(Props) {
   var rotation = Props.rotation;
@@ -911,10 +907,6 @@ var make$4 = App;
 var $$default = App;
 
 export {
-  join ,
-  str ,
-  reactMap ,
-  reactMapWithIndex ,
   rotationGroups ,
   intToBoolArray ,
   areInSameRotationClass ,
@@ -930,8 +922,15 @@ export {
   PlayIcon ,
   Switch ,
   Collapsed ,
+  About ,
+  makeNotePlayer ,
+  triggerAttackRelease ,
+  join ,
+  reactMap ,
+  reactMapWithIndex ,
   getGridCols ,
   IntervalRefs ,
+  generateChromaticScale ,
   stepsToBits ,
   rotationToSemitoneSteps ,
   rotationToHalfnoteSteps ,
@@ -939,10 +938,6 @@ export {
   StepButton ,
   PageTitle ,
   Card ,
-  About ,
-  generateChromaticScale ,
-  makeNotePlayer ,
-  triggerAttackRelease ,
   Scale ,
   stepsToRotation ,
   Species ,
