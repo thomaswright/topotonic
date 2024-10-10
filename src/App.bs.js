@@ -382,24 +382,6 @@ function App$Scale(Props) {
   var currentKey = Props.currentKey;
   var playing = Props.playing;
   var selected = Props.selected;
-  var tmp;
-  if (currentStepDisplay >= 4) {
-    switch (currentStepDisplay) {
-      case /* SemitoneSteps */4 :
-          tmp = rotationToSemitoneSteps(rotation).length;
-          break;
-      case /* HalfnoteSteps */5 :
-          tmp = rotationToHalfnoteSteps(rotation).length;
-          break;
-      case /* Binary */6 :
-          tmp = 12;
-          break;
-      
-    }
-  } else {
-    tmp = 12;
-  }
-  getGridCols(tmp);
   var container = function (i, isPlaying, content) {
     return React.createElement("div", {
                 key: String(i),
@@ -409,12 +391,12 @@ function App$Scale(Props) {
                   ].join(" ")
               }, content);
   };
-  var tmp$1;
+  var tmp;
   var exit = 0;
   if (currentStepDisplay >= 4) {
     switch (currentStepDisplay) {
       case /* SemitoneSteps */4 :
-          tmp$1 = Belt_Array.mapWithIndex(rotationToSemitoneSteps(rotation), (function (i, step) {
+          tmp = Belt_Array.mapWithIndex(rotationToSemitoneSteps(rotation), (function (i, step) {
                   var isPlaying = selected && Belt_Option.mapWithDefault(playing, false, (function (playing) {
                           return playing === i;
                         }));
@@ -422,7 +404,7 @@ function App$Scale(Props) {
                 }));
           break;
       case /* HalfnoteSteps */5 :
-          tmp$1 = Belt_Array.mapWithIndex(rotationToHalfnoteSteps(rotation), (function (i, step) {
+          tmp = Belt_Array.mapWithIndex(rotationToHalfnoteSteps(rotation), (function (i, step) {
                   var isPlaying = selected && Belt_Option.mapWithDefault(playing, false, (function (playing) {
                           return playing === i;
                         }));
@@ -438,7 +420,7 @@ function App$Scale(Props) {
     exit = 1;
   }
   if (exit === 1) {
-    tmp$1 = Belt_Array.mapWithIndex(RotationJs.intToBoolArray(rotation), (function (i, bit) {
+    tmp = Belt_Array.mapWithIndex(RotationJs.intToBoolArray(rotation), (function (i, bit) {
             var isPlaying = selected && bit && Belt_Option.mapWithDefault(playing, false, (function (playing) {
                     var numInSeq = Belt_Array.keep(RotationJs.intToBoolArray(rotation).slice(0, i), (function (x) {
                             return x;
@@ -450,7 +432,7 @@ function App$Scale(Props) {
   }
   return React.createElement("div", {
               className: ["flex-none flex-row flex justify-center w-full gap-0.5"].join(" ")
-            }, tmp$1);
+            }, tmp);
 }
 
 var Scale = {
@@ -572,7 +554,6 @@ function App$Species(Props) {
                                             rotation: speciesMax,
                                             currentStepDisplay: currentStepDisplay,
                                             currentKey: currentKey,
-                                            kind: /* Species */0,
                                             playing: playing,
                                             selected: false
                                           }))) : React.createElement("div", undefined, React.createElement("div", {
@@ -627,7 +608,6 @@ function App$Species(Props) {
                                                                     rotation: modeId,
                                                                     currentStepDisplay: currentStepDisplay,
                                                                     currentKey: currentKey,
-                                                                    kind: modeKind,
                                                                     playing: playing,
                                                                     selected: selected
                                                                   }), modeNames === "" ? null : React.createElement("div", {
@@ -770,9 +750,6 @@ function App(Props) {
         break;
     
   }
-  Belt_Option.mapWithDefault(rotation, Belt_Array.make(12, false), (function (b) {
-          return RotationJs.intToBoolArray(RotationJs.getMaxRotation(b));
-        }));
   var modeNames = Belt_Option.mapWithDefault(Belt_Array.get(Belt_Array.keepMap(Data.namedSpecies, (function (param) {
                     var s = param[0];
                     return Belt_Array.getBy(param[2], (function (param) {
@@ -916,7 +893,6 @@ function App(Props) {
                             }, Belt_Array.map(Belt_Array.reverse(species), (function (param) {
                                     var speciesId = param[0];
                                     return React.createElement(App$Species, {
-                                                genusId: selectedNoteNum,
                                                 playing: playing,
                                                 rotation: rotation,
                                                 currentStepDisplay: currentStepDisplay,
