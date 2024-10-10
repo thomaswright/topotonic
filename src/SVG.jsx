@@ -11,7 +11,6 @@ const RadialText = ({
   onClick,
   fill,
 }) => {
-  // let [dominantBaseline, textAnchor] = getTextAnchors12(deg - currentKey * 30);
   let angle = deg - 90 - currentKey * 30;
   return (
     <g
@@ -64,13 +63,6 @@ const RadialLine = ({
       />
     </g>
   );
-};
-
-const range = (start, end) => {
-  const recurse = (array, s, e) => {
-    return s <= e ? recurse([...array, s], s + 1, e) : array;
-  };
-  return recurse([], start, end);
 };
 
 function cycleArray(arr, m) {
