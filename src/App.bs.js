@@ -743,7 +743,7 @@ function App(Props) {
         break;
     
   }
-  var graphBits = Belt_Option.mapWithDefault(rotation, Belt_Array.make(12, false), (function (b) {
+  Belt_Option.mapWithDefault(rotation, Belt_Array.make(12, false), (function (b) {
           return RotationJs.intToBoolArray(RotationJs.getMaxRotation(b));
         }));
   var modeNames = Belt_Option.mapWithDefault(Belt_Array.get(Belt_Array.keepMap(Data.namedSpecies, (function (param) {
@@ -788,9 +788,9 @@ function App(Props) {
                                 var newBase = Belt_Option.getWithDefault(Belt_Array.get(cChromScale, currentKey), 110);
                                 var newChromScale = generateChromaticScale(110 + newBase | 0, 12);
                                 var x = Belt_Array.keepWithIndex(newChromScale, (function (_v, i) {
-                                        return Belt_Option.mapWithDefault(Belt_Array.get(graphBits, i), false, (function (bit) {
-                                                      return bit;
-                                                    }));
+                                        return Belt_Option.mapWithDefault(rotation, Belt_Array.make(12, false), (function (b) {
+                                                        return RotationJs.intToBoolArray(b);
+                                                      }))[i];
                                       }));
                                 var seq = Belt_Option.mapWithDefault(Belt_Array.get(x, 0), x, (function (head) {
                                         return Belt_Array.concat(x, [(head << 1)]);
@@ -807,7 +807,9 @@ function App(Props) {
                           className: "pt-2 w-full self-center"
                         }, React.createElement(make$1, {
                               labels: graphDisplay,
-                              selected: graphBits,
+                              selected: Belt_Option.mapWithDefault(rotation, Belt_Array.make(12, false), (function (b) {
+                                      return RotationJs.intToBoolArray(RotationJs.getMaxRotation(b));
+                                    })),
                               currentKey: currentKey,
                               onKeyChange: (function (newKey) {
                                   Curry._1(setCurrentKey, (function (param) {

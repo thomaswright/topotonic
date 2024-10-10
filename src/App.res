@@ -665,7 +665,9 @@ let make = () => {
     let seq =
       newChromScale
       ->Array.keepWithIndex((_v, i) => {
-        graphBits->Array.get(i)->Option.mapWithDefault(false, bit => bit)
+        rotation
+        ->Option.mapWithDefault(Array.make(12, false), (b: int) => b->intToBoolArray)
+        ->Array.getUnsafe(i)
       })
       ->(x => x->Array.get(0)->Option.mapWithDefault(x, head => Array.concat(x, [head * 2])))
 
@@ -704,7 +706,9 @@ let make = () => {
           <SVG
             rotationOffset={rotationOffset}
             labels={graphDisplay}
-            selected={graphBits}
+            selected={rotation->Option.mapWithDefault(Array.make(12, false), (b: int) =>
+              b->getMaxRotation->intToBoolArray
+            )}
             currentKey={currentKey}
             onKeyChange={newKey => setCurrentKey(_ => newKey)}
           />
