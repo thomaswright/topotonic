@@ -25,6 +25,7 @@ module SVG = {
   external make: (
     ~playing: option<int>,
     ~labels: array<string>,
+    ~stepLabels: option<array<string>>,
     ~selected: array<bool>,
     ~currentKey: int,
     ~onKeyChange: int => unit,
@@ -573,26 +574,17 @@ let make = () => {
   let (currentStepDisplay: stepDisplay, setCurrentStepDisplay) = React.useState(_ => Key)
   let (showNonModes, setShowNonModes) = React.useState(_ => false)
 
-  // let graphDisplay = {
-  //   switch currentStepDisplay {
-  //   | Binary => IntervalRefs.pitchKeys->DataGeneration.rotate(currentKey)
-  //   | Semitone => IntervalRefs.pitchKeys->DataGeneration.rotate(currentKey)
-  //   | HalfnoteSteps => IntervalRefs.pitchKeys->DataGeneration.rotate(currentKey)
-  //   | SemitoneSteps =>
-  //     IntervalRefs.pitchKeys
-  //     ->DataGeneration.rotate(currentKey)
-  //     ->Array.mapWithIndex((i, v) => v ++ IntervalRefs.semitones->Array.getUnsafe(i))
-  //   | DimAug =>
-  //     IntervalRefs.pitchKeys
-  //     ->DataGeneration.rotate(currentKey)
-  //     ->Array.mapWithIndex((i, v) => v ++ ":" ++ IntervalRefs.dimAugs->Array.getUnsafe(i))
-  //   | MinMaj =>
-  //     IntervalRefs.pitchKeys
-  //     ->DataGeneration.rotate(currentKey)
-  //     ->Array.mapWithIndex((i, v) => v ++ IntervalRefs.mMPs->Array.getUnsafe(i))
-  //   | Key => IntervalRefs.pitchKeys->DataGeneration.rotate(currentKey)
-  //   }
-  // }
+  let stepLabels = {
+    switch currentStepDisplay {
+    | Binary => None
+    | HalfnoteSteps => None
+    | SemitoneSteps => None
+    | Semitone => IntervalRefs.semitones->Some
+    | DimAug => IntervalRefs.dimAugs->Some
+    | MinMaj => IntervalRefs.mMPs->Some
+    | Key => None
+    }
+  }
 
   let modeNames =
     Data.namedSpecies
@@ -674,6 +666,7 @@ let make = () => {
           <SVG
             playing={playing}
             rotationOffset={rotationOffset}
+            stepLabels={stepLabels}
             labels={IntervalRefs.pitchKeys->DataGeneration.rotate(currentKey)}
             selected={rotation->Option.mapWithDefault(Array.make(12, false), (b: int) =>
               b->getMaxRotation->intToBoolArray

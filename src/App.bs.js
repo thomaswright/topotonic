@@ -727,6 +727,25 @@ function App(Props) {
       });
   var setShowNonModes = match$5[1];
   var showNonModes = match$5[0];
+  var stepLabels;
+  switch (currentStepDisplay) {
+    case /* MinMaj */1 :
+        stepLabels = mMPs;
+        break;
+    case /* DimAug */2 :
+        stepLabels = dimAugs;
+        break;
+    case /* Semitone */3 :
+        stepLabels = semitones;
+        break;
+    case /* Key */0 :
+    case /* SemitoneSteps */4 :
+    case /* HalfnoteSteps */5 :
+    case /* Binary */6 :
+        stepLabels = undefined;
+        break;
+    
+  }
   var modeNames = Belt_Option.mapWithDefault(Belt_Array.get(Belt_Array.keepMap(Data.namedSpecies, (function (param) {
                     var s = param[0];
                     return Belt_Array.getBy(param[2], (function (param) {
@@ -799,6 +818,7 @@ function App(Props) {
                         }, React.createElement(make$1, {
                               playing: playing,
                               labels: DataGeneration.rotate(pitchKeys, currentKey),
+                              stepLabels: stepLabels,
                               selected: Belt_Option.mapWithDefault(rotation, Belt_Array.make(12, false), (function (b) {
                                       return RotationJs.intToBoolArray(RotationJs.getMaxRotation(b));
                                     })),

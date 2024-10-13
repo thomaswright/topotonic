@@ -74,6 +74,7 @@ function cycleArray(arr, m) {
 export const SVG = ({
   playing,
   labels,
+  stepLabels,
   selected,
   currentKey = 0,
   onKeyChange,
@@ -89,7 +90,7 @@ export const SVG = ({
     y: boxSize / 2 - translate,
   };
 
-  let radius = boxSize / 3.5;
+  let radius = boxSize / 4.5;
   let cycledData = cycleArray(labels, currentKey);
   let numNotes = selected.slice(0).filter((x) => x).length;
   let shift = selected.slice(0, rotationOffset).filter((x) => x).length;
@@ -192,6 +193,36 @@ export const SVG = ({
           </React.Fragment>
         );
       })}
+
+      {stepLabels &&
+        stepLabels.map((label, i) => {
+          let newIndex = (i + rotationOffset) % order;
+          let numInSeq = selected.slice(0, newIndex).filter((x) => x).length;
+          let isPlaying = (playing + shift) % numNotes == numInSeq;
+          let s = selected[newIndex];
+
+          return (
+            <React.Fragment key={label + "notes"}>
+              <RadialText
+                currentKey={0}
+                selected={s}
+                fill={
+                  s
+                    ? isPlaying
+                      ? "var(--red)"
+                      : "var(--accent)"
+                    : "currentColor"
+                }
+                x={center.x}
+                y={center.y}
+                radius={radius * 1.55}
+                deg={i * orderDegree}
+                text={label}
+                onClick={(_) => {}}
+              />
+            </React.Fragment>
+          );
+        })}
     </svg>
   );
 };
