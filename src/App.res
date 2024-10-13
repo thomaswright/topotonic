@@ -539,19 +539,19 @@ module StepDisplay = {
         <StepButton
           selected={currentStepDisplay == Semitone}
           onClick={_ => setCurrentStepDisplay(_ => Semitone)}>
-          {"Semitone"->React.string}
+          {"Index"->React.string}
         </StepButton>
       </div>
       <div className="grid grid-cols-2 gap-2 w-full pb-2">
         <StepButton
           selected={currentStepDisplay == SemitoneSteps}
           onClick={_ => setCurrentStepDisplay(_ => SemitoneSteps)}>
-          {"Semitone Steps"->React.string}
+          {"Semitones"->React.string}
         </StepButton>
         <StepButton
           selected={currentStepDisplay == HalfnoteSteps}
           onClick={_ => setCurrentStepDisplay(_ => HalfnoteSteps)}>
-          {"Halfnote Steps"->React.string}
+          {"Halfnotes"->React.string}
         </StepButton>
       </div>
       <div className={" "}>

@@ -661,7 +661,7 @@ function App$StepDisplay(Props) {
                                   return /* Semitone */3;
                                 }));
                         }),
-                      children: "Semitone"
+                      children: "Index"
                     })), React.createElement("div", {
                   className: "grid grid-cols-2 gap-2 w-full pb-2"
                 }, React.createElement(App$StepButton, {
@@ -671,7 +671,7 @@ function App$StepDisplay(Props) {
                                   return /* SemitoneSteps */4;
                                 }));
                         }),
-                      children: "Semitone Steps"
+                      children: "Semitones"
                     }), React.createElement(App$StepButton, {
                       selected: currentStepDisplay === /* HalfnoteSteps */5,
                       onClick: (function (param) {
@@ -679,7 +679,7 @@ function App$StepDisplay(Props) {
                                   return /* HalfnoteSteps */5;
                                 }));
                         }),
-                      children: "Halfnote Steps"
+                      children: "Halfnotes"
                     })), React.createElement("div", {
                   className: " "
                 }, React.createElement(App$StepButton, {
