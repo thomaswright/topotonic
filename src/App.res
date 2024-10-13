@@ -573,17 +573,26 @@ let make = () => {
   let (currentStepDisplay: stepDisplay, setCurrentStepDisplay) = React.useState(_ => Key)
   let (showNonModes, setShowNonModes) = React.useState(_ => false)
 
-  let graphDisplay = {
-    switch currentStepDisplay {
-    | Binary => IntervalRefs.semitones
-    | Semitone => IntervalRefs.semitones
-    | SemitoneSteps => IntervalRefs.semitones
-    | HalfnoteSteps => IntervalRefs.semitones
-    | DimAug => IntervalRefs.dimAugs
-    | MinMaj => IntervalRefs.mMPs
-    | Key => IntervalRefs.pitchKeys->DataGeneration.rotate(currentKey)
-    }
-  }
+  // let graphDisplay = {
+  //   switch currentStepDisplay {
+  //   | Binary => IntervalRefs.pitchKeys->DataGeneration.rotate(currentKey)
+  //   | Semitone => IntervalRefs.pitchKeys->DataGeneration.rotate(currentKey)
+  //   | HalfnoteSteps => IntervalRefs.pitchKeys->DataGeneration.rotate(currentKey)
+  //   | SemitoneSteps =>
+  //     IntervalRefs.pitchKeys
+  //     ->DataGeneration.rotate(currentKey)
+  //     ->Array.mapWithIndex((i, v) => v ++ IntervalRefs.semitones->Array.getUnsafe(i))
+  //   | DimAug =>
+  //     IntervalRefs.pitchKeys
+  //     ->DataGeneration.rotate(currentKey)
+  //     ->Array.mapWithIndex((i, v) => v ++ ":" ++ IntervalRefs.dimAugs->Array.getUnsafe(i))
+  //   | MinMaj =>
+  //     IntervalRefs.pitchKeys
+  //     ->DataGeneration.rotate(currentKey)
+  //     ->Array.mapWithIndex((i, v) => v ++ IntervalRefs.mMPs->Array.getUnsafe(i))
+  //   | Key => IntervalRefs.pitchKeys->DataGeneration.rotate(currentKey)
+  //   }
+  // }
 
   let modeNames =
     Data.namedSpecies
@@ -665,7 +674,7 @@ let make = () => {
           <SVG
             playing={playing}
             rotationOffset={rotationOffset}
-            labels={graphDisplay}
+            labels={IntervalRefs.pitchKeys->DataGeneration.rotate(currentKey)}
             selected={rotation->Option.mapWithDefault(Array.make(12, false), (b: int) =>
               b->getMaxRotation->intToBoolArray
             )}

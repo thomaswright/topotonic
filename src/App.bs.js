@@ -727,25 +727,6 @@ function App(Props) {
       });
   var setShowNonModes = match$5[1];
   var showNonModes = match$5[0];
-  var graphDisplay;
-  switch (currentStepDisplay) {
-    case /* Key */0 :
-        graphDisplay = DataGeneration.rotate(pitchKeys, currentKey);
-        break;
-    case /* MinMaj */1 :
-        graphDisplay = mMPs;
-        break;
-    case /* DimAug */2 :
-        graphDisplay = dimAugs;
-        break;
-    case /* Semitone */3 :
-    case /* SemitoneSteps */4 :
-    case /* HalfnoteSteps */5 :
-    case /* Binary */6 :
-        graphDisplay = semitones;
-        break;
-    
-  }
   var modeNames = Belt_Option.mapWithDefault(Belt_Array.get(Belt_Array.keepMap(Data.namedSpecies, (function (param) {
                     var s = param[0];
                     return Belt_Array.getBy(param[2], (function (param) {
@@ -817,7 +798,7 @@ function App(Props) {
                           className: "pt-2 w-full self-center text-[var(--dim)]"
                         }, React.createElement(make$1, {
                               playing: playing,
-                              labels: graphDisplay,
+                              labels: DataGeneration.rotate(pitchKeys, currentKey),
                               selected: Belt_Option.mapWithDefault(rotation, Belt_Array.make(12, false), (function (b) {
                                       return RotationJs.intToBoolArray(RotationJs.getMaxRotation(b));
                                     })),
