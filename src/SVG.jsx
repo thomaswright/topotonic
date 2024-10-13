@@ -139,7 +139,7 @@ export const SVG = ({
                   deg={i * orderDegree}
                   strokeWidth={2}
                   radius={1}
-                  color={"var(--accent)"}
+                  color={"var(--highlight)"}
                 />
               ) : null}
             </React.Fragment>
@@ -159,7 +159,7 @@ export const SVG = ({
               deg={i * orderDegree}
               strokeWidth={2}
               radius={1}
-              color={"var(--red)"}
+              color={"var(--accent)"}
             />
           ) : null;
         })}
@@ -179,8 +179,8 @@ export const SVG = ({
               fill={
                 s
                   ? isPlaying
-                    ? "var(--red)"
-                    : "var(--accent)"
+                    ? "var(--accent)"
+                    : "var(--highlight)"
                   : "currentColor"
               }
               x={center.x}
@@ -209,8 +209,8 @@ export const SVG = ({
                 fill={
                   s
                     ? isPlaying
-                      ? "var(--red)"
-                      : "var(--accent)"
+                      ? "var(--accent)"
+                      : "var(--highlight)"
                     : "currentColor"
                 }
                 x={center.x}

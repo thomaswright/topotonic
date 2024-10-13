@@ -383,7 +383,7 @@ function App$Scale(Props) {
                 key: String(i),
                 className: [
                     "w-6 flex flex-row items-center justify-center ",
-                    isPlaying ? "text-[var(--red)]" : ""
+                    isPlaying ? "text-[var(--accent)]" : ""
                   ].join(" ")
               }, content);
   };
@@ -591,7 +591,7 @@ function App$Species(Props) {
                                                                 key: String(modeId),
                                                                 className: [
                                                                     "flex flex-col py-1 sm:justify-start justify-center ",
-                                                                    selected ? "text-[var(--accent)] bg-[var(--scale-highlight)] font-black" : (
+                                                                    selected ? "text-[var(--highlight)] bg-[var(--scale-highlight)] font-black" : (
                                                                         modeKind === /* NonMode */2 ? "text-neutral-400 font-medium " : "  font-medium"
                                                                       )
                                                                   ].join(" "),
@@ -782,7 +782,7 @@ function App(Props) {
                 }, React.createElement("div", {
                       className: "flex flex-row justify-between items-center w-full pl-3 pr-1"
                     }, React.createElement(App$PageTitle, {}), Belt_Option.isNone(rotation) ? null : React.createElement("button", {
-                            className: "flex flex-row gap-2 py-1 px-5 rounded-full items-center\n               justify-center font-bold text-white bg-[var(--accent)]",
+                            className: "flex flex-row gap-2 py-1 px-5 rounded-full items-center\n               justify-center font-bold text-white bg-[var(--highlight)]",
                             onClick: (function (param) {
                                 var cChromScale = generateChromaticScale(110, 12);
                                 var newBase = Belt_Option.getWithDefault(Belt_Array.get(cChromScale, currentKey), 110);

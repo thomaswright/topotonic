@@ -231,7 +231,7 @@ module Scale = {
         key={i->Int.toString}
         className={[
           "w-6 flex flex-row items-center justify-center ",
-          isPlaying ? "text-[var(--red)]" : "",
+          isPlaying ? "text-[var(--accent)]" : "",
         ]->join}>
         {content->React.string}
       </div>
@@ -484,7 +484,7 @@ module Species = {
                             className={[
                               "flex flex-col py-1 sm:justify-start justify-center ",
                               selected
-                                ? "text-[var(--accent)] bg-[var(--scale-highlight)] font-black"
+                                ? "text-[var(--highlight)] bg-[var(--scale-highlight)] font-black"
                                 : modeKind == NonMode
                                 ? "text-neutral-400 font-medium "
                                 : "  font-medium",
@@ -655,7 +655,7 @@ let make = () => {
           ? React.null
           : <button
               className={"flex flex-row gap-2 py-1 px-5 rounded-full items-center
-               justify-center font-bold text-white bg-[var(--accent)]"}
+               justify-center font-bold text-white bg-[var(--highlight)]"}
               onClick={_ => {playNotes()}}>
               <PlayIcon size={14} />
               {"Play"->React.string}

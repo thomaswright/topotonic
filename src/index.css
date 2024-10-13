@@ -3,25 +3,23 @@
 @tailwind utilities;
 
 :root {
-  --red: #9a0016;
-  --pink: #ffcbb6;
-  --blue: #00a0b5;
-  --mid: #fff2df;
-  --dim: #bc8974;
+  --accent: #ea0000;
+  --highlight: oklch(0.3 0.2 260);
+  --mid: oklch(0.85 0.05 260);
+  --light: oklch(0.95 0.02 260);
+  --dim: oklch(0.7 0.02 260);
 
-  background-color: #fffdf8;
-  color: #280d00;
+  background-color: oklch(99.5 0.007 260);
+  color: oklch(0.1 0.05 260);
 
-  --logo: var(--blue);
-  --card: var(--mid);
-  --card-select-bg: var(--pink);
-  --species-bg: var(--pink);
-  --species-open-bg: var(--pink);
-  --species-scales: var(--pink);
-  --species-text: var(--red);
+  --logo: var(--highlight);
+  --card: var(--light);
+  --card-select-bg: var(--mid);
+  --species-bg: var(--mid);
+  --species-open-bg: var(--mid);
+  --species-scales: var(--mid);
+  --species-text: var(--highlight);
   --scale-highlight: transparent;
-
-  --accent: var(--blue);
 }
 
 body {
