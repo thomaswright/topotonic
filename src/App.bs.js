@@ -42,6 +42,21 @@ function getAllRotations(prim) {
   return RotationJs.getAllRotations(prim);
 }
 
+function App$Attribution(Props) {
+  return React.createElement("div", {
+              className: "text-xs p-6"
+            }, React.createElement("span", {
+                  className: "font-normal text-gray-600"
+                }, "By "), React.createElement("a", {
+                  className: "font-bold text-blue-600",
+                  href: "https://github.com/thomaswright/topotonic"
+                }, "Thomas Wright"));
+}
+
+var Attribution = {
+  make: App$Attribution
+};
+
 var make = IconsJsx.Logo;
 
 var Logo = {
@@ -877,7 +892,9 @@ function App(Props) {
                                               return !v;
                                             }));
                                     })
-                                }))))), React.createElement("div", {
+                                })))), React.createElement("div", {
+                      className: "flex-1"
+                    }), React.createElement(App$Attribution, {})), React.createElement("div", {
                   className: "flex-1 sm:flex-1  h-full overflow-scroll xs:px-2"
                 }, React.createElement("div", {
                       className: "sm:max-w-[500px] pt-2"
@@ -915,6 +932,7 @@ export {
   getMaxRotation ,
   rotateRightByOnes ,
   getAllRotations ,
+  Attribution ,
   Logo ,
   SVG ,
   Symmetry ,

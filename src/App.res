@@ -15,6 +15,18 @@ external areInSameRotationClass: (int, int) => bool = "areInSameRotationClass"
 @module("./rotation.js") external rotateRightByOnes: (int, int) => int = "rotateRightByOnes"
 @module("./rotation.js") external getAllRotations: int => array<int> = "getAllRotations"
 
+module Attribution = {
+  @react.component
+  let make = () => {
+    <div className="text-xs p-6">
+      <span className={"font-normal text-gray-600"}> {"By "->React.string} </span>
+      <a className="font-bold text-blue-600" href={"https://github.com/thomaswright/topotonic"}>
+        {"Thomas Wright"->React.string}
+      </a>
+    </div>
+  }
+}
+
 module Logo = {
   @module("./Icons.jsx") @react.component
   external make: (~size: int) => React.element = "Logo"
@@ -706,6 +718,8 @@ let make = () => {
           </div>
         </div>
       </div>
+      <div className={"flex-1"} />
+      <Attribution />
     </div>
     <div className="flex-1 sm:flex-1  h-full overflow-scroll xs:px-2">
       <div className="sm:max-w-[500px] pt-2">
