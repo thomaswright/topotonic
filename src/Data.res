@@ -7,12 +7,112 @@ type mode = (int, array<scaleName>)
 type species = (string, array<scaleName>, array<mode>)
 
 let namedSpecies: array<species> = [
+  ("255", [], [(0, [(Misc, "Suspended second")]), (2, [(Misc, "Suspended fourth")])]),
+  (
+    "435",
+    [(Misc, "Major triad")],
+    [
+      (0, [(Misc, "Major triad, root position")]),
+      (1, [(Misc, "Major triad, 1st inversion")]),
+      (2, [(Misc, "Major triad, 2nd inversion")]),
+    ],
+  ),
+  (
+    "4323",
+    [(Misc, "Major sixth"), (Misc, "Minor seventh")],
+    [
+      (0, [(Misc, "Major sixth, root position")]),
+      (1, [(Misc, "Major sixth, 1st inversion")]),
+      (2, [(Misc, "Major sixth, 2nd inversion")]),
+      (3, [(Misc, "Minor seventh")]),
+    ],
+  ),
+  (
+    "4332",
+    [(Misc, "Dominant seventh")],
+    [
+      (0, [(Misc, "Dominant seventh, root position")]),
+      (1, [(Misc, "Dominant seventh, 1st inversion")]),
+      (2, [(Misc, "Dominant seventh, 2nd inversion")]),
+      (3, [(Misc, "Dominant seventh, 3rd inversion")]),
+    ],
+  ),
+  (
+    "4341",
+    [(Misc, "Major seventh")],
+    [
+      (0, [(Misc, "Major seventh, root position")]),
+      (1, [(Misc, "Major seventh, 1st inversion")]),
+      (2, [(Misc, "Major seventh, 2nd inversion")]),
+      (3, [(Misc, "Major seventh, 3rd inversion")]),
+    ],
+  ),
+  ("444", [(Misc, "Augmented triad")], []),
+  (
+    "4422",
+    [(Misc, "Augmented seventh")],
+    [
+      (0, [(Misc, "Augmented seventh, root position")]),
+      (1, [(Misc, "Augmented seventh, 1st inversion")]),
+      (2, [(Misc, "Augmented seventh, 2nd inversion")]),
+      (3, [(Misc, "Augmented seventh, 3rd inversion")]),
+    ],
+  ),
+  (
+    "345",
+    [(Misc, "Minor triad")],
+    [
+      (0, [(Misc, "Minor triad, root position")]),
+      (1, [(Misc, "Minor triad, 1st inversion")]),
+      (2, [(Misc, "Minor triad, 2nd inversion")]),
+    ],
+  ),
+  (
+    "3423",
+    [(Misc, "Minor sixth"), (Misc, "Half-diminished seventh")],
+    [
+      (0, [(Misc, "Minor sixth, root position")]),
+      (1, [(Misc, "Minor sixth, 1st inversion")]),
+      (2, [(Misc, "Minor sixth, 2nd inversion")]),
+      (3, [(Misc, "Half-diminished seventh")]),
+    ],
+  ),
+  (
+    "3441",
+    [(Misc, "Minor-major seventh")],
+    [
+      (0, [(Misc, "Minor-major seventh, root position")]),
+      (1, [(Misc, "Minor-major seventh, 1st inversion")]),
+      (2, [(Misc, "Minor-major seventh, 2nd inversion")]),
+      (3, [(Misc, "Minor-major seventh, 3rd inversion")]),
+    ],
+  ),
+  (
+    "336",
+    [(Misc, "Diminished triad")],
+    [
+      (0, [(Misc, "Diminished triad, root position")]),
+      (1, [(Misc, "Diminished triad, 1st inversion")]),
+      (2, [(Misc, "Diminished triad, 2nd inversion")]),
+    ],
+  ),
+  ("3333", [(Misc, "Diminished seventh")], []),
+  ("22332", [(Misc, "Dominant ninth")], [(0, [(Misc, "Dominant ninth, root position")])]),
+  ("221232", [(Misc, "Dominant eleventh")], [(0, [(Misc, "Dominant eleventh, root position")])]),
   (
     "22323",
     [(Misc, "Pentatonic")],
     [
       (0, [(Misc, "Major Pentatonic"), (ChinesePenta, `宮 Gong`), (MiddleEast, "Ajam")]),
-      (1, [(Misc, "Egyptian"), (Misc, "Suspended Pentatonic"), (ChinesePenta, `商 Shang`)]),
+      (
+        1,
+        [
+          (Misc, "Egyptian"),
+          (Misc, "Suspended Pentatonic"),
+          (Misc, "Jazz sus"),
+          (ChinesePenta, `商 Shang`),
+        ],
+      ),
       (2, [(Misc, "Blues 5 Minor"), (ChinesePenta, `角 Jue`)]),
       (3, [(Misc, "Ritsusen"), (Misc, "Yo"), (Misc, "Blues 5 Major"), (ChinesePenta, `徵 Zhi`)]),
       (4, [(Misc, "Minor Pentatonic"), (ChinesePenta, `羽 Yu`)]),
@@ -27,7 +127,15 @@ let namedSpecies: array<species> = [
       (2, [(Numbers, "2"), (ModernGreek, "Dorian")]),
       (3, [(Numbers, "3"), (ModernGreek, "Phrygian")]),
       (4, [(Numbers, "4"), (ModernGreek, "Lydian")]),
-      (5, [(Numbers, "5"), (ModernGreek, "Mixolydian"), (Jewish, "Adonai Malakh")]),
+      (
+        5,
+        [
+          (Numbers, "5"),
+          (ModernGreek, "Mixolydian"),
+          (Misc, "Dominant thirteenth"),
+          (Jewish, "Adonai Malakh"),
+        ],
+      ),
       (
         6,
         [

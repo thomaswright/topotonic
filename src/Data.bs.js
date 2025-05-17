@@ -3,6 +3,394 @@
 
 var namedSpecies = [
   [
+    "255",
+    [],
+    [
+      [
+        0,
+        [[
+            /* Misc */0,
+            "Suspended second"
+          ]]
+      ],
+      [
+        2,
+        [[
+            /* Misc */0,
+            "Suspended fourth"
+          ]]
+      ]
+    ]
+  ],
+  [
+    "435",
+    [[
+        /* Misc */0,
+        "Major triad"
+      ]],
+    [
+      [
+        0,
+        [[
+            /* Misc */0,
+            "Major triad, root position"
+          ]]
+      ],
+      [
+        1,
+        [[
+            /* Misc */0,
+            "Major triad, 1st inversion"
+          ]]
+      ],
+      [
+        2,
+        [[
+            /* Misc */0,
+            "Major triad, 2nd inversion"
+          ]]
+      ]
+    ]
+  ],
+  [
+    "4323",
+    [
+      [
+        /* Misc */0,
+        "Major sixth"
+      ],
+      [
+        /* Misc */0,
+        "Minor seventh"
+      ]
+    ],
+    [
+      [
+        0,
+        [[
+            /* Misc */0,
+            "Major sixth, root position"
+          ]]
+      ],
+      [
+        1,
+        [[
+            /* Misc */0,
+            "Major sixth, 1st inversion"
+          ]]
+      ],
+      [
+        2,
+        [[
+            /* Misc */0,
+            "Major sixth, 2nd inversion"
+          ]]
+      ],
+      [
+        3,
+        [[
+            /* Misc */0,
+            "Minor seventh"
+          ]]
+      ]
+    ]
+  ],
+  [
+    "4332",
+    [[
+        /* Misc */0,
+        "Dominant seventh"
+      ]],
+    [
+      [
+        0,
+        [[
+            /* Misc */0,
+            "Dominant seventh, root position"
+          ]]
+      ],
+      [
+        1,
+        [[
+            /* Misc */0,
+            "Dominant seventh, 1st inversion"
+          ]]
+      ],
+      [
+        2,
+        [[
+            /* Misc */0,
+            "Dominant seventh, 2nd inversion"
+          ]]
+      ],
+      [
+        3,
+        [[
+            /* Misc */0,
+            "Dominant seventh, 3rd inversion"
+          ]]
+      ]
+    ]
+  ],
+  [
+    "4341",
+    [[
+        /* Misc */0,
+        "Major seventh"
+      ]],
+    [
+      [
+        0,
+        [[
+            /* Misc */0,
+            "Major seventh, root position"
+          ]]
+      ],
+      [
+        1,
+        [[
+            /* Misc */0,
+            "Major seventh, 1st inversion"
+          ]]
+      ],
+      [
+        2,
+        [[
+            /* Misc */0,
+            "Major seventh, 2nd inversion"
+          ]]
+      ],
+      [
+        3,
+        [[
+            /* Misc */0,
+            "Major seventh, 3rd inversion"
+          ]]
+      ]
+    ]
+  ],
+  [
+    "444",
+    [[
+        /* Misc */0,
+        "Augmented triad"
+      ]],
+    []
+  ],
+  [
+    "4422",
+    [[
+        /* Misc */0,
+        "Augmented seventh"
+      ]],
+    [
+      [
+        0,
+        [[
+            /* Misc */0,
+            "Augmented seventh, root position"
+          ]]
+      ],
+      [
+        1,
+        [[
+            /* Misc */0,
+            "Augmented seventh, 1st inversion"
+          ]]
+      ],
+      [
+        2,
+        [[
+            /* Misc */0,
+            "Augmented seventh, 2nd inversion"
+          ]]
+      ],
+      [
+        3,
+        [[
+            /* Misc */0,
+            "Augmented seventh, 3rd inversion"
+          ]]
+      ]
+    ]
+  ],
+  [
+    "345",
+    [[
+        /* Misc */0,
+        "Minor triad"
+      ]],
+    [
+      [
+        0,
+        [[
+            /* Misc */0,
+            "Minor triad, root position"
+          ]]
+      ],
+      [
+        1,
+        [[
+            /* Misc */0,
+            "Minor triad, 1st inversion"
+          ]]
+      ],
+      [
+        2,
+        [[
+            /* Misc */0,
+            "Minor triad, 2nd inversion"
+          ]]
+      ]
+    ]
+  ],
+  [
+    "3423",
+    [
+      [
+        /* Misc */0,
+        "Minor sixth"
+      ],
+      [
+        /* Misc */0,
+        "Half-diminished seventh"
+      ]
+    ],
+    [
+      [
+        0,
+        [[
+            /* Misc */0,
+            "Minor sixth, root position"
+          ]]
+      ],
+      [
+        1,
+        [[
+            /* Misc */0,
+            "Minor sixth, 1st inversion"
+          ]]
+      ],
+      [
+        2,
+        [[
+            /* Misc */0,
+            "Minor sixth, 2nd inversion"
+          ]]
+      ],
+      [
+        3,
+        [[
+            /* Misc */0,
+            "Half-diminished seventh"
+          ]]
+      ]
+    ]
+  ],
+  [
+    "3441",
+    [[
+        /* Misc */0,
+        "Minor-major seventh"
+      ]],
+    [
+      [
+        0,
+        [[
+            /* Misc */0,
+            "Minor-major seventh, root position"
+          ]]
+      ],
+      [
+        1,
+        [[
+            /* Misc */0,
+            "Minor-major seventh, 1st inversion"
+          ]]
+      ],
+      [
+        2,
+        [[
+            /* Misc */0,
+            "Minor-major seventh, 2nd inversion"
+          ]]
+      ],
+      [
+        3,
+        [[
+            /* Misc */0,
+            "Minor-major seventh, 3rd inversion"
+          ]]
+      ]
+    ]
+  ],
+  [
+    "336",
+    [[
+        /* Misc */0,
+        "Diminished triad"
+      ]],
+    [
+      [
+        0,
+        [[
+            /* Misc */0,
+            "Diminished triad, root position"
+          ]]
+      ],
+      [
+        1,
+        [[
+            /* Misc */0,
+            "Diminished triad, 1st inversion"
+          ]]
+      ],
+      [
+        2,
+        [[
+            /* Misc */0,
+            "Diminished triad, 2nd inversion"
+          ]]
+      ]
+    ]
+  ],
+  [
+    "3333",
+    [[
+        /* Misc */0,
+        "Diminished seventh"
+      ]],
+    []
+  ],
+  [
+    "22332",
+    [[
+        /* Misc */0,
+        "Dominant ninth"
+      ]],
+    [[
+        0,
+        [[
+            /* Misc */0,
+            "Dominant ninth, root position"
+          ]]
+      ]]
+  ],
+  [
+    "221232",
+    [[
+        /* Misc */0,
+        "Dominant eleventh"
+      ]],
+    [[
+        0,
+        [[
+            /* Misc */0,
+            "Dominant eleventh, root position"
+          ]]
+      ]]
+  ],
+  [
     "22323",
     [[
         /* Misc */0,
@@ -36,6 +424,10 @@ var namedSpecies = [
           [
             /* Misc */0,
             "Suspended Pentatonic"
+          ],
+          [
+            /* Misc */0,
+            "Jazz sus"
           ],
           [
             /* ChinesePenta */1,
@@ -178,6 +570,10 @@ var namedSpecies = [
           [
             /* ModernGreek */3,
             "Mixolydian"
+          ],
+          [
+            /* Misc */0,
+            "Dominant thirteenth"
           ],
           [
             /* Jewish */4,
