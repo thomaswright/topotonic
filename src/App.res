@@ -96,7 +96,7 @@ type notePlayer = {
 
 @module("./NotePlayer.js") @new external makeNotePlayer: unit => notePlayer = "default"
 
-@module("./Tone.js") external triggerAttackRelease: (. int, string, float) => unit = "default"
+@module("./Tone.js") external triggerAttackRelease: (. float, string, float) => unit = "default"
 @val external parseInt: (string, int) => option<int> = "parseInt"
 
 let join = Js.Array2.joinWith(_, " ")
@@ -134,7 +134,7 @@ let generateChromaticScale = (startFrequency, numNotes) => {
   let semitoneRatio = 2. ** (1. /. 12.)
 
   Array.range(0, numNotes)->Array.map(v => {
-    (startFrequency->Float.fromInt *. semitoneRatio ** v->Float.fromInt)->Int.fromFloat
+    startFrequency *. semitoneRatio ** v->Float.fromInt
   })
 }
 
@@ -621,11 +621,11 @@ let make = () => {
     ->Js.Array2.joinWith(" • ")
 
   let playNotes = () => {
-    let cBaseFreq = 110
+    let cBaseFreq = 261.626
     let cChromScale = generateChromaticScale(cBaseFreq, 12)
     let newBase = cChromScale->Array.get(currentKey)->Option.getWithDefault(cBaseFreq)
 
-    let newChromScale = generateChromaticScale(cBaseFreq + newBase, 12)
+    let newChromScale = generateChromaticScale(newBase, 12)
 
     let seq =
       newChromScale
@@ -634,7 +634,7 @@ let make = () => {
         ->Option.mapWithDefault(Array.make(12, false), (b: int) => b->intToBoolArray)
         ->Array.getUnsafe(i)
       })
-      ->(x => x->Array.get(0)->Option.mapWithDefault(x, head => Array.concat(x, [head * 2])))
+      ->(x => x->Array.get(0)->Option.mapWithDefault(x, head => Array.concat(x, [head *. 2.])))
 
     seq->Array.forEachWithIndex((i, v) => {
       triggerAttackRelease(. v, "4n", i->Int.toFloat *. 0.5)

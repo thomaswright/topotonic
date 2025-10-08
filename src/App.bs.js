@@ -234,7 +234,7 @@ var IntervalRefs = {
 function generateChromaticScale(startFrequency, numNotes) {
   var semitoneRatio = Math.pow(2, 1 / 12);
   return Belt_Array.map(Belt_Array.range(0, numNotes), (function (v) {
-                return startFrequency * Math.pow(semitoneRatio, v) | 0;
+                return startFrequency * Math.pow(semitoneRatio, v);
               }));
 }
 
@@ -799,16 +799,16 @@ function App(Props) {
                     }, React.createElement(App$PageTitle, {}), Belt_Option.isNone(rotation) ? null : React.createElement("button", {
                             className: "flex flex-row gap-2 py-1 px-5 rounded-full items-center\n               justify-center font-bold text-white bg-[var(--highlight)]",
                             onClick: (function (param) {
-                                var cChromScale = generateChromaticScale(110, 12);
-                                var newBase = Belt_Option.getWithDefault(Belt_Array.get(cChromScale, currentKey), 110);
-                                var newChromScale = generateChromaticScale(110 + newBase | 0, 12);
+                                var cChromScale = generateChromaticScale(261.626, 12);
+                                var newBase = Belt_Option.getWithDefault(Belt_Array.get(cChromScale, currentKey), 261.626);
+                                var newChromScale = generateChromaticScale(newBase, 12);
                                 var x = Belt_Array.keepWithIndex(newChromScale, (function (_v, i) {
                                         return Belt_Option.mapWithDefault(rotation, Belt_Array.make(12, false), (function (b) {
                                                         return RotationJs.intToBoolArray(b);
                                                       }))[i];
                                       }));
                                 var seq = Belt_Option.mapWithDefault(Belt_Array.get(x, 0), x, (function (head) {
-                                        return Belt_Array.concat(x, [(head << 1)]);
+                                        return Belt_Array.concat(x, [head * 2]);
                                       }));
                                 Belt_Array.forEachWithIndex(seq, (function (i, v) {
                                         triggerAttackRelease(v, "4n", i * 0.5);
