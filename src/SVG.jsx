@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 
 const RadialText = ({
   x,
@@ -11,11 +11,11 @@ const RadialText = ({
   onClick,
   fill,
 }) => {
-  let angle = deg - 90 - currentKey * 30;
+  const angle = deg - 90 - currentKey * 30;
   return (
     <g
       onClick={onClick}
-      className=" cursor-pointer"
+      className="cursor-pointer"
       style={{
         transition: "transform 1s ease-in-out",
         transform: `
@@ -67,9 +67,40 @@ const RadialLine = ({
 
 function cycleArray(arr, m) {
   const n = arr.length;
+  if (n === 0) {
+    return arr.slice();
+  }
   const shift = ((m % n) + n) % n;
   return arr.slice(-shift).concat(arr.slice(0, -shift));
 }
+
+const normalizeIndex = (index, length) => {
+  if (length === 0) {
+    return 0;
+  }
+  const mod = index % length;
+  return mod < 0 ? mod + length : mod;
+};
+
+const buildSelectedPrefix = (values) => {
+  const prefix = new Array(values.length + 1);
+  prefix[0] = 0;
+  for (let i = 0; i < values.length; i += 1) {
+    prefix[i + 1] = prefix[i] + (values[i] ? 1 : 0);
+  }
+  return prefix;
+};
+
+const countSelectedBefore = (prefix, index) => {
+  const length = prefix.length - 1;
+  if (length === 0) {
+    return 0;
+  }
+  if (index < 0) {
+    return prefix[Math.max(length + index, 0)];
+  }
+  return prefix[Math.min(index, length)];
+};
 
 export const SVG = ({
   playing,
@@ -80,20 +111,28 @@ export const SVG = ({
   onKeyChange,
   rotationOffset,
 }) => {
-  let order = labels.length;
-  let boxSize = 100;
-  let orderDegree = 360 / order;
-  let translate = 10;
-
-  let center = {
+  const labelCount = labels.length;
+  const boxSize = 100;
+  const orderDegree = labelCount === 0 ? 0 : 360 / labelCount;
+  const translate = 10;
+  const center = {
     x: boxSize / 2,
     y: boxSize / 2 - translate,
   };
 
-  let radius = boxSize / 4.5;
-  let cycledData = cycleArray(labels, currentKey);
-  let numNotes = selected.slice(0).filter((x) => x).length;
-  let shift = selected.slice(0, rotationOffset).filter((x) => x).length;
+  const radius = boxSize / 4.5;
+  const cycledLabels = useMemo(
+    () => cycleArray(labels, currentKey),
+    [labels, currentKey],
+  );
+  const selectedPrefix = useMemo(
+    () => buildSelectedPrefix(selected),
+    [selected],
+  );
+  const numNotes = selectedPrefix[selectedPrefix.length - 1] || 0;
+  const shift = countSelectedBefore(selectedPrefix, rotationOffset);
+  const playingIndex = numNotes > 0 ? (playing + shift) % numNotes : -1;
+  const currentKeyOffset = normalizeIndex(labelCount - currentKey, labelCount);
 
   return (
     <svg viewBox="0 0 100 80" xmlns="http://www.w3.org/2000/svg">
@@ -111,73 +150,74 @@ export const SVG = ({
           transition: "transform 1s ease-in-out",
           transform: `
           translate(${center.x}px, ${center.y}px)
-          rotate(-${rotationOffset * 30}deg)
+          rotate(-${rotationOffset * orderDegree}deg)
           translate(-${center.x}px, -${center.y}px)
 
           `,
         }}
       >
-        {selected.map((s, i) => {
+        {selected.map((isSelected, index) => {
+          const deg = index * orderDegree;
+          const numInSeq = countSelectedBefore(selectedPrefix, index);
+          const isPlaying = numNotes > 0 && playingIndex === numInSeq;
+
           return (
-            <React.Fragment key={i + "lines"}>
+            <React.Fragment key={`line-${index}`}>
               <RadialLine
                 x={center.x}
                 y={center.y}
                 start={radius - 1}
                 end={radius + 1}
-                deg={i * orderDegree}
+                deg={deg}
                 strokeWidth={2}
                 radius={1}
                 color={"currentColor"}
               />
-              {s ? (
+              {isSelected ? (
                 <RadialLine
                   x={center.x}
                   y={center.y}
                   start={-1}
                   end={radius * 1.1}
-                  deg={i * orderDegree}
+                  deg={deg}
                   strokeWidth={2}
                   radius={1}
                   color={"var(--highlight)"}
                 />
               ) : null}
+              {isSelected && isPlaying ? (
+                <RadialLine
+                  x={center.x}
+                  y={center.y}
+                  start={-1}
+                  end={radius * 1.1}
+                  deg={deg}
+                  strokeWidth={2}
+                  radius={1}
+                  color={"var(--accent)"}
+                />
+              ) : null}
             </React.Fragment>
           );
         })}
-        {selected.map((s, i) => {
-          let numInSeq = selected.slice(0, i).filter((x) => x).length;
-
-          let isPlaying = (playing + shift) % numNotes == numInSeq;
-          return s && isPlaying ? (
-            <RadialLine
-              key={i + "playing"}
-              x={center.x}
-              y={center.y}
-              start={-1}
-              end={radius * 1.1}
-              deg={i * orderDegree}
-              strokeWidth={2}
-              radius={1}
-              color={"var(--accent)"}
-            />
-          ) : null;
-        })}
       </g>
 
-      {cycledData.map((label, i) => {
-        let newIndex = (i + rotationOffset + (12 - currentKey)) % order;
-        let numInSeq = selected.slice(0, newIndex).filter((x) => x).length;
-        let isPlaying = (playing + shift) % numNotes == numInSeq;
-        let s = selected[newIndex];
+      {cycledLabels.map((label, i) => {
+        const newIndex = normalizeIndex(
+          i + rotationOffset + currentKeyOffset,
+          labelCount,
+        );
+        const numInSeq = countSelectedBefore(selectedPrefix, newIndex);
+        const isPlaying = numNotes > 0 && playingIndex === numInSeq;
+        const isSelected = selected[newIndex];
 
         return (
-          <React.Fragment key={label + "notes"}>
+          <React.Fragment key={`${label}-note-${i}`}>
             <RadialText
               currentKey={currentKey}
-              selected={s}
+              selected={isSelected}
               fill={
-                s
+                isSelected
                   ? isPlaying
                     ? "var(--accent)"
                     : "var(--highlight)"
@@ -188,7 +228,7 @@ export const SVG = ({
               radius={radius * 1.2}
               deg={i * orderDegree}
               text={label}
-              onClick={(_) => onKeyChange(i)}
+              onClick={() => onKeyChange(i)}
             />
           </React.Fragment>
         );
@@ -196,18 +236,18 @@ export const SVG = ({
 
       {stepLabels &&
         stepLabels.map((label, i) => {
-          let newIndex = (i + rotationOffset) % order;
-          let numInSeq = selected.slice(0, newIndex).filter((x) => x).length;
-          let isPlaying = (playing + shift) % numNotes == numInSeq;
-          let s = selected[newIndex];
+          const newIndex = normalizeIndex(i + rotationOffset, labelCount);
+          const numInSeq = countSelectedBefore(selectedPrefix, newIndex);
+          const isPlaying = numNotes > 0 && playingIndex === numInSeq;
+          const isSelected = selected[newIndex];
 
           return (
-            <React.Fragment key={label + "notes"}>
+            <React.Fragment key={`${label}-step-${i}`}>
               <RadialText
                 currentKey={0}
-                selected={s}
+                selected={isSelected}
                 fill={
-                  s
+                  isSelected
                     ? isPlaying
                       ? "var(--accent)"
                       : "var(--highlight)"
@@ -218,7 +258,7 @@ export const SVG = ({
                 radius={radius * 1.55}
                 deg={i * orderDegree}
                 text={label}
-                onClick={(_) => {}}
+                onClick={() => {}}
               />
             </React.Fragment>
           );
