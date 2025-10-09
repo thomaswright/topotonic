@@ -133,6 +133,68 @@ export const SVG = ({
   const shift = countSelectedBefore(selectedPrefix, rotationOffset);
   const playingIndex = numNotes > 0 ? (playing + shift) % numNotes : -1;
   const currentKeyOffset = normalizeIndex(labelCount - currentKey, labelCount);
+  const lineMeta = useMemo(
+    () =>
+      selected.map((isSelected, index) => {
+        const deg = index * orderDegree;
+        const sequenceIndex = countSelectedBefore(selectedPrefix, index);
+        const isPlayingLine =
+          numNotes > 0 && isSelected && playingIndex === sequenceIndex;
+        return {
+          index,
+          deg,
+          isSelected,
+          isPlaying: isPlayingLine,
+        };
+      }),
+    [selected, orderDegree, selectedPrefix, numNotes, playingIndex],
+  );
+
+  const baseLines = lineMeta.map(({ index, deg }) => (
+    <RadialLine
+      key={`line-base-${index}`}
+      x={center.x}
+      y={center.y}
+      start={radius - 1}
+      end={radius + 1}
+      deg={deg}
+      strokeWidth={2}
+      radius={1}
+      color={"currentColor"}
+    />
+  ));
+
+  const selectedLines = lineMeta
+    .filter(({ isSelected }) => isSelected)
+    .map(({ index, deg }) => (
+      <RadialLine
+        key={`line-selected-${index}`}
+        x={center.x}
+        y={center.y}
+        start={-1}
+        end={radius * 1.1}
+        deg={deg}
+        strokeWidth={2}
+        radius={1}
+        color={"var(--highlight)"}
+      />
+    ));
+
+  const playingLines = lineMeta
+    .filter(({ isPlaying }) => isPlaying)
+    .map(({ index, deg }) => (
+      <RadialLine
+        key={`line-playing-${index}`}
+        x={center.x}
+        y={center.y}
+        start={-1}
+        end={radius * 1.1}
+        deg={deg}
+        strokeWidth={2}
+        radius={1}
+        color={"var(--accent)"}
+      />
+    ));
 
   return (
     <svg viewBox="0 0 100 80" xmlns="http://www.w3.org/2000/svg">
@@ -156,50 +218,9 @@ export const SVG = ({
           `,
         }}
       >
-        {selected.map((isSelected, index) => {
-          const deg = index * orderDegree;
-          const numInSeq = countSelectedBefore(selectedPrefix, index);
-          const isPlaying = numNotes > 0 && playingIndex === numInSeq;
-
-          return (
-            <React.Fragment key={`line-${index}`}>
-              <RadialLine
-                x={center.x}
-                y={center.y}
-                start={radius - 1}
-                end={radius + 1}
-                deg={deg}
-                strokeWidth={2}
-                radius={1}
-                color={"currentColor"}
-              />
-              {isSelected ? (
-                <RadialLine
-                  x={center.x}
-                  y={center.y}
-                  start={-1}
-                  end={radius * 1.1}
-                  deg={deg}
-                  strokeWidth={2}
-                  radius={1}
-                  color={"var(--highlight)"}
-                />
-              ) : null}
-              {isSelected && isPlaying ? (
-                <RadialLine
-                  x={center.x}
-                  y={center.y}
-                  start={-1}
-                  end={radius * 1.1}
-                  deg={deg}
-                  strokeWidth={2}
-                  radius={1}
-                  color={"var(--accent)"}
-                />
-              ) : null}
-            </React.Fragment>
-          );
-        })}
+        {baseLines}
+        {selectedLines}
+        {playingLines}
       </g>
 
       {cycledLabels.map((label, i) => {
