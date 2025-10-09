@@ -584,6 +584,65 @@ module StepDisplay = {
   }
 }
 
+let deriveStepLabels = currentStepDisplay =>
+  switch currentStepDisplay {
+  | Binary => None
+  | HalfnoteSteps => None
+  | SemitoneSteps => None
+  | Semitone => IntervalRefs.semitones->Some
+  | DimAug => IntervalRefs.dimAugs->Some
+  | MinMaj => IntervalRefs.mMPs->Some
+  | Key => None
+  }
+
+let collectModeNames = rotation =>
+  switch rotation {
+  | None => ""
+  | Some(rotationValue) =>
+    Data.namedSpecies
+    ->Array.keepMap(((s, _, modes)) =>
+      modes->Array.getBy(((mId, _)) =>
+        rotationValue == s->stepsToRotation->rotateRightByOnes(mId + 1)
+      )
+    )
+    ->Array.get(0)
+    ->Option.mapWithDefault([], ((_, modeNames)) =>
+      modeNames->Array.map(((_, name)) => name)
+    )
+    ->Js.Array2.joinWith(" • ")
+  }
+
+let collectScaleNames = rotation =>
+  switch rotation {
+  | None => ""
+  | Some(rotationValue) =>
+    let targetMin = rotationValue->getMinRotation
+    Data.namedSpecies
+    ->Array.keepMap(((sId, sNames, _modes)) => {
+      let isMatch = sId->stepsToRotation->getMinRotation == targetMin
+      isMatch
+        ? sNames->Array.map(((_tradition, name)) => name)->Some
+        : None
+    })
+    ->Array.concatMany
+    ->Js.Array2.joinWith(" • ")
+  }
+
+let filterSpeciesByNoteCount = selectedNoteNum =>
+  rotationGroups->Array.keep(((speciesId, _scales)) =>
+    speciesId->intToBoolArray->Array.keep(x => x)->Array.length == selectedNoteNum
+  )
+
+let computeRotationOffset = rotation =>
+  rotation
+  ->Option.flatMap(r => r->getMaxRotation->getAllRotations->Array.getIndexBy(v => v == r))
+  ->Option.getWithDefault(0)
+
+let rotationToSelectedNotes = rotation =>
+  rotation->Option.mapWithDefault(Array.make(12, false), (value: int) =>
+    value->getMaxRotation->intToBoolArray
+  )
+
 @react.component
 let make = () => {
   let (rotation: option<int>, setRotation) = React.useState(_ => None)
@@ -593,77 +652,50 @@ let make = () => {
   let (currentStepDisplay: stepDisplay, setCurrentStepDisplay) = React.useState(_ => Key)
   let (showNonModes, setShowNonModes) = React.useState(_ => false)
 
-  let stepLabels = {
-    switch currentStepDisplay {
-    | Binary => None
-    | HalfnoteSteps => None
-    | SemitoneSteps => None
-    | Semitone => IntervalRefs.semitones->Some
-    | DimAug => IntervalRefs.dimAugs->Some
-    | MinMaj => IntervalRefs.mMPs->Some
-    | Key => None
+  let stepLabels = deriveStepLabels(currentStepDisplay)
+
+  let modeNames = collectModeNames(rotation)
+  let scaleNames = collectScaleNames(rotation)
+  let selectedNotes = rotationToSelectedNotes(rotation)
+  let species = filterSpeciesByNoteCount(selectedNoteNum)
+  let rotationOffset = computeRotationOffset(rotation)
+  let pitchLabels = IntervalRefs.pitchKeys->DataGeneration.rotate(currentKey)
+  let noteCounts = Array.range(1, 12)
+
+  let playNotes = rotationValue => {
+    switch rotationValue {
+    | None => ()
+    | Some(rotationInt) =>
+      let cBaseFreq = 261.626
+      let cChromScale = generateChromaticScale(cBaseFreq, 12)
+      let newBase = cChromScale->Array.get(currentKey)->Option.getWithDefault(cBaseFreq)
+
+      let newChromScale = generateChromaticScale(newBase, 12)
+      let rotationMask = rotationInt->intToBoolArray
+
+      let seq =
+        newChromScale
+        ->Array.keepWithIndex((_, i) => rotationMask->Array.get(i)->Option.getWithDefault(false))
+
+      let seqWithOctave =
+        seq->Array.get(0)->Option.mapWithDefault(seq, head => Array.concat(seq, [head *. 2.]))
+
+      seqWithOctave->Array.forEachWithIndex((i, v) => {
+        triggerAttackRelease(. v, "4n", i->Int.toFloat *. 0.5)
+        Js.Global.setTimeout(() => {
+          setPlaying(_ => Some(i))
+        }, i * 500)->ignore
+      })
+
+      Js.Global.setTimeout(() => {
+        setPlaying(_ => None)
+      }, seqWithOctave->Array.length * 500)->ignore
     }
   }
 
-  let modeNames =
-    Data.namedSpecies
-    ->Array.keepMap(((s, _, modes)) => {
-      modes->Array.getBy(((mId, _)) => {
-        rotation->Option.getWithDefault(0) == s->stepsToRotation->rotateRightByOnes(mId + 1)
-      })
-    })
-    ->Array.get(0)
-    ->Option.mapWithDefault([], ((_, modeNames)) => modeNames->Array.map(((_, name)) => name))
-    ->Js.Array2.joinWith(" • ")
-
-  let scaleNames =
-    Data.namedSpecies
-    ->Array.keepMap(((sId, sNames, _modes)) => {
-      let isMatch =
-        sId->stepsToRotation->getMinRotation == rotation->Option.getWithDefault(0)->getMinRotation
-
-      isMatch ? sNames->Array.map(((_tradition, name)) => name)->Some : None
-    })
-    ->Array.concatMany
-    ->Js.Array2.joinWith(" • ")
-
-  let playNotes = () => {
-    let cBaseFreq = 261.626
-    let cChromScale = generateChromaticScale(cBaseFreq, 12)
-    let newBase = cChromScale->Array.get(currentKey)->Option.getWithDefault(cBaseFreq)
-
-    let newChromScale = generateChromaticScale(newBase, 12)
-
-    let seq =
-      newChromScale
-      ->Array.keepWithIndex((_v, i) => {
-        rotation
-        ->Option.mapWithDefault(Array.make(12, false), (b: int) => b->intToBoolArray)
-        ->Array.getUnsafe(i)
-      })
-      ->(x => x->Array.get(0)->Option.mapWithDefault(x, head => Array.concat(x, [head *. 2.])))
-
-    seq->Array.forEachWithIndex((i, v) => {
-      triggerAttackRelease(. v, "4n", i->Int.toFloat *. 0.5)
-      Js.Global.setTimeout(() => {
-        setPlaying(_ => Some(i))
-      }, i * 500)->ignore
-    })
-    Js.Global.setTimeout(() => {
-      setPlaying(_ => None)
-    }, seq->Array.length * 500)->ignore
-  }
-
-  let species = rotationGroups->Array.keep(((speciesId, _scales)) => {
-    speciesId->intToBoolArray->Array.keep(x => x)->Array.length == selectedNoteNum
-  })
-
-  let rotationOffset =
-    rotation
-    ->Option.flatMap(r => {
-      r->getMaxRotation->getAllRotations->Array.getIndexBy(v => v == r)
-    })
-    ->Option.getWithDefault(0)
+  let playCurrentNotes = () => playNotes(rotation)
+  let toggleNonModes = () => setShowNonModes(v => !v)
+  let selectNoteCount = num => setSelectedNoteNum(_ => num)
 
   <div className={"flex  flex-col sm:grid grid-cols-main sm:flex-row h-screen w-screen max-w-3xl"}>
     <div
@@ -675,7 +707,7 @@ let make = () => {
           : <button
               className={"flex flex-row gap-2 py-1 px-5 rounded-full items-center
                justify-center font-bold text-white bg-[var(--highlight)]"}
-              onClick={_ => {playNotes()}}>
+              onClick={_ => playCurrentNotes()}>
               <PlayIcon size={14} />
               {"Play"->React.string}
             </button>}
@@ -686,10 +718,8 @@ let make = () => {
             playing={playing}
             rotationOffset={rotationOffset}
             stepLabels={stepLabels}
-            labels={IntervalRefs.pitchKeys->DataGeneration.rotate(currentKey)}
-            selected={rotation->Option.mapWithDefault(Array.make(12, false), (b: int) =>
-              b->getMaxRotation->intToBoolArray
-            )}
+            labels={pitchLabels}
+            selected={selectedNotes}
             currentKey={currentKey}
             onKeyChange={newKey => setCurrentKey(_ => newKey)}
           />
@@ -709,9 +739,8 @@ let make = () => {
         <StepDisplay setCurrentStepDisplay currentStepDisplay />
         <Card title={"Number of notes"}>
           <div className="grid grid-cols-6 overflow-x-scroll gap-2">
-            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]->reactMap(num => {
-              <StepButton
-                selected={selectedNoteNum == num} onClick={_ => setSelectedNoteNum(_ => num)}>
+            {noteCounts->reactMap(num => {
+              <StepButton selected={selectedNoteNum == num} onClick={_ => selectNoteCount(num)}>
                 {num->Int.toString->React.string}
               </StepButton>
             })}
@@ -721,7 +750,7 @@ let make = () => {
           <About />
           <div className="flex flex-row gap-2">
             <div className="text-sm"> {"Show Non-Modes"->React.string} </div>
-            <Switch checked={showNonModes} onCheckedChange={() => setShowNonModes(v => !v)} />
+            <Switch checked={showNonModes} onCheckedChange={toggleNonModes} />
           </div>
         </div>
       </div>

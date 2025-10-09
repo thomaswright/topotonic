@@ -789,6 +789,78 @@ var StepDisplay = {
   make: App$StepDisplay
 };
 
+function deriveStepLabels(currentStepDisplay) {
+  switch (currentStepDisplay) {
+    case /* MinMaj */1 :
+        return mMPs;
+    case /* DimAug */2 :
+        return dimAugs;
+    case /* Semitone */3 :
+        return semitones;
+    case /* Key */0 :
+    case /* SemitoneSteps */4 :
+    case /* HalfnoteSteps */5 :
+    case /* Binary */6 :
+        return ;
+    
+  }
+}
+
+function collectModeNames(rotation) {
+  if (rotation !== undefined) {
+    return Belt_Option.mapWithDefault(Belt_Array.get(Belt_Array.keepMap(Data.namedSpecies, (function (param) {
+                            var s = param[0];
+                            return Belt_Array.getBy(param[2], (function (param) {
+                                          return rotation === RotationJs.rotateRightByOnes(stepsToRotation(s), param[0] + 1 | 0);
+                                        }));
+                          })), 0), [], (function (param) {
+                    return Belt_Array.map(param[1], (function (param) {
+                                  return param[1];
+                                }));
+                  })).join(" • ");
+  } else {
+    return "";
+  }
+}
+
+function collectScaleNames(rotation) {
+  if (rotation === undefined) {
+    return "";
+  }
+  var targetMin = RotationJs.getMinRotation(rotation);
+  return Belt_Array.concatMany(Belt_Array.keepMap(Data.namedSpecies, (function (param) {
+                      var isMatch = RotationJs.getMinRotation(stepsToRotation(param[0])) === targetMin;
+                      if (isMatch) {
+                        return Belt_Array.map(param[1], (function (param) {
+                                      return param[1];
+                                    }));
+                      }
+                      
+                    }))).join(" • ");
+}
+
+function filterSpeciesByNoteCount(selectedNoteNum) {
+  return Belt_Array.keep(rotationGroups, (function (param) {
+                return Belt_Array.keep(RotationJs.intToBoolArray(param[0]), (function (x) {
+                              return x;
+                            })).length === selectedNoteNum;
+              }));
+}
+
+function computeRotationOffset(rotation) {
+  return Belt_Option.getWithDefault(Belt_Option.flatMap(rotation, (function (r) {
+                    return Belt_Array.getIndexBy(RotationJs.getAllRotations(RotationJs.getMaxRotation(r)), (function (v) {
+                                  return v === r;
+                                }));
+                  })), 0);
+}
+
+function rotationToSelectedNotes(rotation) {
+  return Belt_Option.mapWithDefault(rotation, Belt_Array.make(12, false), (function (value) {
+                return RotationJs.intToBoolArray(RotationJs.getMaxRotation(value));
+              }));
+}
+
 function App(Props) {
   var match = React.useState(function () {
         
@@ -819,54 +891,19 @@ function App(Props) {
       });
   var setShowNonModes = match$5[1];
   var showNonModes = match$5[0];
-  var stepLabels;
-  switch (currentStepDisplay) {
-    case /* MinMaj */1 :
-        stepLabels = mMPs;
-        break;
-    case /* DimAug */2 :
-        stepLabels = dimAugs;
-        break;
-    case /* Semitone */3 :
-        stepLabels = semitones;
-        break;
-    case /* Key */0 :
-    case /* SemitoneSteps */4 :
-    case /* HalfnoteSteps */5 :
-    case /* Binary */6 :
-        stepLabels = undefined;
-        break;
-    
-  }
-  var modeNames = Belt_Option.mapWithDefault(Belt_Array.get(Belt_Array.keepMap(Data.namedSpecies, (function (param) {
-                    var s = param[0];
-                    return Belt_Array.getBy(param[2], (function (param) {
-                                  return Belt_Option.getWithDefault(rotation, 0) === RotationJs.rotateRightByOnes(stepsToRotation(s), param[0] + 1 | 0);
-                                }));
-                  })), 0), [], (function (param) {
-            return Belt_Array.map(param[1], (function (param) {
-                          return param[1];
-                        }));
-          })).join(" • ");
-  var scaleNames = Belt_Array.concatMany(Belt_Array.keepMap(Data.namedSpecies, (function (param) {
-                var isMatch = RotationJs.getMinRotation(stepsToRotation(param[0])) === RotationJs.getMinRotation(Belt_Option.getWithDefault(rotation, 0));
-                if (isMatch) {
-                  return Belt_Array.map(param[1], (function (param) {
-                                return param[1];
-                              }));
-                }
-                
-              }))).join(" • ");
-  var species = Belt_Array.keep(rotationGroups, (function (param) {
-          return Belt_Array.keep(RotationJs.intToBoolArray(param[0]), (function (x) {
-                        return x;
-                      })).length === selectedNoteNum;
-        }));
-  var rotationOffset = Belt_Option.getWithDefault(Belt_Option.flatMap(rotation, (function (r) {
-              return Belt_Array.getIndexBy(RotationJs.getAllRotations(RotationJs.getMaxRotation(r)), (function (v) {
-                            return v === r;
-                          }));
-            })), 0);
+  var stepLabels = deriveStepLabels(currentStepDisplay);
+  var modeNames = collectModeNames(rotation);
+  var scaleNames = collectScaleNames(rotation);
+  var selectedNotes = rotationToSelectedNotes(rotation);
+  var species = filterSpeciesByNoteCount(selectedNoteNum);
+  var rotationOffset = computeRotationOffset(rotation);
+  var pitchLabels = DataGeneration.rotate(pitchKeys, currentKey);
+  var noteCounts = Belt_Array.range(1, 12);
+  var toggleNonModes = function (param) {
+    Curry._1(setShowNonModes, (function (v) {
+            return !v;
+          }));
+  };
   return React.createElement("div", {
               className: "flex  flex-col sm:grid grid-cols-main sm:flex-row h-screen w-screen max-w-3xl"
             }, React.createElement("div", {
@@ -876,18 +913,20 @@ function App(Props) {
                     }, React.createElement(App$PageTitle, {}), Belt_Option.isNone(rotation) ? null : React.createElement("button", {
                             className: "flex flex-row gap-2 py-1 px-5 rounded-full items-center\n               justify-center font-bold text-white bg-[var(--highlight)]",
                             onClick: (function (param) {
+                                if (rotation === undefined) {
+                                  return ;
+                                }
                                 var cChromScale = generateChromaticScale(261.626, 12);
                                 var newBase = Belt_Option.getWithDefault(Belt_Array.get(cChromScale, currentKey), 261.626);
                                 var newChromScale = generateChromaticScale(newBase, 12);
-                                var x = Belt_Array.keepWithIndex(newChromScale, (function (_v, i) {
-                                        return Belt_Option.mapWithDefault(rotation, Belt_Array.make(12, false), (function (b) {
-                                                        return RotationJs.intToBoolArray(b);
-                                                      }))[i];
+                                var rotationMask = RotationJs.intToBoolArray(rotation);
+                                var seq = Belt_Array.keepWithIndex(newChromScale, (function (param, i) {
+                                        return Belt_Option.getWithDefault(Belt_Array.get(rotationMask, i), false);
                                       }));
-                                var seq = Belt_Option.mapWithDefault(Belt_Array.get(x, 0), x, (function (head) {
-                                        return Belt_Array.concat(x, [head * 2]);
+                                var seqWithOctave = Belt_Option.mapWithDefault(Belt_Array.get(seq, 0), seq, (function (head) {
+                                        return Belt_Array.concat(seq, [head * 2]);
                                       }));
-                                Belt_Array.forEachWithIndex(seq, (function (i, v) {
+                                Belt_Array.forEachWithIndex(seqWithOctave, (function (i, v) {
                                         triggerAttackRelease(v, "4n", i * 0.5);
                                         setTimeout((function (param) {
                                                 Curry._1(setPlaying, (function (param) {
@@ -899,7 +938,7 @@ function App(Props) {
                                         Curry._1(setPlaying, (function (param) {
                                                 
                                               }));
-                                      }), Math.imul(seq.length, 500));
+                                      }), Math.imul(seqWithOctave.length, 500));
                               })
                           }, React.createElement(Fa.FaPlay, {
                                 size: 14
@@ -909,11 +948,9 @@ function App(Props) {
                           className: "pt-2 w-full self-center text-[var(--dim)]"
                         }, React.createElement(make$1, {
                               playing: playing,
-                              labels: DataGeneration.rotate(pitchKeys, currentKey),
+                              labels: pitchLabels,
                               stepLabels: stepLabels,
-                              selected: Belt_Option.mapWithDefault(rotation, Belt_Array.make(12, false), (function (b) {
-                                      return RotationJs.intToBoolArray(RotationJs.getMaxRotation(b));
-                                    })),
+                              selected: selectedNotes,
                               currentKey: currentKey,
                               onKeyChange: (function (newKey) {
                                   Curry._1(setCurrentKey, (function (param) {
@@ -932,20 +969,7 @@ function App(Props) {
                           title: "Number of notes",
                           children: React.createElement("div", {
                                 className: "grid grid-cols-6 overflow-x-scroll gap-2"
-                              }, Belt_Array.map([
-                                    1,
-                                    2,
-                                    3,
-                                    4,
-                                    5,
-                                    6,
-                                    7,
-                                    8,
-                                    9,
-                                    10,
-                                    11,
-                                    12
-                                  ], (function (num) {
+                              }, Belt_Array.map(noteCounts, (function (num) {
                                       return React.createElement(App$StepButton, {
                                                   selected: selectedNoteNum === num,
                                                   onClick: (function (param) {
@@ -964,11 +988,7 @@ function App(Props) {
                                   className: "text-sm"
                                 }, "Show Non-Modes"), React.createElement(make$2, {
                                   checked: showNonModes,
-                                  onCheckedChange: (function (param) {
-                                      Curry._1(setShowNonModes, (function (v) {
-                                              return !v;
-                                            }));
-                                    })
+                                  onCheckedChange: toggleNonModes
                                 })))), React.createElement("div", {
                       className: "flex-1"
                     }), React.createElement(App$Attribution, {})), React.createElement("div", {
@@ -1038,6 +1058,12 @@ export {
   stepsToRotation ,
   Species ,
   StepDisplay ,
+  deriveStepLabels ,
+  collectModeNames ,
+  collectScaleNames ,
+  filterSpeciesByNoteCount ,
+  computeRotationOffset ,
+  rotationToSelectedNotes ,
   make$4 as make,
   $$default ,
   $$default as default,
