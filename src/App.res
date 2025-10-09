@@ -230,6 +230,17 @@ module Card = {
 }
 
 module Scale = {
+  let container = (i, isPlaying, content) => {
+    <div
+      key={i->Int.toString}
+      className={[
+        "w-6 flex flex-row items-center justify-center ",
+        isPlaying ? "text-[var(--accent)]" : "",
+      ]->join}>
+      {content->React.string}
+    </div>
+  }
+
   @react.component
   let make = (
     ~rotation,
@@ -238,64 +249,35 @@ module Scale = {
     ~playing: option<int>,
     ~selected: bool,
   ) => {
-    let container = (i, isPlaying, content) => {
-      <div
-        key={i->Int.toString}
-        className={[
-          "w-6 flex flex-row items-center justify-center ",
-          isPlaying ? "text-[var(--accent)]" : "",
-        ]->join}>
-        {content->React.string}
-      </div>
-    }
+    let isPlayingAt = (~selected, ~index) =>
+      selected &&
+      playing->Option.mapWithDefault(false, playingIndex => playingIndex == index)
 
-    <div className={["flex-none flex-row flex justify-center w-full gap-0.5"]->join}>
-      {switch currentStepDisplay {
+    let renderValues = (values, toString) =>
+      values
+      ->Array.mapWithIndex((i, value) =>
+        container(i, isPlayingAt(~selected, ~index=i), toString(value))
+      )
+      ->React.array
+
+    let stepElements =
+      switch currentStepDisplay {
       | SemitoneSteps =>
-        rotation
-        ->rotationToSemitoneSteps
-        ->Array.mapWithIndex((i, step) => {
-          let isPlaying =
-            selected &&
-            playing->Option.mapWithDefault(false, playing => {
-              playing == i
-            })
-          container(i, isPlaying, step->Int.toString)
-        })
-        ->React.array
-
+        let semitoneSteps = rotation->rotationToSemitoneSteps
+        renderValues(semitoneSteps, step => step->Int.toString)
       | HalfnoteSteps =>
-        rotation
-        ->rotationToHalfnoteSteps
-        ->Array.mapWithIndex((i, step) => {
-          let isPlaying =
-            selected &&
-            playing->Option.mapWithDefault(false, playing => {
-              playing == i
-            })
-
-          container(i, isPlaying, step)
-        })
-        ->React.array
-
+        let halfnoteSteps = rotation->rotationToHalfnoteSteps
+        renderValues(halfnoteSteps, step => step)
       | _ =>
-        rotation
-        ->intToBoolArray
+        let bits = rotation->intToBoolArray
+        let noteIndex = ref(0)
+        bits
         ->Array.mapWithIndex((i, bit) => {
-          let isPlaying =
-            selected &&
-            bit &&
-            playing->Option.mapWithDefault(false, playing => {
-              let numInSeq =
-                rotation
-                ->intToBoolArray
-                ->Js.Array2.slice(~start=0, ~end_=i)
-                ->Array.keep(x => x)
-                ->Array.length
-
-              playing == numInSeq
-            })
-
+          let currentSeqIndex = noteIndex.contents
+          if bit {
+            noteIndex := currentSeqIndex + 1
+          }
+          let isPlaying = isPlayingAt(~selected=selected && bit, ~index=currentSeqIndex)
           container(
             i,
             isPlaying,
@@ -303,7 +285,10 @@ module Scale = {
           )
         })
         ->React.array
-      }}
+      }
+
+    <div className={["flex-none flex-row flex justify-center w-full gap-0.5"]->join}>
+      {stepElements}
     </div>
   }
 }

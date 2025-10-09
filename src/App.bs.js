@@ -387,39 +387,50 @@ var Card = {
   make: App$Card
 };
 
+function container(i, isPlaying, content) {
+  return React.createElement("div", {
+              key: String(i),
+              className: [
+                  "w-6 flex flex-row items-center justify-center ",
+                  isPlaying ? "text-[var(--accent)]" : ""
+                ].join(" ")
+            }, content);
+}
+
 function App$Scale(Props) {
   var rotation = Props.rotation;
   var currentStepDisplay = Props.currentStepDisplay;
   var currentKey = Props.currentKey;
   var playing = Props.playing;
   var selected = Props.selected;
-  var container = function (i, isPlaying, content) {
-    return React.createElement("div", {
-                key: String(i),
-                className: [
-                    "w-6 flex flex-row items-center justify-center ",
-                    isPlaying ? "text-[var(--accent)]" : ""
-                  ].join(" ")
-              }, content);
+  var isPlayingAt = function (selected, index) {
+    if (selected) {
+      return Belt_Option.mapWithDefault(playing, false, (function (playingIndex) {
+                    return playingIndex === index;
+                  }));
+    } else {
+      return false;
+    }
   };
-  var tmp;
+  var renderValues = function (values, toString) {
+    return Belt_Array.mapWithIndex(values, (function (i, value) {
+                  return container(i, isPlayingAt(selected, i), Curry._1(toString, value));
+                }));
+  };
+  var stepElements;
   var exit = 0;
   if (currentStepDisplay >= 4) {
     switch (currentStepDisplay) {
       case /* SemitoneSteps */4 :
-          tmp = Belt_Array.mapWithIndex(rotationToSemitoneSteps(rotation), (function (i, step) {
-                  var isPlaying = selected && Belt_Option.mapWithDefault(playing, false, (function (playing) {
-                          return playing === i;
-                        }));
-                  return container(i, isPlaying, String(step));
+          var semitoneSteps = rotationToSemitoneSteps(rotation);
+          stepElements = renderValues(semitoneSteps, (function (step) {
+                  return String(step);
                 }));
           break;
       case /* HalfnoteSteps */5 :
-          tmp = Belt_Array.mapWithIndex(rotationToHalfnoteSteps(rotation), (function (i, step) {
-                  var isPlaying = selected && Belt_Option.mapWithDefault(playing, false, (function (playing) {
-                          return playing === i;
-                        }));
-                  return container(i, isPlaying, step);
+          var halfnoteSteps = rotationToHalfnoteSteps(rotation);
+          stepElements = renderValues(halfnoteSteps, (function (step) {
+                  return step;
                 }));
           break;
       case /* Binary */6 :
@@ -431,22 +442,26 @@ function App$Scale(Props) {
     exit = 1;
   }
   if (exit === 1) {
-    tmp = Belt_Array.mapWithIndex(RotationJs.intToBoolArray(rotation), (function (i, bit) {
-            var isPlaying = selected && bit && Belt_Option.mapWithDefault(playing, false, (function (playing) {
-                    var numInSeq = Belt_Array.keep(RotationJs.intToBoolArray(rotation).slice(0, i), (function (x) {
-                            return x;
-                          })).length;
-                    return playing === numInSeq;
-                  }));
+    var bits = RotationJs.intToBoolArray(rotation);
+    var noteIndex = {
+      contents: 0
+    };
+    stepElements = Belt_Array.mapWithIndex(bits, (function (i, bit) {
+            var currentSeqIndex = noteIndex.contents;
+            if (bit) {
+              noteIndex.contents = currentSeqIndex + 1 | 0;
+            }
+            var isPlaying = isPlayingAt(selected && bit, currentSeqIndex);
             return container(i, isPlaying, bitToDisplaySymbol(bit, i, currentKey, currentStepDisplay, rotation));
           }));
   }
   return React.createElement("div", {
               className: ["flex-none flex-row flex justify-center w-full gap-0.5"].join(" ")
-            }, tmp);
+            }, stepElements);
 }
 
 var Scale = {
+  container: container,
   make: App$Scale
 };
 
