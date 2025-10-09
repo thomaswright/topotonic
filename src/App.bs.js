@@ -7,12 +7,12 @@ import * as Belt_Int from "rescript/lib/es6/belt_Int.js";
 import * as SVGJsx from "./SVG.jsx";
 import ToneJs from "./Tone.js";
 import * as Belt_Array from "rescript/lib/es6/belt_Array.js";
+import * as Caml_int32 from "rescript/lib/es6/caml_int32.js";
 import * as IconsJsx from "./Icons.jsx";
 import AboutJsx from "./about.jsx";
 import * as Belt_Option from "rescript/lib/es6/belt_Option.js";
 import * as SwitchJsx from "./Switch.jsx";
 import * as RotationJs from "./rotation.js";
-import * as DataGeneration from "./DataGeneration.bs.js";
 import * as Fa from "react-icons/fa";
 import NotePlayerJs from "./NotePlayer.js";
 
@@ -267,6 +267,18 @@ function stepsToBits(x) {
               }));
 }
 
+function rotateArray(values, shift) {
+  var length = values.length;
+  if (length === 0) {
+    return values;
+  }
+  var raw = Caml_int32.mod_(shift, length);
+  var offset = raw < 0 ? raw + length | 0 : raw;
+  var tail = values.slice(offset, length);
+  var head = values.slice(0, offset);
+  return Belt_Array.concat(tail, head);
+}
+
 function rotationToSemitoneSteps(x) {
   return Belt_Array.sliceToEnd(Belt_Array.map(Belt_Array.joinWith(RotationJs.intToBoolArray(x), "", (function (v) {
                           if (v) {
@@ -308,7 +320,7 @@ function bitToDisplaySymbol(bit, index, currentKey, currentStepDisplay, rotation
   var a;
   switch (currentStepDisplay) {
     case /* Key */0 :
-        a = DataGeneration.rotate(pitchKeysShort, currentKey);
+        a = rotateArray(pitchKeysShort, currentKey);
         break;
     case /* MinMaj */1 :
         a = mMPs;
@@ -897,7 +909,7 @@ function App(Props) {
   var selectedNotes = rotationToSelectedNotes(rotation);
   var species = filterSpeciesByNoteCount(selectedNoteNum);
   var rotationOffset = computeRotationOffset(rotation);
-  var pitchLabels = DataGeneration.rotate(pitchKeys, currentKey);
+  var pitchLabels = rotateArray(pitchKeys, currentKey);
   var noteCounts = Belt_Array.range(1, 12);
   var toggleNonModes = function (param) {
     Curry._1(setShowNonModes, (function (v) {
@@ -1048,6 +1060,7 @@ export {
   IntervalRefs ,
   generateChromaticScale ,
   stepsToBits ,
+  rotateArray ,
   rotationToSemitoneSteps ,
   rotationToHalfnoteSteps ,
   bitToDisplaySymbol ,

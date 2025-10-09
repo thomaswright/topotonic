@@ -153,6 +153,21 @@ let stepsToBits = x => {
   })
 }
 
+let rotateArray = (values, shift) => {
+  let length = values->Array.length
+  if length == 0 {
+    values
+  } else {
+    let offset = {
+      let raw = mod(shift, length)
+      raw < 0 ? raw + length : raw
+    }
+    let tail = values->Js.Array2.slice(~start=offset, ~end_=length)
+    let head = values->Js.Array2.slice(~start=0, ~end_=offset)
+    Array.concat(tail, head)
+  }
+}
+
 let rotationToSemitoneSteps = x => {
   x
   ->intToBoolArray
@@ -181,7 +196,7 @@ let rotationToHalfnoteSteps = x => {
 
 let bitToDisplaySymbol = (bit, index, currentKey, currentStepDisplay, rotation) => {
   let a = switch currentStepDisplay {
-  | Key => IntervalRefs.pitchKeysShort->DataGeneration.rotate(currentKey)
+  | Key => IntervalRefs.pitchKeysShort->rotateArray(currentKey)
   | DimAug => IntervalRefs.dimAugs
   | Semitone => IntervalRefs.semitones
   | MinMaj => IntervalRefs.mMPs
@@ -659,7 +674,7 @@ let make = () => {
   let selectedNotes = rotationToSelectedNotes(rotation)
   let species = filterSpeciesByNoteCount(selectedNoteNum)
   let rotationOffset = computeRotationOffset(rotation)
-  let pitchLabels = IntervalRefs.pitchKeys->DataGeneration.rotate(currentKey)
+  let pitchLabels = IntervalRefs.pitchKeys->rotateArray(currentKey)
   let noteCounts = Array.range(1, 12)
 
   let playNotes = rotationValue => {
