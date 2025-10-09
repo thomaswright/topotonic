@@ -336,18 +336,14 @@ let stepsToRotation = steps => {
 
 module Species = {
   let joinNonEmptyNames = names =>
-    names
-    ->Array.keep(name => name != "")
-    ->Js.Array2.joinWith(" • ")
+    names->Array.keep(name => name != "")->Js.Array2.joinWith(" • ")
 
   let findSpeciesNameData = speciesId =>
     Data.namedSpecies->Array.keep(((s, _, _)) => s->stepsToRotation->getMinRotation == speciesId)
 
   let resolveSpeciesNames = speciesNameData =>
     speciesNameData
-    ->Array.map(((_, names, _)) =>
-      names->Array.map(((_, name)) => name)->joinNonEmptyNames
-    )
+    ->Array.map(((_, names, _)) => names->Array.map(((_, name)) => name)->joinNonEmptyNames)
     ->joinNonEmptyNames
 
   let resolveSpeciesModeNames = speciesNameData =>
@@ -366,9 +362,7 @@ module Species = {
       modes->Array.getBy(((mId, _)) => modeId == s->stepsToRotation->rotateRightByOnes(mId + 1))
     )
     ->Array.get(0)
-    ->Option.mapWithDefault([], ((_, modeNames)) =>
-      modeNames->Array.map(((_, name)) => name)
-    )
+    ->Option.mapWithDefault([], ((_, modeNames)) => modeNames->Array.map(((_, name)) => name))
     ->joinNonEmptyNames
 
   let getScaleLength = (speciesId, currentStepDisplay) =>
@@ -384,6 +378,60 @@ module Species = {
     } else {
       anySelected
     }
+
+  module ModeList = {
+    @react.component
+    let make = (
+      ~modes,
+      ~rotation,
+      ~currentKey,
+      ~currentStepDisplay,
+      ~setRotation,
+      ~speciesNameData,
+      ~showNonModes,
+      ~playing,
+    ) => {
+      modes->reactMapWithIndex((_i, modeId) => {
+        let selected = rotation->Option.mapWithDefault(false, c => c == modeId)
+        let isMode = modeId->intToBoolArray->Array.get(0)->Option.getWithDefault(false)
+        let modeKind = isMode ? Mode : NonMode
+        let modeNames = speciesNameData->resolveModeNames(modeId)
+
+        {
+          modeKind == NonMode && !showNonModes
+            ? React.null
+            : <div
+                onClick={_ => setRotation(_ => modeId->Some)}
+                key={modeId->Int.toString}
+                className={[
+                  "flex flex-col py-1 sm:justify-start justify-center ",
+                  selected
+                    ? "text-[var(--highlight)] bg-[var(--scale-highlight)] font-black"
+                    : modeKind == NonMode
+                    ? "text-neutral-400 font-medium "
+                    : "  font-medium",
+                ]->join}>
+                <Scale
+                  playing
+                  selected={selected}
+                  currentKey={currentKey}
+                  currentStepDisplay={currentStepDisplay}
+                  rotation={modeId}
+                />
+                {modeNames == ""
+                  ? React.null
+                  : <div
+                      className={[
+                        "flex flex-row tracking-tight items-center text-xs px-3 py-0.5 flex-1",
+                        selected ? " text-[var(--species-text)] " : "   text-[var(--species-text)]",
+                      ]->join}>
+                      {modeNames->React.string}
+                    </div>}
+              </div>
+        }
+      })
+    }
+  }
 
   @react.component
   let make = (
@@ -486,54 +534,16 @@ module Species = {
                   className={[
                     "rounded-lg flex flex-col divide-y bg-white divide-[var(--species-open-bg)]",
                   ]->join}>
-                  {modes->reactMapWithIndex((_i, modeId) => {
-                    let selected = rotation->Option.mapWithDefault(false, c => c == modeId)
-
-                    let isMode =
-                      modeId
-                      ->intToBoolArray
-                      ->Array.get(0)
-                      ->Option.getWithDefault(false)
-                    let modeKind = isMode ? Mode : NonMode
-
-                    let modeNames =
-                      speciesNameData->resolveModeNames(modeId)
-
-                    {
-                      modeKind == NonMode && !showNonModes
-                        ? React.null
-                        : <div
-                            onClick={_ => setRotation(_ => modeId->Some)}
-                            key={modeId->Int.toString}
-                            className={[
-                              "flex flex-col py-1 sm:justify-start justify-center ",
-                              selected
-                                ? "text-[var(--highlight)] bg-[var(--scale-highlight)] font-black"
-                                : modeKind == NonMode
-                                ? "text-neutral-400 font-medium "
-                                : "  font-medium",
-                            ]->join}>
-                            <Scale
-                              playing
-                              selected={selected}
-                              currentKey={currentKey}
-                              currentStepDisplay={currentStepDisplay}
-                              rotation={modeId}
-                            />
-                            {modeNames == ""
-                              ? React.null
-                              : <div
-                                  className={[
-                                    "flex flex-row tracking-tight items-center text-xs px-3 py-0.5 flex-1",
-                                    selected
-                                      ? " text-[var(--species-text)] "
-                                      : "   text-[var(--species-text)]",
-                                  ]->join}>
-                                  {modeNames->React.string}
-                                </div>}
-                          </div>
-                    }
-                  })}
+                  <ModeList
+                    modes={modes}
+                    rotation={rotation}
+                    currentKey={currentKey}
+                    currentStepDisplay={currentStepDisplay}
+                    setRotation={setRotation}
+                    speciesNameData={speciesNameData}
+                    showNonModes={showNonModes}
+                    playing={playing}
+                  />
                 </div>
               </div>
             </div>

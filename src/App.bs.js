@@ -530,6 +530,58 @@ function toggleHiddenState(hidden, anySelected) {
   }
 }
 
+function App$Species$ModeList(Props) {
+  var modes = Props.modes;
+  var rotation = Props.rotation;
+  var currentKey = Props.currentKey;
+  var currentStepDisplay = Props.currentStepDisplay;
+  var setRotation = Props.setRotation;
+  var speciesNameData = Props.speciesNameData;
+  var showNonModes = Props.showNonModes;
+  var playing = Props.playing;
+  return Belt_Array.mapWithIndex(modes, (function (_i, modeId) {
+                var selected = Belt_Option.mapWithDefault(rotation, false, (function (c) {
+                        return c === modeId;
+                      }));
+                var isMode = Belt_Option.getWithDefault(Belt_Array.get(RotationJs.intToBoolArray(modeId), 0), false);
+                var modeKind = isMode ? /* Mode */1 : /* NonMode */2;
+                var modeNames = resolveModeNames(speciesNameData, modeId);
+                if (modeKind === /* NonMode */2 && !showNonModes) {
+                  return null;
+                } else {
+                  return React.createElement("div", {
+                              key: String(modeId),
+                              className: [
+                                  "flex flex-col py-1 sm:justify-start justify-center ",
+                                  selected ? "text-[var(--highlight)] bg-[var(--scale-highlight)] font-black" : (
+                                      modeKind === /* NonMode */2 ? "text-neutral-400 font-medium " : "  font-medium"
+                                    )
+                                ].join(" "),
+                              onClick: (function (param) {
+                                  Curry._1(setRotation, (function (param) {
+                                          return modeId;
+                                        }));
+                                })
+                            }, React.createElement(App$Scale, {
+                                  rotation: modeId,
+                                  currentStepDisplay: currentStepDisplay,
+                                  currentKey: currentKey,
+                                  playing: playing,
+                                  selected: selected
+                                }), modeNames === "" ? null : React.createElement("div", {
+                                    className: [
+                                        "flex flex-row tracking-tight items-center text-xs px-3 py-0.5 flex-1",
+                                        selected ? " text-[var(--species-text)] " : "   text-[var(--species-text)]"
+                                      ].join(" ")
+                                  }, modeNames));
+                }
+              }));
+}
+
+var ModeList = {
+  make: App$Species$ModeList
+};
+
 function App$Species(Props) {
   var playing = Props.playing;
   var rotation = Props.rotation;
@@ -621,43 +673,16 @@ function App$Species(Props) {
                                         className: "p-2 pt-0 bg-[var(--species-scales)] rounded-xl"
                                       }, React.createElement("div", {
                                             className: ["rounded-lg flex flex-col divide-y bg-white divide-[var(--species-open-bg)]"].join(" ")
-                                          }, Belt_Array.mapWithIndex(modes, (function (_i, modeId) {
-                                                  var selected = Belt_Option.mapWithDefault(rotation, false, (function (c) {
-                                                          return c === modeId;
-                                                        }));
-                                                  var isMode = Belt_Option.getWithDefault(Belt_Array.get(RotationJs.intToBoolArray(modeId), 0), false);
-                                                  var modeKind = isMode ? /* Mode */1 : /* NonMode */2;
-                                                  var modeNames = resolveModeNames(speciesNameData, modeId);
-                                                  if (modeKind === /* NonMode */2 && !showNonModes) {
-                                                    return null;
-                                                  } else {
-                                                    return React.createElement("div", {
-                                                                key: String(modeId),
-                                                                className: [
-                                                                    "flex flex-col py-1 sm:justify-start justify-center ",
-                                                                    selected ? "text-[var(--highlight)] bg-[var(--scale-highlight)] font-black" : (
-                                                                        modeKind === /* NonMode */2 ? "text-neutral-400 font-medium " : "  font-medium"
-                                                                      )
-                                                                  ].join(" "),
-                                                                onClick: (function (param) {
-                                                                    Curry._1(setRotation, (function (param) {
-                                                                            return modeId;
-                                                                          }));
-                                                                  })
-                                                              }, React.createElement(App$Scale, {
-                                                                    rotation: modeId,
-                                                                    currentStepDisplay: currentStepDisplay,
-                                                                    currentKey: currentKey,
-                                                                    playing: playing,
-                                                                    selected: selected
-                                                                  }), modeNames === "" ? null : React.createElement("div", {
-                                                                      className: [
-                                                                          "flex flex-row tracking-tight items-center text-xs px-3 py-0.5 flex-1",
-                                                                          selected ? " text-[var(--species-text)] " : "   text-[var(--species-text)]"
-                                                                        ].join(" ")
-                                                                    }, modeNames));
-                                                  }
-                                                }))))));
+                                          }, React.createElement(App$Species$ModeList, {
+                                                modes: modes,
+                                                rotation: rotation,
+                                                currentKey: currentKey,
+                                                currentStepDisplay: currentStepDisplay,
+                                                setRotation: setRotation,
+                                                speciesNameData: speciesNameData,
+                                                showNonModes: showNonModes,
+                                                playing: playing
+                                              })))));
                 })
             });
 }
@@ -670,6 +695,7 @@ var Species = {
   resolveModeNames: resolveModeNames,
   getScaleLength: getScaleLength,
   toggleHiddenState: toggleHiddenState,
+  ModeList: ModeList,
   make: App$Species
 };
 
