@@ -72,15 +72,6 @@ module Switch = {
   external make: (~checked: bool, ~onCheckedChange: unit => unit) => React.element = "Switch"
 }
 
-module Collapsed = {
-  @react.component
-  let make = (~render) => {
-    let (state, set) = React.useState(() => true)
-
-    render(state, set)
-  }
-}
-
 module About = {
   @module("./about.jsx") @react.component
   external make: unit => React.element = "default"
@@ -441,6 +432,8 @@ module Species = {
     ~speciesId: int,
     ~modes: array<int>,
     ~showNonModes: bool,
+    ~speciesHidden: bool,
+    ~setSpeciesHidden: bool => unit,
   ) => {
     // precompute derived data for readability
     let _scaleRange = Array.range(1, speciesId->getScaleLength(currentStepDisplay))
@@ -448,107 +441,102 @@ module Species = {
     let speciesNames = speciesNameData->resolveSpeciesNames
     let speciesModeNames = speciesNameData->resolveSpeciesModeNames
 
-    <Collapsed
-      render={(speciesHidden, setSpeciesHidden) => {
-        let currentRotation = rotation->Option.getWithDefault(0)
-        let anySelected = areInSameRotationClass(currentRotation, speciesId)
+    let currentRotation = rotation->Option.getWithDefault(0)
+    let anySelected = areInSameRotationClass(currentRotation, speciesId)
 
-        let speciesMax = speciesId->getMaxRotation
-        let scaleName = speciesMax->Int.toString
+    let speciesMax = speciesId->getMaxRotation
+    let scaleName = speciesMax->Int.toString
 
-        let onClickHeader = _ =>
-          switch rotation {
-          | None =>
-            setSpeciesHidden(_ => false)
-            setRotation(_ => speciesMax->Some)
-          | Some(_) =>
-            setSpeciesHidden(prev => prev->toggleHiddenState(anySelected))
-            setRotation(_ => anySelected ? None : speciesMax->Some)
-          }
+    let onClickHeader = _ =>
+      switch rotation {
+      | None =>
+        setSpeciesHidden(false)
+        setRotation(_ => speciesMax->Some)
+      | Some(_) =>
+        let nextHidden = speciesHidden->toggleHiddenState(anySelected)
+        setSpeciesHidden(nextHidden)
+        setRotation(_ => anySelected ? None : speciesMax->Some)
+      }
 
-        let speciesNamesComp =
-          <div
-            className={[
-              " text-[var(--species-text)]  flex-1 text-ellipsis overflow-hidden  whitespace-nowrap ",
-              anySelected ? "font-black" : "",
-            ]->join}>
-            {speciesNames->React.string}
-          </div>
+    let speciesNamesComp =
+      <div
+        className={[
+          " text-[var(--species-text)]  flex-1 text-ellipsis overflow-hidden  whitespace-nowrap ",
+          anySelected ? "font-black" : "",
+        ]->join}>
+        {speciesNames->React.string}
+      </div>
 
-        <div
-          className={[
-            " rounded-xl mb-2 cursor-pointer font-bold",
-            speciesHidden ? "bg-[var(--species-bg)] " : "bg-[var(--species-open-bg)] ",
-          ]->join}>
-          {if speciesHidden {
-            <div className={[""]->join} onClick={onClickHeader}>
-              {if speciesNames != "" {
-                <div
-                  className={[
-                    " flex flex-row justify-start tracking-tight  items-center pt-1 px-3",
-                  ]->join}>
-                  {speciesNamesComp}
-                </div>
-              } else if speciesModeNames != "" {
-                <div className=" flex flex-row justify-start items-center  pt-1 px-3">
-                  <div
-                    className="text-[var(--species-text)]  flex-1 text-ellipsis overflow-hidden whitespace-nowrap">
-                    {("Modes: " ++ speciesModeNames)->React.string}
-                  </div>
-                </div>
-              } else {
-                React.null
-              }}
-              <div className="flex flex-row bg-[var(--species-scales)] rounded-xl py-1 font-medium">
-                <Scale
-                  playing
-                  selected={false}
-                  currentKey={currentKey}
-                  rotation={speciesMax}
-                  currentStepDisplay={currentStepDisplay}
-                />
-                // <div className=" flex-none flex flex-row items-center justify-center w-10 px-1">
-                //   {speciesDetails.isSymmetric ? <Symmetry /> : React.null}
-                // </div>
+    <div
+      className={[
+        " rounded-xl mb-2 cursor-pointer font-bold",
+        speciesHidden ? "bg-[var(--species-bg)] " : "bg-[var(--species-open-bg)] ",
+      ]->join}>
+      {if speciesHidden {
+        <div className={[""]->join} onClick={onClickHeader}>
+          {if speciesNames != "" {
+            <div
+              className={[
+                " flex flex-row justify-start tracking-tight  items-center pt-1 px-3",
+              ]->join}>
+              {speciesNamesComp}
+            </div>
+          } else if speciesModeNames != "" {
+            <div className=" flex flex-row justify-start items-center  pt-1 px-3">
+              <div
+                className="text-[var(--species-text)]  flex-1 text-ellipsis overflow-hidden whitespace-nowrap">
+                {("Modes: " ++ speciesModeNames)->React.string}
               </div>
             </div>
           } else {
-            <div>
-              <div
-                onClick={_ => {
-                  setSpeciesHidden(_ => true)
-                }}
-                className=" flex flex-row justify-start items-center px-3 pt-1">
-                {speciesNamesComp}
-                <div className={"flex flex-row items-center justify-center gap-2"}>
-                  <div className="flex-none"> {false ? <Symmetry /> : React.null} </div>
-                  <div className="flex-none text-sm tracking-wide ">
-                    {`#${scaleName}`->React.string}
-                  </div>
-                </div>
-              </div>
-              <div className="p-2 pt-0 bg-[var(--species-scales)] rounded-xl">
-                <div
-                  className={[
-                    "rounded-lg flex flex-col divide-y bg-white divide-[var(--species-open-bg)]",
-                  ]->join}>
-                  <ModeList
-                    modes={modes}
-                    rotation={rotation}
-                    currentKey={currentKey}
-                    currentStepDisplay={currentStepDisplay}
-                    setRotation={setRotation}
-                    speciesNameData={speciesNameData}
-                    showNonModes={showNonModes}
-                    playing={playing}
-                  />
-                </div>
+            React.null
+          }}
+          <div className="flex flex-row bg-[var(--species-scales)] rounded-xl py-1 font-medium">
+            <Scale
+              playing
+              selected={false}
+              currentKey={currentKey}
+              rotation={speciesMax}
+              currentStepDisplay={currentStepDisplay}
+            />
+            // <div className=" flex-none flex flex-row items-center justify-center w-10 px-1">
+            //   {speciesDetails.isSymmetric ? <Symmetry /> : React.null}
+            // </div>
+          </div>
+        </div>
+      } else {
+        <div>
+          <div
+            onClick={_ => setSpeciesHidden(true)}
+            className=" flex flex-row justify-start items-center px-3 pt-1">
+            {speciesNamesComp}
+            <div className={"flex flex-row items-center justify-center gap-2"}>
+              <div className="flex-none"> {false ? <Symmetry /> : React.null} </div>
+              <div className="flex-none text-sm tracking-wide ">
+                {`#${scaleName}`->React.string}
               </div>
             </div>
-          }}
+          </div>
+          <div className="p-2 pt-0 bg-[var(--species-scales)] rounded-xl">
+            <div
+              className={[
+                "rounded-lg flex flex-col divide-y bg-white divide-[var(--species-open-bg)]",
+              ]->join}>
+              <ModeList
+                modes={modes}
+                rotation={rotation}
+                currentKey={currentKey}
+                currentStepDisplay={currentStepDisplay}
+                setRotation={setRotation}
+                speciesNameData={speciesNameData}
+                showNonModes={showNonModes}
+                playing={playing}
+              />
+            </div>
+          </div>
         </div>
       }}
-    />
+    </div>
   }
 }
 
@@ -659,6 +647,7 @@ module Persistence = {
   let keyKey = "currentKey"
   let stepDisplayKey = "stepDisplay"
   let showNonModesKey = "showNonModes"
+  let speciesOpenKey = "speciesOpen"
 
   let makeKey = suffix => prefix ++ suffix
 
@@ -759,6 +748,39 @@ module Persistence = {
     ->Option.getWithDefault(default)
 
   let saveShowNonModes = value => setItem(showNonModesKey, value ? "true" : "false")
+
+  let decodeSpeciesOpen = value => {
+    let trimmed = value->Js.String2.trim
+    if trimmed == "" {
+      Belt.Set.Int.empty
+    } else {
+      trimmed
+      ->Js.String2.split(",")
+      ->Array.reduce(Belt.Set.Int.empty, (acc, part) =>
+        switch part->Js.String2.trim->Int.fromString {
+        | Some(id) => Belt.Set.Int.add(acc, id)
+        | None => acc
+        }
+      )
+    }
+  }
+
+  let encodeSpeciesOpen = openSet =>
+    openSet->Belt.Set.Int.toArray->Array.joinWith(",", id => id->Int.toString)
+
+  let loadSpeciesOpenSet = () =>
+    getItem(speciesOpenKey)
+    ->Option.map(decodeSpeciesOpen)
+    ->Option.getWithDefault(Belt.Set.Int.empty)
+
+  let saveSpeciesOpenSet = openSet => {
+    let encoded = encodeSpeciesOpen(openSet)
+    if encoded == "" {
+      removeItem(speciesOpenKey)
+    } else {
+      setItem(speciesOpenKey, encoded)
+    }
+  }
 }
 
 @react.component
@@ -775,6 +797,7 @@ let make = () => {
   let (showNonModes, setShowNonModes) = React.useState(_ =>
     Persistence.loadShowNonModes(~default=false)
   )
+  let (openSpecies, setOpenSpecies) = React.useState(_ => Persistence.loadSpeciesOpenSet())
 
   React.useEffect1(() => {
     Persistence.saveRotation(rotation)
@@ -801,6 +824,11 @@ let make = () => {
     None
   }, [showNonModes])
 
+  React.useEffect1(() => {
+    Persistence.saveSpeciesOpenSet(openSpecies)
+    None
+  }, [openSpecies])
+
   let stepLabels = deriveStepLabels(currentStepDisplay)
 
   let modeNames = collectModeNames(rotation)
@@ -810,6 +838,13 @@ let make = () => {
   let rotationOffset = computeRotationOffset(rotation)
   let pitchLabels = IntervalRefs.pitchKeys->rotateArray(currentKey)
   let noteCounts = Array.range(1, 12)
+
+  let isSpeciesHidden = speciesId => !Belt.Set.Int.has(openSpecies, speciesId)
+
+  let updateSpeciesHidden = (speciesId, nextHidden) =>
+    setOpenSpecies(prevSet =>
+      nextHidden ? Belt.Set.Int.remove(prevSet, speciesId) : Belt.Set.Int.add(prevSet, speciesId)
+    )
 
   let playNotes = rotationValue => {
     switch rotationValue {
@@ -929,6 +964,8 @@ let make = () => {
                 currentStepDisplay={currentStepDisplay}
                 speciesId={speciesId}
                 modes={modes}
+                speciesHidden={isSpeciesHidden(speciesId)}
+                setSpeciesHidden={hidden => updateSpeciesHidden(speciesId, hidden)}
               />
             )}
           </div>

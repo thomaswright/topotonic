@@ -11,6 +11,7 @@ import * as Caml_int32 from "rescript/lib/es6/caml_int32.js";
 import * as IconsJsx from "./Icons.jsx";
 import AboutJsx from "./about.jsx";
 import * as Belt_Option from "rescript/lib/es6/belt_Option.js";
+import * as Belt_SetInt from "rescript/lib/es6/belt_SetInt.js";
 import * as Caml_option from "rescript/lib/es6/caml_option.js";
 import * as SwitchJsx from "./Switch.jsx";
 import * as RotationJs from "./rotation.js";
@@ -82,18 +83,6 @@ var make$2 = SwitchJsx.Switch;
 
 var Switch = {
   make: make$2
-};
-
-function App$Collapsed(Props) {
-  var render = Props.render;
-  var match = React.useState(function () {
-        return true;
-      });
-  return Curry._2(render, match[0], match[1]);
-}
-
-var Collapsed = {
-  make: App$Collapsed
 };
 
 var make$3 = AboutJsx;
@@ -619,100 +608,88 @@ function App$Species(Props) {
   var speciesId = Props.speciesId;
   var modes = Props.modes;
   var showNonModes = Props.showNonModes;
+  var speciesHidden = Props.speciesHidden;
+  var setSpeciesHidden = Props.setSpeciesHidden;
   Belt_Array.range(1, getScaleLength(speciesId, currentStepDisplay));
   var speciesNameData = findSpeciesNameData(speciesId);
   var speciesNames = resolveSpeciesNames(speciesNameData);
   var speciesModeNames = resolveSpeciesModeNames(speciesNameData);
-  return React.createElement(App$Collapsed, {
-              render: (function (speciesHidden, setSpeciesHidden) {
-                  var currentRotation = Belt_Option.getWithDefault(rotation, 0);
-                  var anySelected = RotationJs.areInSameRotationClass(currentRotation, speciesId);
-                  var speciesMax = RotationJs.getMaxRotation(speciesId);
-                  var scaleName = String(speciesMax);
-                  var onClickHeader = function (param) {
-                    if (rotation !== undefined) {
-                      Curry._1(setSpeciesHidden, (function (prev) {
-                              if (prev) {
-                                return false;
-                              } else {
-                                return anySelected;
-                              }
-                            }));
-                      return Curry._1(setRotation, (function (param) {
-                                    if (anySelected) {
-                                      return ;
-                                    } else {
-                                      return speciesMax;
-                                    }
-                                  }));
+  var currentRotation = Belt_Option.getWithDefault(rotation, 0);
+  var anySelected = RotationJs.areInSameRotationClass(currentRotation, speciesId);
+  var speciesMax = RotationJs.getMaxRotation(speciesId);
+  var scaleName = String(speciesMax);
+  var onClickHeader = function (param) {
+    if (rotation !== undefined) {
+      var nextHidden = speciesHidden ? false : anySelected;
+      Curry._1(setSpeciesHidden, nextHidden);
+      return Curry._1(setRotation, (function (param) {
+                    if (anySelected) {
+                      return ;
                     } else {
-                      Curry._1(setSpeciesHidden, (function (param) {
-                              return false;
-                            }));
-                      return Curry._1(setRotation, (function (param) {
-                                    return speciesMax;
-                                  }));
+                      return speciesMax;
                     }
-                  };
-                  var speciesNamesComp = React.createElement("div", {
-                        className: [
-                            " text-[var(--species-text)]  flex-1 text-ellipsis overflow-hidden  whitespace-nowrap ",
-                            anySelected ? "font-black" : ""
-                          ].join(" ")
-                      }, speciesNames);
-                  return React.createElement("div", {
-                              className: [
-                                  " rounded-xl mb-2 cursor-pointer font-bold",
-                                  speciesHidden ? "bg-[var(--species-bg)] " : "bg-[var(--species-open-bg)] "
-                                ].join(" ")
-                            }, speciesHidden ? React.createElement("div", {
-                                    className: [""].join(" "),
-                                    onClick: onClickHeader
-                                  }, speciesNames !== "" ? React.createElement("div", {
-                                          className: [" flex flex-row justify-start tracking-tight  items-center pt-1 px-3"].join(" ")
-                                        }, speciesNamesComp) : (
-                                      speciesModeNames !== "" ? React.createElement("div", {
-                                              className: " flex flex-row justify-start items-center  pt-1 px-3"
-                                            }, React.createElement("div", {
-                                                  className: "text-[var(--species-text)]  flex-1 text-ellipsis overflow-hidden whitespace-nowrap"
-                                                }, "Modes: " + speciesModeNames)) : null
-                                    ), React.createElement("div", {
-                                        className: "flex flex-row bg-[var(--species-scales)] rounded-xl py-1 font-medium"
-                                      }, React.createElement(App$Scale, {
-                                            rotation: speciesMax,
-                                            currentStepDisplay: currentStepDisplay,
-                                            currentKey: currentKey,
-                                            playing: playing,
-                                            selected: false
-                                          }))) : React.createElement("div", undefined, React.createElement("div", {
-                                        className: " flex flex-row justify-start items-center px-3 pt-1",
-                                        onClick: (function (param) {
-                                            Curry._1(setSpeciesHidden, (function (param) {
-                                                    return true;
-                                                  }));
-                                          })
-                                      }, speciesNamesComp, React.createElement("div", {
-                                            className: "flex flex-row items-center justify-center gap-2"
-                                          }, React.createElement("div", {
-                                                className: "flex-none"
-                                              }, null), React.createElement("div", {
-                                                className: "flex-none text-sm tracking-wide "
-                                              }, "#" + scaleName + ""))), React.createElement("div", {
-                                        className: "p-2 pt-0 bg-[var(--species-scales)] rounded-xl"
-                                      }, React.createElement("div", {
-                                            className: ["rounded-lg flex flex-col divide-y bg-white divide-[var(--species-open-bg)]"].join(" ")
-                                          }, React.createElement(App$Species$ModeList, {
-                                                modes: modes,
-                                                rotation: rotation,
-                                                currentKey: currentKey,
-                                                currentStepDisplay: currentStepDisplay,
-                                                setRotation: setRotation,
-                                                speciesNameData: speciesNameData,
-                                                showNonModes: showNonModes,
-                                                playing: playing
-                                              })))));
-                })
-            });
+                  }));
+    }
+    Curry._1(setSpeciesHidden, false);
+    Curry._1(setRotation, (function (param) {
+            return speciesMax;
+          }));
+  };
+  var speciesNamesComp = React.createElement("div", {
+        className: [
+            " text-[var(--species-text)]  flex-1 text-ellipsis overflow-hidden  whitespace-nowrap ",
+            anySelected ? "font-black" : ""
+          ].join(" ")
+      }, speciesNames);
+  return React.createElement("div", {
+              className: [
+                  " rounded-xl mb-2 cursor-pointer font-bold",
+                  speciesHidden ? "bg-[var(--species-bg)] " : "bg-[var(--species-open-bg)] "
+                ].join(" ")
+            }, speciesHidden ? React.createElement("div", {
+                    className: [""].join(" "),
+                    onClick: onClickHeader
+                  }, speciesNames !== "" ? React.createElement("div", {
+                          className: [" flex flex-row justify-start tracking-tight  items-center pt-1 px-3"].join(" ")
+                        }, speciesNamesComp) : (
+                      speciesModeNames !== "" ? React.createElement("div", {
+                              className: " flex flex-row justify-start items-center  pt-1 px-3"
+                            }, React.createElement("div", {
+                                  className: "text-[var(--species-text)]  flex-1 text-ellipsis overflow-hidden whitespace-nowrap"
+                                }, "Modes: " + speciesModeNames)) : null
+                    ), React.createElement("div", {
+                        className: "flex flex-row bg-[var(--species-scales)] rounded-xl py-1 font-medium"
+                      }, React.createElement(App$Scale, {
+                            rotation: speciesMax,
+                            currentStepDisplay: currentStepDisplay,
+                            currentKey: currentKey,
+                            playing: playing,
+                            selected: false
+                          }))) : React.createElement("div", undefined, React.createElement("div", {
+                        className: " flex flex-row justify-start items-center px-3 pt-1",
+                        onClick: (function (param) {
+                            Curry._1(setSpeciesHidden, true);
+                          })
+                      }, speciesNamesComp, React.createElement("div", {
+                            className: "flex flex-row items-center justify-center gap-2"
+                          }, React.createElement("div", {
+                                className: "flex-none"
+                              }, null), React.createElement("div", {
+                                className: "flex-none text-sm tracking-wide "
+                              }, "#" + scaleName + ""))), React.createElement("div", {
+                        className: "p-2 pt-0 bg-[var(--species-scales)] rounded-xl"
+                      }, React.createElement("div", {
+                            className: ["rounded-lg flex flex-col divide-y bg-white divide-[var(--species-open-bg)]"].join(" ")
+                          }, React.createElement(App$Species$ModeList, {
+                                modes: modes,
+                                rotation: rotation,
+                                currentKey: currentKey,
+                                currentStepDisplay: currentStepDisplay,
+                                setRotation: setRotation,
+                                speciesNameData: speciesNameData,
+                                showNonModes: showNonModes,
+                                playing: playing
+                              })))));
 }
 
 var Species = {
@@ -886,6 +863,8 @@ var stepDisplayKey = "stepDisplay";
 
 var showNonModesKey = "showNonModes";
 
+var speciesOpenKey = "speciesOpen";
+
 function makeKey(suffix) {
   return prefix + suffix;
 }
@@ -1031,6 +1010,41 @@ function saveShowNonModes(value) {
   setItem(showNonModesKey, value ? "true" : "false");
 }
 
+function decodeSpeciesOpen(value) {
+  var trimmed = value.trim();
+  if (trimmed === "") {
+    return ;
+  } else {
+    return Belt_Array.reduce(trimmed.split(","), undefined, (function (acc, part) {
+                  var id = Belt_Int.fromString(part.trim());
+                  if (id !== undefined) {
+                    return Belt_SetInt.add(acc, id);
+                  } else {
+                    return acc;
+                  }
+                }));
+  }
+}
+
+function encodeSpeciesOpen(openSet) {
+  return Belt_Array.joinWith(Belt_SetInt.toArray(openSet), ",", (function (id) {
+                return String(id);
+              }));
+}
+
+function loadSpeciesOpenSet(param) {
+  return Belt_Option.getWithDefault(Belt_Option.map(getItem(speciesOpenKey), decodeSpeciesOpen), undefined);
+}
+
+function saveSpeciesOpenSet(openSet) {
+  var encoded = encodeSpeciesOpen(openSet);
+  if (encoded === "") {
+    return removeItem(speciesOpenKey);
+  } else {
+    return setItem(speciesOpenKey, encoded);
+  }
+}
+
 var Persistence = {
   prefix: prefix,
   rotationKey: rotationKey,
@@ -1038,6 +1052,7 @@ var Persistence = {
   keyKey: keyKey,
   stepDisplayKey: stepDisplayKey,
   showNonModesKey: showNonModesKey,
+  speciesOpenKey: speciesOpenKey,
   makeKey: makeKey,
   getStorage: getStorage,
   getItem: getItem,
@@ -1054,7 +1069,11 @@ var Persistence = {
   loadStepDisplay: loadStepDisplay,
   saveStepDisplay: saveStepDisplay,
   loadShowNonModes: loadShowNonModes,
-  saveShowNonModes: saveShowNonModes
+  saveShowNonModes: saveShowNonModes,
+  decodeSpeciesOpen: decodeSpeciesOpen,
+  encodeSpeciesOpen: encodeSpeciesOpen,
+  loadSpeciesOpenSet: loadSpeciesOpenSet,
+  saveSpeciesOpenSet: saveSpeciesOpenSet
 };
 
 function App(Props) {
@@ -1087,6 +1106,11 @@ function App(Props) {
       });
   var setShowNonModes = match$5[1];
   var showNonModes = match$5[0];
+  var match$6 = React.useState(function () {
+        return loadSpeciesOpenSet(undefined);
+      });
+  var setOpenSpecies = match$6[1];
+  var openSpecies = match$6[0];
   React.useEffect((function () {
           saveRotation(rotation);
         }), [rotation]);
@@ -1102,6 +1126,9 @@ function App(Props) {
   React.useEffect((function () {
           saveShowNonModes(showNonModes);
         }), [showNonModes]);
+  React.useEffect((function () {
+          saveSpeciesOpenSet(openSpecies);
+        }), [openSpecies]);
   var stepLabels = deriveStepLabels(currentStepDisplay);
   var modeNames = collectModeNames(rotation);
   var scaleNames = collectScaleNames(rotation);
@@ -1223,6 +1250,16 @@ function App(Props) {
                                                 speciesId: speciesId,
                                                 modes: param[1],
                                                 showNonModes: showNonModes,
+                                                speciesHidden: !Belt_SetInt.has(openSpecies, speciesId),
+                                                setSpeciesHidden: (function (hidden) {
+                                                    Curry._1(setOpenSpecies, (function (prevSet) {
+                                                            if (hidden) {
+                                                              return Belt_SetInt.remove(prevSet, speciesId);
+                                                            } else {
+                                                              return Belt_SetInt.add(prevSet, speciesId);
+                                                            }
+                                                          }));
+                                                  }),
                                                 key: String(speciesId)
                                               });
                                   })))))));
@@ -1248,7 +1285,6 @@ export {
   ChevronUp ,
   PlayIcon ,
   Switch ,
-  Collapsed ,
   About ,
   makeNotePlayer ,
   triggerAttackRelease ,
