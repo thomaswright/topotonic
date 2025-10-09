@@ -464,6 +464,72 @@ function stepsToRotation(steps) {
                       })), 2), 0);
 }
 
+function joinNonEmptyNames(names) {
+  return Belt_Array.keep(names, (function (name) {
+                  return name !== "";
+                })).join(" • ");
+}
+
+function findSpeciesNameData(speciesId) {
+  return Belt_Array.keep(Data.namedSpecies, (function (param) {
+                return RotationJs.getMinRotation(stepsToRotation(param[0])) === speciesId;
+              }));
+}
+
+function resolveSpeciesNames(speciesNameData) {
+  return joinNonEmptyNames(Belt_Array.map(speciesNameData, (function (param) {
+                    return joinNonEmptyNames(Belt_Array.map(param[1], (function (param) {
+                                      return param[1];
+                                    })));
+                  })));
+}
+
+function resolveSpeciesModeNames(speciesNameData) {
+  return joinNonEmptyNames(Belt_Array.concatMany(Belt_Array.map(speciesNameData, (function (param) {
+                        return Belt_Array.concatMany(Belt_Array.map(param[2], (function (param) {
+                                          return Belt_Array.map(param[1], (function (param) {
+                                                        return param[1];
+                                                      }));
+                                        })));
+                      }))));
+}
+
+function resolveModeNames(speciesNameData, modeId) {
+  return joinNonEmptyNames(Belt_Option.mapWithDefault(Belt_Array.get(Belt_Array.keepMap(speciesNameData, (function (param) {
+                            var s = param[0];
+                            return Belt_Array.getBy(param[2], (function (param) {
+                                          return modeId === RotationJs.rotateRightByOnes(stepsToRotation(s), param[0] + 1 | 0);
+                                        }));
+                          })), 0), [], (function (param) {
+                    return Belt_Array.map(param[1], (function (param) {
+                                  return param[1];
+                                }));
+                  })));
+}
+
+function getScaleLength(speciesId, currentStepDisplay) {
+  if (currentStepDisplay < 4) {
+    return 12;
+  }
+  switch (currentStepDisplay) {
+    case /* SemitoneSteps */4 :
+        return rotationToSemitoneSteps(speciesId).length;
+    case /* HalfnoteSteps */5 :
+        return rotationToHalfnoteSteps(speciesId).length;
+    case /* Binary */6 :
+        return 12;
+    
+  }
+}
+
+function toggleHiddenState(hidden, anySelected) {
+  if (hidden) {
+    return false;
+  } else {
+    return anySelected;
+  }
+}
+
 function App$Species(Props) {
   var playing = Props.playing;
   var rotation = Props.rotation;
@@ -473,69 +539,40 @@ function App$Species(Props) {
   var speciesId = Props.speciesId;
   var modes = Props.modes;
   var showNonModes = Props.showNonModes;
-  var scaleLength;
-  if (currentStepDisplay >= 4) {
-    switch (currentStepDisplay) {
-      case /* SemitoneSteps */4 :
-          scaleLength = rotationToSemitoneSteps(speciesId).length;
-          break;
-      case /* HalfnoteSteps */5 :
-          scaleLength = rotationToHalfnoteSteps(speciesId).length;
-          break;
-      case /* Binary */6 :
-          scaleLength = 12;
-          break;
-      
-    }
-  } else {
-    scaleLength = 12;
-  }
-  Belt_Array.range(1, scaleLength);
-  var speciesNameData = Belt_Array.keep(Data.namedSpecies, (function (param) {
-          return RotationJs.getMinRotation(stepsToRotation(param[0])) === speciesId;
-        }));
-  var speciesNames = Belt_Array.keep(Belt_Array.map(speciesNameData, (function (param) {
-                return Belt_Array.keep(Belt_Array.map(param[1], (function (param) {
-                                    return param[1];
-                                  })), (function (x) {
-                                return x !== "";
-                              })).join(" • ");
-              })), (function (x) {
-            return x !== "";
-          })).join(" • ");
-  var speciesModeNames = Belt_Array.concatMany(Belt_Array.map(speciesNameData, (function (param) {
-                return Belt_Array.concatMany(Belt_Array.map(param[2], (function (param) {
-                                  return Belt_Array.map(param[1], (function (param) {
-                                                return param[1];
-                                              }));
-                                })));
-              }))).join(" • ");
+  Belt_Array.range(1, getScaleLength(speciesId, currentStepDisplay));
+  var speciesNameData = findSpeciesNameData(speciesId);
+  var speciesNames = resolveSpeciesNames(speciesNameData);
+  var speciesModeNames = resolveSpeciesModeNames(speciesNameData);
   return React.createElement(App$Collapsed, {
               render: (function (speciesHidden, setSpeciesHidden) {
-                  var anySelected = RotationJs.areInSameRotationClass(Belt_Option.getWithDefault(rotation, 0), speciesId);
-                  var scaleName = String(RotationJs.getMaxRotation(speciesId));
+                  var currentRotation = Belt_Option.getWithDefault(rotation, 0);
+                  var anySelected = RotationJs.areInSameRotationClass(currentRotation, speciesId);
                   var speciesMax = RotationJs.getMaxRotation(speciesId);
+                  var scaleName = String(speciesMax);
                   var onClickHeader = function (param) {
-                    Belt_Option.mapWithDefault(rotation, (Curry._1(setSpeciesHidden, (function (param) {
-                                  return false;
-                                })), Curry._1(setRotation, (function (param) {
-                                  return speciesMax;
-                                }))), (function (param) {
-                            Curry._1(setSpeciesHidden, (function (param) {
-                                    if (speciesHidden) {
-                                      return !speciesHidden;
-                                    } else {
-                                      return anySelected;
-                                    }
-                                  }));
-                            Curry._1(setRotation, (function (param) {
+                    if (rotation !== undefined) {
+                      Curry._1(setSpeciesHidden, (function (prev) {
+                              if (prev) {
+                                return false;
+                              } else {
+                                return anySelected;
+                              }
+                            }));
+                      return Curry._1(setRotation, (function (param) {
                                     if (anySelected) {
                                       return ;
                                     } else {
                                       return speciesMax;
                                     }
                                   }));
-                          }));
+                    } else {
+                      Curry._1(setSpeciesHidden, (function (param) {
+                              return false;
+                            }));
+                      return Curry._1(setRotation, (function (param) {
+                                    return speciesMax;
+                                  }));
+                    }
                   };
                   var speciesNamesComp = React.createElement("div", {
                         className: [
@@ -588,17 +625,9 @@ function App$Species(Props) {
                                                   var selected = Belt_Option.mapWithDefault(rotation, false, (function (c) {
                                                           return c === modeId;
                                                         }));
-                                                  var modeKind = RotationJs.intToBoolArray(modeId)[0] ? /* Mode */1 : /* NonMode */2;
-                                                  var modeNames = Belt_Option.mapWithDefault(Belt_Array.get(Belt_Array.keepMap(speciesNameData, (function (param) {
-                                                                    var s = param[0];
-                                                                    return Belt_Array.getBy(param[2], (function (param) {
-                                                                                  return modeId === RotationJs.rotateRightByOnes(stepsToRotation(s), param[0] + 1 | 0);
-                                                                                }));
-                                                                  })), 0), [], (function (param) {
-                                                            return Belt_Array.map(param[1], (function (param) {
-                                                                          return param[1];
-                                                                        }));
-                                                          })).join(" • ");
+                                                  var isMode = Belt_Option.getWithDefault(Belt_Array.get(RotationJs.intToBoolArray(modeId), 0), false);
+                                                  var modeKind = isMode ? /* Mode */1 : /* NonMode */2;
+                                                  var modeNames = resolveModeNames(speciesNameData, modeId);
                                                   if (modeKind === /* NonMode */2 && !showNonModes) {
                                                     return null;
                                                   } else {
@@ -634,6 +663,13 @@ function App$Species(Props) {
 }
 
 var Species = {
+  joinNonEmptyNames: joinNonEmptyNames,
+  findSpeciesNameData: findSpeciesNameData,
+  resolveSpeciesNames: resolveSpeciesNames,
+  resolveSpeciesModeNames: resolveSpeciesModeNames,
+  resolveModeNames: resolveModeNames,
+  getScaleLength: getScaleLength,
+  toggleHiddenState: toggleHiddenState,
   make: App$Species
 };
 

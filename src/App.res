@@ -335,6 +335,56 @@ let stepsToRotation = steps => {
 }
 
 module Species = {
+  let joinNonEmptyNames = names =>
+    names
+    ->Array.keep(name => name != "")
+    ->Js.Array2.joinWith(" • ")
+
+  let findSpeciesNameData = speciesId =>
+    Data.namedSpecies->Array.keep(((s, _, _)) => s->stepsToRotation->getMinRotation == speciesId)
+
+  let resolveSpeciesNames = speciesNameData =>
+    speciesNameData
+    ->Array.map(((_, names, _)) =>
+      names->Array.map(((_, name)) => name)->joinNonEmptyNames
+    )
+    ->joinNonEmptyNames
+
+  let resolveSpeciesModeNames = speciesNameData =>
+    speciesNameData
+    ->Array.map(((_, _, modes)) =>
+      modes
+      ->Array.map(((_, modeNames)) => modeNames->Array.map(((_, name)) => name))
+      ->Array.concatMany
+    )
+    ->Array.concatMany
+    ->joinNonEmptyNames
+
+  let resolveModeNames = (speciesNameData, modeId) =>
+    speciesNameData
+    ->Array.keepMap(((s, _, modes)) =>
+      modes->Array.getBy(((mId, _)) => modeId == s->stepsToRotation->rotateRightByOnes(mId + 1))
+    )
+    ->Array.get(0)
+    ->Option.mapWithDefault([], ((_, modeNames)) =>
+      modeNames->Array.map(((_, name)) => name)
+    )
+    ->joinNonEmptyNames
+
+  let getScaleLength = (speciesId, currentStepDisplay) =>
+    switch currentStepDisplay {
+    | SemitoneSteps => speciesId->rotationToSemitoneSteps->Array.length
+    | HalfnoteSteps => speciesId->rotationToHalfnoteSteps->Array.length
+    | _ => 12
+    }
+
+  let toggleHiddenState = (hidden, anySelected) =>
+    if hidden {
+      false
+    } else {
+      anySelected
+    }
+
   @react.component
   let make = (
     ~playing: option<int>,
@@ -346,60 +396,29 @@ module Species = {
     ~modes: array<int>,
     ~showNonModes: bool,
   ) => {
-    let scaleLength = switch currentStepDisplay {
-    | SemitoneSteps => speciesId->rotationToSemitoneSteps->Array.length
-    | HalfnoteSteps => speciesId->rotationToHalfnoteSteps->Array.length
-    | _ => 12
-    }
-
-    let _scaleRange = Array.range(1, scaleLength)
-
-    let speciesNameData = Data.namedSpecies->Array.keep(((s, _, _)) => {
-      s->stepsToRotation->getMinRotation == speciesId
-    })
-
-    let speciesNames =
-      speciesNameData
-      ->Array.map(((_sId, sNames, _)) => {
-        sNames
-        ->Array.map(((_tradition, name)) => {
-          name
-        })
-        ->Array.keep(x => x != "")
-        ->Js.Array2.joinWith(" • ")
-      })
-      ->Array.keep(x => x != "")
-      ->Js.Array2.joinWith(" • ")
-
-    let speciesModeNames =
-      speciesNameData
-      ->Array.map(((_, _, modes)) => {
-        modes
-        ->Array.map(((_, modeNames)) => modeNames->Array.map(((_, name)) => name))
-        ->Array.concatMany
-      })
-      ->Array.concatMany
-      ->Js.Array2.joinWith(" • ")
+    // precompute derived data for readability
+    let _scaleRange = Array.range(1, speciesId->getScaleLength(currentStepDisplay))
+    let speciesNameData = speciesId->findSpeciesNameData
+    let speciesNames = speciesNameData->resolveSpeciesNames
+    let speciesModeNames = speciesNameData->resolveSpeciesModeNames
 
     <Collapsed
       render={(speciesHidden, setSpeciesHidden) => {
-        let anySelected = areInSameRotationClass(rotation->Option.getWithDefault(0), speciesId)
+        let currentRotation = rotation->Option.getWithDefault(0)
+        let anySelected = areInSameRotationClass(currentRotation, speciesId)
 
-        let scaleName = speciesId->getMaxRotation->Int.toString
         let speciesMax = speciesId->getMaxRotation
+        let scaleName = speciesMax->Int.toString
 
-        let onClickHeader = _ => {
-          rotation->Option.mapWithDefault(
-            {
-              setSpeciesHidden(_ => false)
-              setRotation(_ => speciesMax->Some)
-            },
-            _ => {
-              setSpeciesHidden(_ => !speciesHidden ? anySelected : !speciesHidden)
-              setRotation(_ => anySelected ? None : speciesMax->Some)
-            },
-          )
-        }
+        let onClickHeader = _ =>
+          switch rotation {
+          | None =>
+            setSpeciesHidden(_ => false)
+            setRotation(_ => speciesMax->Some)
+          | Some(_) =>
+            setSpeciesHidden(prev => prev->toggleHiddenState(anySelected))
+            setRotation(_ => anySelected ? None : speciesMax->Some)
+          }
 
         let speciesNamesComp =
           <div
@@ -470,22 +489,15 @@ module Species = {
                   {modes->reactMapWithIndex((_i, modeId) => {
                     let selected = rotation->Option.mapWithDefault(false, c => c == modeId)
 
-                    let modeKind = modeId->intToBoolArray->Array.getUnsafe(0) ? Mode : NonMode
+                    let isMode =
+                      modeId
+                      ->intToBoolArray
+                      ->Array.get(0)
+                      ->Option.getWithDefault(false)
+                    let modeKind = isMode ? Mode : NonMode
 
                     let modeNames =
-                      speciesNameData
-                      ->Array.keepMap(((s, _, modes)) => {
-                        modes->Array.getBy(
-                          ((mId, _)) => {
-                            modeId == s->stepsToRotation->rotateRightByOnes(mId + 1)
-                          },
-                        )
-                      })
-                      ->Array.get(0)
-                      ->Option.mapWithDefault([], ((_, modeNames)) =>
-                        modeNames->Array.map(((_, name)) => name)
-                      )
-                      ->Js.Array2.joinWith(" • ")
+                      speciesNameData->resolveModeNames(modeId)
 
                     {
                       modeKind == NonMode && !showNonModes
