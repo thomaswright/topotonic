@@ -11,6 +11,7 @@ import * as Caml_int32 from "rescript/lib/es6/caml_int32.js";
 import * as IconsJsx from "./Icons.jsx";
 import AboutJsx from "./about.jsx";
 import * as Belt_Option from "rescript/lib/es6/belt_Option.js";
+import * as Caml_option from "rescript/lib/es6/caml_option.js";
 import * as SwitchJsx from "./Switch.jsx";
 import * as RotationJs from "./rotation.js";
 import * as Fa from "react-icons/fa";
@@ -873,9 +874,192 @@ function rotationToSelectedNotes(rotation) {
               }));
 }
 
+var prefix = "topotonic.";
+
+var rotationKey = "rotation";
+
+var noteCountKey = "selectedNoteNum";
+
+var keyKey = "currentKey";
+
+var stepDisplayKey = "stepDisplay";
+
+var showNonModesKey = "showNonModes";
+
+function makeKey(suffix) {
+  return prefix + suffix;
+}
+
+function getStorage(param) {
+  try {
+    return Caml_option.some(localStorage);
+  }
+  catch (exn){
+    return ;
+  }
+}
+
+function getItem(suffix) {
+  var storage = getStorage(undefined);
+  if (storage !== undefined) {
+    return Caml_option.null_to_opt(Caml_option.valFromOption(storage).getItem(prefix + suffix));
+  }
+  
+}
+
+function setItem(suffix, value) {
+  var storage = getStorage(undefined);
+  if (storage !== undefined) {
+    Caml_option.valFromOption(storage).setItem(prefix + suffix, value);
+    return ;
+  }
+  
+}
+
+function removeItem(suffix) {
+  var storage = getStorage(undefined);
+  if (storage !== undefined) {
+    Caml_option.valFromOption(storage).removeItem(prefix + suffix);
+    return ;
+  }
+  
+}
+
+function stepDisplayToString(display) {
+  switch (display) {
+    case /* Key */0 :
+        return "key";
+    case /* MinMaj */1 :
+        return "minMaj";
+    case /* DimAug */2 :
+        return "dimAug";
+    case /* Semitone */3 :
+        return "semitone";
+    case /* SemitoneSteps */4 :
+        return "semitoneSteps";
+    case /* HalfnoteSteps */5 :
+        return "halfnoteSteps";
+    case /* Binary */6 :
+        return "binary";
+    
+  }
+}
+
+function stepDisplayFromString(value) {
+  switch (value) {
+    case "binary" :
+        return /* Binary */6;
+    case "dimAug" :
+        return /* DimAug */2;
+    case "halfnoteSteps" :
+        return /* HalfnoteSteps */5;
+    case "key" :
+        return /* Key */0;
+    case "minMaj" :
+        return /* MinMaj */1;
+    case "semitone" :
+        return /* Semitone */3;
+    case "semitoneSteps" :
+        return /* SemitoneSteps */4;
+    default:
+      return ;
+  }
+}
+
+function loadRotation(param) {
+  return Belt_Option.flatMap(getItem(rotationKey), Belt_Int.fromString);
+}
+
+function saveRotation(rotation) {
+  if (rotation !== undefined) {
+    return setItem(rotationKey, String(rotation));
+  } else {
+    return removeItem(rotationKey);
+  }
+}
+
+function loadSelectedNoteNum($$default) {
+  return Belt_Option.getWithDefault(Belt_Option.flatMap(getItem(noteCountKey), (function (value) {
+                    var parsed = Belt_Int.fromString(value);
+                    if (parsed !== undefined && parsed >= 1 && parsed <= 12) {
+                      return parsed;
+                    }
+                    
+                  })), $$default);
+}
+
+function saveSelectedNoteNum(value) {
+  setItem(noteCountKey, String(value));
+}
+
+function loadCurrentKey($$default) {
+  return Belt_Option.getWithDefault(Belt_Option.flatMap(getItem(keyKey), (function (value) {
+                    var parsed = Belt_Int.fromString(value);
+                    if (parsed !== undefined && parsed >= 0 && parsed <= 11) {
+                      return parsed;
+                    }
+                    
+                  })), $$default);
+}
+
+function saveCurrentKey(value) {
+  setItem(keyKey, String(value));
+}
+
+function loadStepDisplay($$default) {
+  return Belt_Option.getWithDefault(Belt_Option.flatMap(getItem(stepDisplayKey), stepDisplayFromString), $$default);
+}
+
+function saveStepDisplay(value) {
+  setItem(stepDisplayKey, stepDisplayToString(value));
+}
+
+function loadShowNonModes($$default) {
+  return Belt_Option.getWithDefault(Belt_Option.flatMap(getItem(showNonModesKey), (function (value) {
+                    switch (value) {
+                      case "false" :
+                          return false;
+                      case "true" :
+                          return true;
+                      default:
+                        return ;
+                    }
+                  })), $$default);
+}
+
+function saveShowNonModes(value) {
+  setItem(showNonModesKey, value ? "true" : "false");
+}
+
+var Persistence = {
+  prefix: prefix,
+  rotationKey: rotationKey,
+  noteCountKey: noteCountKey,
+  keyKey: keyKey,
+  stepDisplayKey: stepDisplayKey,
+  showNonModesKey: showNonModesKey,
+  makeKey: makeKey,
+  getStorage: getStorage,
+  getItem: getItem,
+  setItem: setItem,
+  removeItem: removeItem,
+  stepDisplayToString: stepDisplayToString,
+  stepDisplayFromString: stepDisplayFromString,
+  loadRotation: loadRotation,
+  saveRotation: saveRotation,
+  loadSelectedNoteNum: loadSelectedNoteNum,
+  saveSelectedNoteNum: saveSelectedNoteNum,
+  loadCurrentKey: loadCurrentKey,
+  saveCurrentKey: saveCurrentKey,
+  loadStepDisplay: loadStepDisplay,
+  saveStepDisplay: saveStepDisplay,
+  loadShowNonModes: loadShowNonModes,
+  saveShowNonModes: saveShowNonModes
+};
+
 function App(Props) {
   var match = React.useState(function () {
-        
+        return Belt_Option.flatMap(getItem(rotationKey), Belt_Int.fromString);
       });
   var setRotation = match[1];
   var rotation = match[0];
@@ -885,24 +1069,39 @@ function App(Props) {
   var setPlaying = match$1[1];
   var playing = match$1[0];
   var match$2 = React.useState(function () {
-        return 7;
+        return loadSelectedNoteNum(7);
       });
   var setSelectedNoteNum = match$2[1];
   var selectedNoteNum = match$2[0];
   var match$3 = React.useState(function () {
-        return 0;
+        return loadCurrentKey(0);
       });
   var setCurrentKey = match$3[1];
   var currentKey = match$3[0];
   var match$4 = React.useState(function () {
-        return /* Key */0;
+        return loadStepDisplay(/* Key */0);
       });
   var currentStepDisplay = match$4[0];
   var match$5 = React.useState(function () {
-        return false;
+        return loadShowNonModes(false);
       });
   var setShowNonModes = match$5[1];
   var showNonModes = match$5[0];
+  React.useEffect((function () {
+          saveRotation(rotation);
+        }), [rotation]);
+  React.useEffect((function () {
+          setItem(noteCountKey, String(selectedNoteNum));
+        }), [selectedNoteNum]);
+  React.useEffect((function () {
+          setItem(keyKey, String(currentKey));
+        }), [currentKey]);
+  React.useEffect((function () {
+          setItem(stepDisplayKey, stepDisplayToString(currentStepDisplay));
+        }), [currentStepDisplay]);
+  React.useEffect((function () {
+          saveShowNonModes(showNonModes);
+        }), [showNonModes]);
   var stepLabels = deriveStepLabels(currentStepDisplay);
   var modeNames = collectModeNames(rotation);
   var scaleNames = collectScaleNames(rotation);
@@ -1077,6 +1276,7 @@ export {
   filterSpeciesByNoteCount ,
   computeRotationOffset ,
   rotationToSelectedNotes ,
+  Persistence ,
   make$4 as make,
   $$default ,
   $$default as default,

@@ -265,8 +265,7 @@ module Scale = {
     ~selected: bool,
   ) => {
     let isPlayingAt = (~selected, ~index) =>
-      selected &&
-      playing->Option.mapWithDefault(false, playingIndex => playingIndex == index)
+      selected && playing->Option.mapWithDefault(false, playingIndex => playingIndex == index)
 
     let renderValues = (values, toString) =>
       values
@@ -275,32 +274,31 @@ module Scale = {
       )
       ->React.array
 
-    let stepElements =
-      switch currentStepDisplay {
-      | SemitoneSteps =>
-        let semitoneSteps = rotation->rotationToSemitoneSteps
-        renderValues(semitoneSteps, step => step->Int.toString)
-      | HalfnoteSteps =>
-        let halfnoteSteps = rotation->rotationToHalfnoteSteps
-        renderValues(halfnoteSteps, step => step)
-      | _ =>
-        let bits = rotation->intToBoolArray
-        let noteIndex = ref(0)
-        bits
-        ->Array.mapWithIndex((i, bit) => {
-          let currentSeqIndex = noteIndex.contents
-          if bit {
-            noteIndex := currentSeqIndex + 1
-          }
-          let isPlaying = isPlayingAt(~selected=selected && bit, ~index=currentSeqIndex)
-          container(
-            i,
-            isPlaying,
-            bitToDisplaySymbol(bit, i, currentKey, currentStepDisplay, rotation),
-          )
-        })
-        ->React.array
-      }
+    let stepElements = switch currentStepDisplay {
+    | SemitoneSteps =>
+      let semitoneSteps = rotation->rotationToSemitoneSteps
+      renderValues(semitoneSteps, step => step->Int.toString)
+    | HalfnoteSteps =>
+      let halfnoteSteps = rotation->rotationToHalfnoteSteps
+      renderValues(halfnoteSteps, step => step)
+    | _ =>
+      let bits = rotation->intToBoolArray
+      let noteIndex = ref(0)
+      bits
+      ->Array.mapWithIndex((i, bit) => {
+        let currentSeqIndex = noteIndex.contents
+        if bit {
+          noteIndex := currentSeqIndex + 1
+        }
+        let isPlaying = isPlayingAt(~selected=selected && bit, ~index=currentSeqIndex)
+        container(
+          i,
+          isPlaying,
+          bitToDisplaySymbol(bit, i, currentKey, currentStepDisplay, rotation),
+        )
+      })
+      ->React.array
+    }
 
     <div className={["flex-none flex-row flex justify-center w-full gap-0.5"]->join}>
       {stepElements}
@@ -621,9 +619,7 @@ let collectModeNames = rotation =>
       )
     )
     ->Array.get(0)
-    ->Option.mapWithDefault([], ((_, modeNames)) =>
-      modeNames->Array.map(((_, name)) => name)
-    )
+    ->Option.mapWithDefault([], ((_, modeNames)) => modeNames->Array.map(((_, name)) => name))
     ->Js.Array2.joinWith(" • ")
   }
 
@@ -635,9 +631,7 @@ let collectScaleNames = rotation =>
     Data.namedSpecies
     ->Array.keepMap(((sId, sNames, _modes)) => {
       let isMatch = sId->stepsToRotation->getMinRotation == targetMin
-      isMatch
-        ? sNames->Array.map(((_tradition, name)) => name)->Some
-        : None
+      isMatch ? sNames->Array.map(((_tradition, name)) => name)->Some : None
     })
     ->Array.concatMany
     ->Js.Array2.joinWith(" • ")
@@ -658,14 +652,154 @@ let rotationToSelectedNotes = rotation =>
     value->getMaxRotation->intToBoolArray
   )
 
+module Persistence = {
+  let prefix = "topotonic."
+  let rotationKey = "rotation"
+  let noteCountKey = "selectedNoteNum"
+  let keyKey = "currentKey"
+  let stepDisplayKey = "stepDisplay"
+  let showNonModesKey = "showNonModes"
+
+  let makeKey = suffix => prefix ++ suffix
+
+  let getStorage = () =>
+    try {
+      Dom.Storage2.localStorage->Some
+    } catch {
+    | _ => None
+    }
+
+  let getItem = suffix =>
+    switch getStorage() {
+    | None => None
+    | Some(storage) => storage->Dom.Storage2.getItem(makeKey(suffix))
+    }
+
+  let setItem = (suffix, value) =>
+    switch getStorage() {
+    | None => ()
+    | Some(storage) => storage->Dom.Storage2.setItem(makeKey(suffix), value)
+    }
+
+  let removeItem = suffix =>
+    switch getStorage() {
+    | None => ()
+    | Some(storage) => storage->Dom.Storage2.removeItem(makeKey(suffix))
+    }
+
+  let stepDisplayToString = display =>
+    switch display {
+    | Key => "key"
+    | MinMaj => "minMaj"
+    | DimAug => "dimAug"
+    | Semitone => "semitone"
+    | SemitoneSteps => "semitoneSteps"
+    | HalfnoteSteps => "halfnoteSteps"
+    | Binary => "binary"
+    }
+
+  let stepDisplayFromString = value =>
+    switch value {
+    | "key" => Some(Key)
+    | "minMaj" => Some(MinMaj)
+    | "dimAug" => Some(DimAug)
+    | "semitone" => Some(Semitone)
+    | "semitoneSteps" => Some(SemitoneSteps)
+    | "halfnoteSteps" => Some(HalfnoteSteps)
+    | "binary" => Some(Binary)
+    | _ => None
+    }
+
+  let loadRotation = () => getItem(rotationKey)->Option.flatMap(Int.fromString)
+
+  let saveRotation = rotation =>
+    switch rotation {
+    | None => removeItem(rotationKey)
+    | Some(value) => setItem(rotationKey, value->Int.toString)
+    }
+
+  let loadSelectedNoteNum = (~default) =>
+    getItem(noteCountKey)
+    ->Option.flatMap(value =>
+      switch Int.fromString(value) {
+      | Some(parsed) if parsed >= 1 && parsed <= 12 => Some(parsed)
+      | _ => None
+      }
+    )
+    ->Option.getWithDefault(default)
+
+  let saveSelectedNoteNum = value => setItem(noteCountKey, value->Int.toString)
+
+  let loadCurrentKey = (~default) =>
+    getItem(keyKey)
+    ->Option.flatMap(value =>
+      switch Int.fromString(value) {
+      | Some(parsed) if parsed >= 0 && parsed <= 11 => Some(parsed)
+      | _ => None
+      }
+    )
+    ->Option.getWithDefault(default)
+
+  let saveCurrentKey = value => setItem(keyKey, value->Int.toString)
+
+  let loadStepDisplay = (~default) =>
+    getItem(stepDisplayKey)->Option.flatMap(stepDisplayFromString)->Option.getWithDefault(default)
+
+  let saveStepDisplay = value => setItem(stepDisplayKey, stepDisplayToString(value))
+
+  let loadShowNonModes = (~default) =>
+    getItem(showNonModesKey)
+    ->Option.flatMap(value =>
+      switch value {
+      | "true" => Some(true)
+      | "false" => Some(false)
+      | _ => None
+      }
+    )
+    ->Option.getWithDefault(default)
+
+  let saveShowNonModes = value => setItem(showNonModesKey, value ? "true" : "false")
+}
+
 @react.component
 let make = () => {
-  let (rotation: option<int>, setRotation) = React.useState(_ => None)
+  let (rotation: option<int>, setRotation) = React.useState(_ => Persistence.loadRotation())
   let (playing, setPlaying) = React.useState(_ => None)
-  let (selectedNoteNum: int, setSelectedNoteNum) = React.useState(_ => 7)
-  let (currentKey: int, setCurrentKey) = React.useState(_ => 0)
-  let (currentStepDisplay: stepDisplay, setCurrentStepDisplay) = React.useState(_ => Key)
-  let (showNonModes, setShowNonModes) = React.useState(_ => false)
+  let (selectedNoteNum: int, setSelectedNoteNum) = React.useState(_ =>
+    Persistence.loadSelectedNoteNum(~default=7)
+  )
+  let (currentKey: int, setCurrentKey) = React.useState(_ => Persistence.loadCurrentKey(~default=0))
+  let (currentStepDisplay: stepDisplay, setCurrentStepDisplay) = React.useState(_ =>
+    Persistence.loadStepDisplay(~default=Key)
+  )
+  let (showNonModes, setShowNonModes) = React.useState(_ =>
+    Persistence.loadShowNonModes(~default=false)
+  )
+
+  React.useEffect1(() => {
+    Persistence.saveRotation(rotation)
+    None
+  }, [rotation])
+
+  React.useEffect1(() => {
+    Persistence.saveSelectedNoteNum(selectedNoteNum)
+    None
+  }, [selectedNoteNum])
+
+  React.useEffect1(() => {
+    Persistence.saveCurrentKey(currentKey)
+    None
+  }, [currentKey])
+
+  React.useEffect1(() => {
+    Persistence.saveStepDisplay(currentStepDisplay)
+    None
+  }, [currentStepDisplay])
+
+  React.useEffect1(() => {
+    Persistence.saveShowNonModes(showNonModes)
+    None
+  }, [showNonModes])
 
   let stepLabels = deriveStepLabels(currentStepDisplay)
 
@@ -689,8 +823,9 @@ let make = () => {
       let rotationMask = rotationInt->intToBoolArray
 
       let seq =
-        newChromScale
-        ->Array.keepWithIndex((_, i) => rotationMask->Array.get(i)->Option.getWithDefault(false))
+        newChromScale->Array.keepWithIndex((_, i) =>
+          rotationMask->Array.get(i)->Option.getWithDefault(false)
+        )
 
       let seqWithOctave =
         seq->Array.get(0)->Option.mapWithDefault(seq, head => Array.concat(seq, [head *. 2.]))
