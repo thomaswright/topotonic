@@ -85,8 +85,6 @@ type notePlayer = {
   playNotesSequentially: (. array<(int, int)>, int) => unit,
 }
 
-@module("./NotePlayer.js") @new external makeNotePlayer: unit => notePlayer = "default"
-
 @module("./Tone.js") external triggerAttackRelease: (. float, string, float) => unit = "default"
 @val external parseInt: (string, int) => option<int> = "parseInt"
 
